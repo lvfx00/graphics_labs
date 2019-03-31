@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.semenov.filter.algorithms.Algorithm;
 import ru.nsu.fit.semenov.filter.algorithms.GreyscaleAlgorithm;
 import ru.nsu.fit.semenov.filter.algorithms.NegativeAlgorithm;
+import ru.nsu.fit.semenov.filter.algorithms.OrderedDitheringAlgorithm;
 import ru.nsu.fit.semenov.filter.frame.BaseMainFrame;
 import ru.nsu.fit.semenov.filter.util.FileUtils;
 import ru.nsu.fit.semenov.filter.util.ImageUtils;
@@ -158,7 +159,8 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void initFiltersMenu() {
-        addSubMenu("Filters", KeyEvent.getExtendedKeyCodeForChar('f'));
+        String submenu = "Filters";
+        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('f'));
 
         selectionMenuItem = addCheckBoxMenuItem(
                 "Filters/Select",
@@ -168,15 +170,6 @@ public final class MainFrame extends BaseMainFrame {
                 this::selectAction
         );
         selectionButton = addToolBarToggleButton("Filters/Select");
-
-        initFiltersCanalSubMenu();
-
-        addToolBarSeparator();
-    }
-
-    private void initFiltersCanalSubMenu() {
-        String submenu = "Filters/Canal";
-        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('c'));
 
         String menuPathString = submenu + "/Greyscale";
         filtersButtons.add(
@@ -202,6 +195,19 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Ordered Dithering";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Ordering Dithering",
+                        KeyEvent.getExtendedKeyCodeForChar('o'),
+                        "ordered_dithering.png",
+                        this::orderedDitheringAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
+        addToolBarSeparator();
     }
 
     private void algorithmAction(Algorithm algorithm) {
@@ -215,6 +221,10 @@ public final class MainFrame extends BaseMainFrame {
 
     private void greyscaleAction() {
         algorithmAction(new GreyscaleAlgorithm());
+    }
+
+    private void orderedDitheringAction() {
+        algorithmAction(new OrderedDitheringAlgorithm());
     }
 
     private void selectAction() {

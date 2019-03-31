@@ -4,10 +4,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.util.function.IntUnaryOperator;
 
 public class ImageUtils {
-    public static int MAX_COLOR_VALUE = 255;
+    public static int COLOR_BITS = 8;
+    public static int MAX_COLOR_VALUE = (1 << COLOR_BITS) - 1;
 
     public static BufferedImage copyBufferedImage(BufferedImage bi) {
         ColorModel cm = bi.getColorModel();
@@ -35,11 +35,4 @@ public class ImageUtils {
         return ((double) newWidth) / originalWidth;
     }
 
-    public static void forEachPixel(BufferedImage source, BufferedImage result, IntUnaryOperator op) {
-        for (int x = 0; x < source.getWidth(); ++x) {
-            for (int y = 0; y < source.getHeight(); ++y) {
-                result.setRGB(x, y, op.applyAsInt(source.getRGB(x, y)));
-            }
-        }
-    }
 }
