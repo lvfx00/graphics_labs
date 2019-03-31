@@ -26,8 +26,9 @@ public class GameFieldImpl implements GameField {
         return count;
     }
 
+    @Override
     public void clear() {
-        field.setAll(false);
+        setAll(false);
     }
 
     @Override

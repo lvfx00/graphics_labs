@@ -1,8 +1,12 @@
 package ru.nsu.fit.semenov.filter;
 
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.fit.semenov.filter.algorithms.Algorithm;
+import ru.nsu.fit.semenov.filter.algorithms.GreyscaleAlgorithm;
+import ru.nsu.fit.semenov.filter.algorithms.NegativeAlgorithm;
 import ru.nsu.fit.semenov.filter.frame.BaseMainFrame;
 import ru.nsu.fit.semenov.filter.util.FileUtils;
+import ru.nsu.fit.semenov.filter.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,10 +19,10 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.swing.JOptionPane.*;
 
@@ -37,9 +41,15 @@ public final class MainFrame extends BaseMainFrame {
     private JLabel modifiedImageLabel = createImageLabel();
 
     private BufferedImage scaledImage;
-    private BufferedImage scaledWithSelectionImage;
     private double scaleRatio;
-    private MouseAdapter plainImageMouseAdapter;
+    private MouseAdapter plainImageMouseAdapter = new SelectionMouseAdapter();
+
+    private boolean isSelectionEnabled = false;
+    private JToggleButton selectionButton;
+    private JCheckBoxMenuItem selectionMenuItem;
+
+    private boolean isFiltersEnabled = false;
+    private List<AbstractButton> filtersButtons = new ArrayList<>();
 
     public MainFrame(int width, int height, String title) {
         super(width, height, title);
@@ -67,11 +77,12 @@ public final class MainFrame extends BaseMainFrame {
         add(scrollPane, BorderLayout.CENTER);
 
         initMenus();
+        cleanup();
     }
 
     private void setPlainImage(BufferedImage image) {
         plainImage = image;
-        scaleRatio = getScaleRatio(
+        scaleRatio = ImageUtils.getScaleRatio(
                 new Dimension(image.getWidth(), image.getHeight()),
                 new Dimension(ZONE_SIZE, ZONE_SIZE)
         );
@@ -86,47 +97,9 @@ public final class MainFrame extends BaseMainFrame {
         scaledImage = scaleOp.filter(image, afterTransform);
         plainImageLabel.setIcon(new ImageIcon(scaledImage));
 
-        // TODO move to select button
-        selectAction();
+        setSelectionEnabled(true);
     }
 
-    private void handleMouseEvent(MouseEvent e) {
-        int imageHeight = plainImage.getHeight();
-        int imageWidth = plainImage.getWidth();
-        int halfZone = ZONE_SIZE / 2;
-        int originX = (int) (e.getX() * (1.0 / scaleRatio));
-        int originY = (int) (e.getY() * (1.0 / scaleRatio));
-
-        if (originX < halfZone) {
-            originX = halfZone;
-        }
-        if (originX > imageWidth - halfZone) {
-            originX = imageWidth - halfZone;
-        }
-        if (originY < halfZone) {
-            originY = halfZone;
-        }
-        if (originY > imageHeight - halfZone) {
-            originY = imageHeight - halfZone;
-        }
-
-        zoomedImage = plainImage.getSubimage(originX - halfZone, originY - halfZone, ZONE_SIZE, ZONE_SIZE);
-        zoomedImageLabel.setIcon(new ImageIcon(zoomedImage));
-
-        int scaledX = (int) ((double) originX * scaleRatio);
-        int scaledY = (int) ((double) originY * scaleRatio);
-
-        scaledWithSelectionImage = copyBufferedImage(scaledImage);
-        Graphics2D graphics2D = scaledWithSelectionImage.createGraphics();
-        graphics2D.drawRect(
-                scaledX - (int) (halfZone * scaleRatio),
-                scaledY - (int) (halfZone * scaleRatio),
-                (int) (ZONE_SIZE * scaleRatio),
-                (int) (ZONE_SIZE * scaleRatio)
-        );
-        graphics2D.dispose();
-        plainImageLabel.setIcon(new ImageIcon(scaledWithSelectionImage));
-    }
 
     private JLabel createImageLabel() {
         JLabel label = new JLabel();
@@ -141,6 +114,7 @@ public final class MainFrame extends BaseMainFrame {
 
     private void initMenus() {
         initFileMenu();
+        initFiltersMenu();
     }
 
     private void initFileMenu() {
@@ -183,35 +157,86 @@ public final class MainFrame extends BaseMainFrame {
         addToolBarSeparator();
     }
 
-    private void selectAction() {
-        plainImageMouseAdapter = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                handleMouseEvent(e);
-            }
+    private void initFiltersMenu() {
+        addSubMenu("Filters", KeyEvent.getExtendedKeyCodeForChar('f'));
 
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                handleMouseEvent(e);
-            }
-        };
-        plainImageLabel.addMouseListener(plainImageMouseAdapter);
-        plainImageLabel.addMouseMotionListener(plainImageMouseAdapter);
+        selectionMenuItem = addCheckBoxMenuItem(
+                "Filters/Select",
+                "Select zone of specified size",
+                KeyEvent.getExtendedKeyCodeForChar('s'),
+                "select.png",
+                this::selectAction
+        );
+        selectionButton = addToolBarToggleButton("Filters/Select");
+
+        initFiltersCanalSubMenu();
+
+        addToolBarSeparator();
+    }
+
+    private void initFiltersCanalSubMenu() {
+        String submenu = "Filters/Canal";
+        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('c'));
+
+        String menuPathString = submenu + "/Greyscale";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Greyscale",
+                        KeyEvent.getExtendedKeyCodeForChar('g'),
+                        "greyscale.png",
+                        this::greyscaleAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
+        menuPathString = submenu + "/Negative";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Negative",
+                        KeyEvent.getExtendedKeyCodeForChar('n'),
+                        "negative.png",
+                        this::negativeAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
+    }
+
+    private void algorithmAction(Algorithm algorithm) {
+        modifiedImage = algorithm.apply(zoomedImage);
+        modifiedImageLabel.setIcon(new ImageIcon(modifiedImage));
+    }
+
+    private void negativeAction() {
+        algorithmAction(new NegativeAlgorithm());
+    }
+
+    private void greyscaleAction() {
+        algorithmAction(new GreyscaleAlgorithm());
+    }
+
+    private void selectAction() {
+        setSelectionSelected(!isSelectionEnabled);
     }
 
     private void newFileAction() {
-        // TODO
+        cleanup();
     }
 
     private void openFileAction() {
         final File file = FileUtils.getOpenFileName(this, "bmp", "Bitmap image files");
         if (file != null) {
+            BufferedImage image;
             try {
-                BufferedImage image = ImageIO.read(file);
-                setPlainImage(image);
+                image = ImageIO.read(file);
             } catch (IOException e) {
                 // TODO show popup about invalid file
+                return;
             }
+            cleanup();
+            setPlainImage(image);
         }
     }
 
@@ -245,29 +270,121 @@ public final class MainFrame extends BaseMainFrame {
         exitAction();
     }
 
-    private static double getScaleRatio(Dimension imgSize, Dimension boundary) {
-        int originalWidth = imgSize.width;
-        int originalHeight = imgSize.height;
-        int boundWidth = boundary.width;
-        int boundHeight = boundary.height;
-        int newWidth = originalWidth;
-        int newHeight = originalHeight;
-
-        if (originalWidth > boundWidth) {
-            newWidth = boundWidth;
-            newHeight = (newWidth * originalHeight) / originalWidth;
-        }
-        if (newHeight > boundHeight) {
-            newHeight = boundHeight;
-            newWidth = (newHeight * originalWidth) / originalHeight;
-        }
-        return ((double) newWidth) / originalWidth;
+    private void cleanup() {
+        plainImageLabel.setIcon(null);
+        zoomedImageLabel.setIcon(null);
+        modifiedImageLabel.setIcon(null);
+        setSelectionSelected(false);
+        setSelectionEnabled(false);
+        setFiltersEnabled(false);
     }
 
-    private static BufferedImage copyBufferedImage(BufferedImage bi) {
-        ColorModel cm = bi.getColorModel();
-        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-        WritableRaster raster = bi.copyData(null);
-        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    private void setFiltersEnabled(boolean value) {
+        isFiltersEnabled = value;
+        for (AbstractButton button : filtersButtons) {
+            button.setEnabled(value);
+        }
     }
+
+    private void setSelectionEnabled(boolean value) {
+        selectionMenuItem.setEnabled(value);
+        selectionButton.setEnabled(value);
+    }
+
+    private void setSelectionSelected(boolean value) {
+        isSelectionEnabled = value;
+        selectionMenuItem.setSelected(value);
+        selectionButton.setSelected(value);
+        if (value) {
+            plainImageLabel.addMouseListener(plainImageMouseAdapter);
+            plainImageLabel.addMouseMotionListener(plainImageMouseAdapter);
+        } else {
+            plainImageLabel.removeMouseListener(plainImageMouseAdapter);
+            plainImageLabel.removeMouseMotionListener(plainImageMouseAdapter);
+        }
+    }
+
+    private class SelectionMouseAdapter extends MouseAdapter {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (!isFiltersEnabled) {
+                setFiltersEnabled(true);
+            }
+
+            handleSelectionMouseEvent(e);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            handleSelectionMouseEvent(e);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            plainImageLabel.setIcon(new ImageIcon(scaledImage));
+        }
+
+        private void handleSelectionMouseEvent(MouseEvent e) {
+            int imageHeight = plainImage.getHeight();
+            int imageWidth = plainImage.getWidth();
+            int halfZone = ZONE_SIZE / 2;
+            int originClickX = (int) (e.getX() * (1.0 / scaleRatio));
+            int originClickY = (int) (e.getY() * (1.0 / scaleRatio));
+
+            if (originClickX < halfZone) {
+                originClickX = halfZone;
+            }
+            if (originClickX > imageWidth - halfZone) {
+                originClickX = imageWidth - halfZone;
+            }
+            if (originClickY < halfZone) {
+                originClickY = halfZone;
+            }
+            if (originClickY > imageHeight - halfZone) {
+                originClickY = imageHeight - halfZone;
+            }
+
+            int zoomedPartBeginX; // upper-left corner of zoomed part
+            int zoomedPartBeginY;
+            int zoomedPartWidth; // selection rectangle size
+            int zoomedPartHeight;
+
+            if (plainImage.getWidth() < ZONE_SIZE) {
+                zoomedPartBeginX = 0;
+                zoomedPartWidth = plainImage.getWidth();
+            } else {
+                zoomedPartBeginX = originClickX - halfZone;
+                zoomedPartWidth = ZONE_SIZE;
+            }
+
+            if (plainImage.getHeight() < ZONE_SIZE) {
+                zoomedPartBeginY = 0;
+                zoomedPartHeight = plainImage.getHeight();
+            } else {
+                zoomedPartBeginY = originClickY - halfZone;
+                zoomedPartHeight = ZONE_SIZE;
+            }
+
+            zoomedImage = plainImage.getSubimage(
+                    zoomedPartBeginX,
+                    zoomedPartBeginY,
+                    zoomedPartWidth,
+                    zoomedPartHeight
+            );
+            zoomedImageLabel.setIcon(new ImageIcon(zoomedImage));
+
+            BufferedImage scaledWithSelectionImage = ImageUtils.copyBufferedImage(scaledImage);
+            Graphics2D graphics2D = scaledWithSelectionImage.createGraphics();
+            graphics2D.drawRect(
+                    (int) (zoomedPartBeginX * scaleRatio),
+                    (int) (zoomedPartBeginY * scaleRatio),
+                    (int) (zoomedPartWidth * scaleRatio),
+                    (int) (zoomedPartHeight * scaleRatio)
+            );
+            graphics2D.dispose();
+            plainImageLabel.setIcon(new ImageIcon(scaledWithSelectionImage));
+        }
+
+    }
+
 }

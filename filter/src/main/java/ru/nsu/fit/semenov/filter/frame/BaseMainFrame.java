@@ -13,9 +13,9 @@ public class BaseMainFrame extends BaseFrame {
     /**
      * Constructor where you can specify window size and title
      *
-     * @param width     - horizontal size of newly created window
-     * @param height     - vertical size of newly created window
-     * @param title - window title
+     * @param width  - horizontal size of newly created window
+     * @param height - vertical size of newly created window
+     * @param title  - window title
      */
     public BaseMainFrame(int width, int height, String title) {
         super(width, height, title);
@@ -30,16 +30,27 @@ public class BaseMainFrame extends BaseFrame {
      * Shortcut method to create menu item
      * Note that you have to insert it into proper place by yourself
      *
-     * @param title        - menu item title
-     * @param tooltip      - floating tooltip describing menu item
-     * @param mnemonic     - mnemonic key to activate item via keyboard
-     * @param icon         - file name containing icon (must be located in 'resources' subpackage relative to your implementation of BaseMainFrame), can be null
+     * @param title    - menu item title
+     * @param tooltip  - floating tooltip describing menu item
+     * @param mnemonic - mnemonic key to activate item via keyboard
+     * @param icon     - file name containing icon (must be located in 'resources' subpackage relative to your implementation of BaseMainFrame), can be null
      * @param runnable - Method which will be called when menu item is activated (method should not take any parameters)
      * @return created menu item
      */
     private JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String icon, Runnable runnable) {
         JMenuItem item = new JMenuItem(title);
+        setupMenuItem(item, tooltip, mnemonic, icon, runnable, title);
+        return item;
+    }
 
+    // same but with check box
+    private JCheckBoxMenuItem createCheckBoxMenuItem(String title, String tooltip, int mnemonic, String icon, Runnable runnable) {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(title);
+        setupMenuItem(item, tooltip, mnemonic, icon, runnable, title);
+        return item;
+    }
+
+    private void setupMenuItem(JMenuItem item, String tooltip, int mnemonic, String icon, Runnable runnable, String title) {
         item.setMnemonic(mnemonic);
         item.setToolTipText(tooltip);
 
@@ -52,7 +63,6 @@ public class BaseMainFrame extends BaseFrame {
         }
 
         item.addActionListener(evt -> runnable.run());
-        return item;
     }
 
     /**
@@ -93,22 +103,34 @@ public class BaseMainFrame extends BaseFrame {
     /**
      * Creates menu item and adds it to the specified menu location
      *
-     * @param title        - menu item title with full path
-     * @param tooltip      - floating tooltip describing menu item
-     * @param mnemonic     - mnemonic key to activate item via keyboard
-     * @param icon         - file name containing icon (must be located in 'resources' subpackage relative to your implementation of BaseMainFrame), can be null
+     * @param title    - menu item title with full path
+     * @param tooltip  - floating tooltip describing menu item
+     * @param mnemonic - mnemonic key to activate item via keyboard
+     * @param icon     - file name containing icon (must be located in 'resources' subpackage relative to your implementation of BaseMainFrame), can be null
      * @param runnable - Method which will be called when menu item is activated (method should not take any parameters)
      * @throws InvalidParameterException - when specified menu location not found
      */
-    public void addMenuItem(String title, String tooltip, int mnemonic, String icon, Runnable runnable) {
+    public JMenuItem addMenuItem(String title, String tooltip, int mnemonic, String icon, Runnable runnable) {
+        JMenuItem item = createMenuItem(getMenuPathName(title), tooltip, mnemonic, icon, runnable);
+        addMenuItem(item, tooltip, mnemonic, icon, runnable, title);
+        return item;
+    }
+
+    // same but with checkbox
+    public JCheckBoxMenuItem addCheckBoxMenuItem(String title, String tooltip, int mnemonic, String icon, Runnable runnable) {
+        JCheckBoxMenuItem item = createCheckBoxMenuItem(getMenuPathName(title), tooltip, mnemonic, icon, runnable);
+        addMenuItem(item, tooltip, mnemonic, icon, runnable, title);
+        return item;
+    }
+
+    private void addMenuItem(JMenuItem menuItem, String tooltip, int mnemonic, String icon, Runnable runnable, String title) {
         MenuElement element = getParentMenuElement(title);
         if (element == null)
             throw new InvalidParameterException("Menu path not found: " + title);
-        JMenuItem item = createMenuItem(getMenuPathName(title), tooltip, mnemonic, icon, runnable);
         if (element instanceof JMenu)
-            ((JMenu) element).add(item);
+            ((JMenu) element).add(menuItem);
         else if (element instanceof JPopupMenu)
-            ((JPopupMenu) element).add(item);
+            ((JPopupMenu) element).add(menuItem);
         else
             throw new InvalidParameterException("Invalid menu path: " + title);
     }
