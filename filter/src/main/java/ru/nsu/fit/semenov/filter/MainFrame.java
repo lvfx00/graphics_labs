@@ -207,6 +207,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Error Diffusion";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Error Diffusion",
+                        KeyEvent.getExtendedKeyCodeForChar('e'),
+                        "ordered_dithering.png",
+                        this::errorDifussionAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         addToolBarSeparator();
     }
 
@@ -225,6 +237,10 @@ public final class MainFrame extends BaseMainFrame {
 
     private void orderedDitheringAction() {
         algorithmAction(new OrderedDitheringAlgorithm());
+    }
+
+    private void errorDifussionAction() {
+
     }
 
     private void selectAction() {

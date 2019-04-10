@@ -5,10 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static ru.nsu.fit.semenov.filter.util.ImageUtils.*;
+
 public final class GreyscaleAlgorithm extends AbstractAlgorithm {
-    private static final float RED_FACTOR = 0.299f;
-    private static final float GREEN_FACTOR = 0.587f;
-    private static final float BLUE_FACTOR = 0.114f;
 
     @Override
     public void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {

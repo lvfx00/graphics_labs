@@ -47,40 +47,40 @@ public class OrderedDitheringAlgorithm extends AbstractAlgorithm {
             int[][] matrix2Un = IntMatrixUtils.createMatrix(2 << (matrixSizePowOf2 - 1), 2);
             int[][] matrix3Un = IntMatrixUtils.createMatrix(2 << (matrixSizePowOf2 - 1), 3);
 
-            int[][] submatrix10 = IntMatrixUtils.performBinaryOp(
+            int[][] subMatrix10 = IntMatrixUtils.performBinaryOp(
                     matrix4Dn,
                     matrix3Un,
                     matrix4Dn.length,
                     matrix4Dn[0].length,
-                    (i, j) -> i + j
+                    Integer::sum
             );
-            int[][] submatrix11 = IntMatrixUtils.performBinaryOp(
+            int[][] subMatrix11 = IntMatrixUtils.performBinaryOp(
                     matrix4Dn,
                     matrixUn,
                     matrix4Dn.length,
                     matrix4Dn[0].length,
-                    (i, j) -> i + j
+                    Integer::sum
             );
-            int[][] submatrix01 = IntMatrixUtils.performBinaryOp(
+            int[][] subMatrix01 = IntMatrixUtils.performBinaryOp(
                     matrix4Dn,
                     matrix2Un,
                     matrix4Dn.length,
                     matrix4Dn[0].length,
-                    (i, j) -> i + j
+                    Integer::sum
             );
             int[][] matrixRow1 = IntMatrixUtils.joinHorizontally(
                     matrix4Dn,
-                    submatrix01,
+                    subMatrix01,
                     matrix4Dn.length,
                     matrix4Dn[0].length,
-                    submatrix01[0].length
+                    subMatrix01[0].length
             );
             int[][] matrixRow2 = IntMatrixUtils.joinHorizontally(
-                    submatrix10,
-                    submatrix11,
-                    submatrix10.length,
-                    submatrix10[0].length,
-                    submatrix11[0].length
+                    subMatrix10,
+                    subMatrix11,
+                    subMatrix10.length,
+                    subMatrix10[0].length,
+                    subMatrix11[0].length
             );
             return IntMatrixUtils.joinVertically(
                     matrixRow1,

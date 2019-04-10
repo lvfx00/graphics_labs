@@ -6,8 +6,13 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
 public class ImageUtils {
-    public static int COLOR_BITS = 8;
-    public static int MAX_COLOR_VALUE = (1 << COLOR_BITS) - 1;
+    public static int BITS_PER_COLOR = 8;
+    public static int MAX_COLOR_VALUE = (1 << BITS_PER_COLOR) - 1;
+
+    public static final float RED_FACTOR = 0.299f;
+    public static final float GREEN_FACTOR = 0.587f;
+    public static final float BLUE_FACTOR = 0.114f;
+
 
     public static BufferedImage copyBufferedImage(BufferedImage bi) {
         ColorModel cm = bi.getColorModel();
