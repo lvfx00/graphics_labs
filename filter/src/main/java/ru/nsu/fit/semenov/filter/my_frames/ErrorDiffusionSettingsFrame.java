@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
 
-import static ru.nsu.fit.semenov.filter.util.ImageUtils.BITS_PER_COLOR;
+import static ru.nsu.fit.semenov.filter.util.ImageUtils.BITS_PER_COLOR_COMPONENT;
 
 public final class ErrorDiffusionSettingsFrame extends BaseFrame {
 
@@ -46,10 +46,10 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
     }
 
     private static final int MIN_PALETTE_SIZE = 2;
-    private static final int MAX_PALETTE_SIZE = 1 << BITS_PER_COLOR;
+    private static final int MAX_PALETTE_SIZE = 1 << BITS_PER_COLOR_COMPONENT;
     private static final int INITIAL_PALETTE_SIZE = 16;
-    private static final int FRAME_WIDTH = 300;
-    private static final int FRAME_HEIGHT = 300;
+    private static final int FRAME_WIDTH = 400;
+    private static final int FRAME_HEIGHT = 220;
 
     private final ResultListener resultListener;
     private final JTextField redPaletteTextField = new JTextField();
@@ -123,8 +123,7 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
                 MAX_PALETTE_SIZE,
                 INITIAL_PALETTE_SIZE
         );
-        slider.setMajorTickSpacing(20);
-        slider.setMinorTickSpacing(10);
+        slider.setMajorTickSpacing(32);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.addChangeListener(e -> textField.setText(String.valueOf(slider.getValue())));

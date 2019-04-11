@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.NoSuchElementException;
-import java.util.stream.IntStream;
+
+import static ru.nsu.fit.semenov.filter.util.ImageUtils.COLOR_COMPONENTS_NUM;
 
 public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
     private static final ErrorDistribution[] ERROR_DISTRIBUTIONS = {
@@ -14,31 +14,27 @@ public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
             new ErrorDistribution(0, 1, 0.3125f),
             new ErrorDistribution(1, 1, 0.0625f),
     };
-    private final float[][] palettes = new float[3][];
+    private final float[] paletteSteps = new float[COLOR_COMPONENTS_NUM];
 
     public ErrorDiffusionAlgorithm(int redPaletteSize, int greenPaletteSize, int bluePaletteSize) {
         final int[] sizes = {redPaletteSize, greenPaletteSize, bluePaletteSize};
-        for (int i = 0; i < 3; ++i) {
-            palettes[0] = new float[sizes[i]];
-            float step = 1f / (sizes[i] - 1);
-            for (int j = 0; j < sizes[i]; ++j) {
-                palettes[0][j] = j * step;
-            }
+        for (int i = 0; i < COLOR_COMPONENTS_NUM; ++i) {
+            paletteSteps[i] = 1f / (sizes[i] - 1);
         }
     }
 
     @Override
     protected void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
-        float[][][] errors = new float[3][sourceImage.getWidth()][sourceImage.getHeight()];
+        float[][][] errors = new float[COLOR_COMPONENTS_NUM][sourceImage.getWidth()][sourceImage.getHeight()];
 
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
-                float[] oldColor = new float[3];
+                float[] oldColor = new float[COLOR_COMPONENTS_NUM];
                 new Color(sourceImage.getRGB(x, y)).getColorComponents(oldColor);
-                float[] newColor = new float[3];
-                for (int i = 0; i < 3; ++i) {
-                    newColor[i] = findClosestInPalette(palettes[i], oldColor[i] + errors[i][x][y]);
-                    float errorValue = newColor[i] - oldColor[i];
+                float[] newColor = new float[COLOR_COMPONENTS_NUM];
+                for (int i = 0; i < COLOR_COMPONENTS_NUM; ++i) {
+                    newColor[i] = findClosestInPalette(paletteSteps[i], oldColor[i] + errors[i][x][y]);
+                    float errorValue = oldColor[i] - newColor[i];
                     for (ErrorDistribution errorDistribution :
                             ERROR_DISTRIBUTIONS) {
                         int errorX = x + errorDistribution.getxOffset();
@@ -54,11 +50,16 @@ public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
 
     }
 
-    private static float findClosestInPalette(float[] palette, float color) {
-        return (float) IntStream.range(0, palette.length)
-                .mapToDouble(i -> Math.abs(palette[i] - color))
-                .min()
-                .orElseThrow(() -> new NoSuchElementException("No value present"));
+    private static float findClosestInPalette(float paletteStep, float color) {
+        float steps = color / paletteStep;
+        float result;
+        if (steps - (int) steps > 0.5f) {
+            result = ((int) steps + 1) * paletteStep;
+        } else {
+            result = ((int) steps) * paletteStep;
+        }
+        System.out.println(result);
+        return result;
     }
 
     private static boolean isIndexValid(int x, int y, int width, int height) {
