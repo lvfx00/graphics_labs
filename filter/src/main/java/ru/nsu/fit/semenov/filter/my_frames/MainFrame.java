@@ -1,10 +1,7 @@
-package ru.nsu.fit.semenov.filter;
+package ru.nsu.fit.semenov.filter.my_frames;
 
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.semenov.filter.algorithms.Algorithm;
-import ru.nsu.fit.semenov.filter.algorithms.GreyscaleAlgorithm;
-import ru.nsu.fit.semenov.filter.algorithms.NegativeAlgorithm;
-import ru.nsu.fit.semenov.filter.algorithms.OrderedDitheringAlgorithm;
+import ru.nsu.fit.semenov.filter.algorithms.*;
 import ru.nsu.fit.semenov.filter.frame.BaseMainFrame;
 import ru.nsu.fit.semenov.filter.util.FileUtils;
 import ru.nsu.fit.semenov.filter.util.ImageUtils;
@@ -79,6 +76,11 @@ public final class MainFrame extends BaseMainFrame {
 
         initMenus();
         cleanup();
+    }
+
+    @Override
+    protected void onWindowClose(@Nullable WindowEvent e) {
+        exitAction();
     }
 
     private void setPlainImage(BufferedImage image) {
@@ -213,7 +215,7 @@ public final class MainFrame extends BaseMainFrame {
                         menuPathString,
                         "Error Diffusion",
                         KeyEvent.getExtendedKeyCodeForChar('e'),
-                        "ordered_dithering.png",
+                        "error_diffusion.png",
                         this::errorDifussionAction
                 )
         );
@@ -222,25 +224,34 @@ public final class MainFrame extends BaseMainFrame {
         addToolBarSeparator();
     }
 
-    private void algorithmAction(Algorithm algorithm) {
+    private void applyAlgorithm(Algorithm algorithm) {
         modifiedImage = algorithm.apply(zoomedImage);
         modifiedImageLabel.setIcon(new ImageIcon(modifiedImage));
     }
 
     private void negativeAction() {
-        algorithmAction(new NegativeAlgorithm());
+        applyAlgorithm(new NegativeAlgorithm());
     }
 
     private void greyscaleAction() {
-        algorithmAction(new GreyscaleAlgorithm());
+        applyAlgorithm(new GreyscaleAlgorithm());
     }
 
     private void orderedDitheringAction() {
-        algorithmAction(new OrderedDitheringAlgorithm());
+        applyAlgorithm(new OrderedDitheringAlgorithm());
     }
 
     private void errorDifussionAction() {
-
+        startNewFrame(new ErrorDiffusionSettingsFrame(
+                this,
+                result -> applyAlgorithm(
+                        new ErrorDiffusionAlgorithm(
+                                result.getRedPaletteSize(),
+                                result.getGreenPaletteSize(),
+                                result.getBluePaletteSize()
+                        )
+                )
+        ));
     }
 
     private void selectAction() {
@@ -289,11 +300,6 @@ public final class MainFrame extends BaseMainFrame {
             default:
                 throw new AssertionError("Invalid option specified");
         }
-    }
-
-    @Override
-    protected void onWindowClose(@Nullable WindowEvent e) {
-        exitAction();
     }
 
     private void cleanup() {

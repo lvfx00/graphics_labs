@@ -1,5 +1,7 @@
 package ru.nsu.fit.semenov.filter;
 
+import ru.nsu.fit.semenov.filter.my_frames.MainFrame;
+
 public class Main {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame(1200, 600, "Filter");
