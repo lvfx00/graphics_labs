@@ -48,8 +48,8 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
     private static final int MIN_PALETTE_SIZE = 2;
     private static final int MAX_PALETTE_SIZE = 1 << BITS_PER_COLOR_COMPONENT;
     private static final int INITIAL_PALETTE_SIZE = 16;
-    private static final int FRAME_WIDTH = 400;
-    private static final int FRAME_HEIGHT = 220;
+    private static final int FRAME_WIDTH = 550;
+    private static final int FRAME_HEIGHT = 280;
 
     private final ResultListener resultListener;
     private final JTextField redPaletteTextField = new JTextField();
@@ -59,9 +59,7 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
     public ErrorDiffusionSettingsFrame(BaseFrame intentionFrame, ResultListener resultListener) {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Error Diffusion Parameters", intentionFrame);
         this.resultListener = resultListener;
-
-        GridLayout gridLayout = new GridLayout(0, 1, 10, 10);
-        setLayout(gridLayout);
+        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
         add(initPaletteParametersPanel());
         add(initControlPanel());
     }
@@ -123,7 +121,7 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
                 MAX_PALETTE_SIZE,
                 INITIAL_PALETTE_SIZE
         );
-        slider.setMajorTickSpacing(32);
+        slider.setMajorTickSpacing(63);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.addChangeListener(e -> textField.setText(String.valueOf(slider.getValue())));

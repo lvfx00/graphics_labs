@@ -221,6 +221,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Differentiating Filter";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Differentiating Filter",
+                        KeyEvent.getExtendedKeyCodeForChar('d'),
+                        "differentiating_filter.png",
+                        this::differentiatingFilterAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         addToolBarSeparator();
     }
 
@@ -242,16 +254,27 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void errorDifussionAction() {
-        startNewFrame(new ErrorDiffusionSettingsFrame(
-                this,
-                result -> applyAlgorithm(
-                        new ErrorDiffusionAlgorithm(
-                                result.getRedPaletteSize(),
-                                result.getGreenPaletteSize(),
-                                result.getBluePaletteSize()
+        startNewFrame(
+                new ErrorDiffusionSettingsFrame(
+                        this,
+                        result -> applyAlgorithm(
+                                new ErrorDiffusionAlgorithm(
+                                        result.getRedPaletteSize(),
+                                        result.getGreenPaletteSize(),
+                                        result.getBluePaletteSize()
+                                )
                         )
                 )
-        ));
+        );
+    }
+
+    private void differentiatingFilterAction() {
+        startNewFrame(
+                new DiffFilterSettingsFrame(
+                        this,
+                        result -> applyAlgorithm(new DifferentiatingFilterAlgorithm(result.getLimit(), result.getType()))
+                )
+        );
     }
 
     private void selectAction() {

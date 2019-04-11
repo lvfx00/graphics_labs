@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.COLOR_COMPONENTS_NUM;
+import static ru.nsu.fit.semenov.filter.util.ImageUtils.isIndexValid;
 
 public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
     private static final ErrorDistribution[] ERROR_DISTRIBUTIONS = {
@@ -58,12 +59,7 @@ public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
         } else {
             result = ((int) steps) * paletteStep;
         }
-        System.out.println(result);
         return result;
-    }
-
-    private static boolean isIndexValid(int x, int y, int width, int height) {
-        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     private static class ErrorDistribution {
