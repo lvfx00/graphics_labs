@@ -45,52 +45,58 @@ public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
                 float[] newColor = new float[COLOR_COMPONENTS_NUM];
                 for (int i = 0; i < COLOR_COMPONENTS_NUM; ++i) {
+                    int diff;
                     switch (filterType) {
                         case ROBERTS_OPERATOR:
-                            newColor[i] = robertsOperator(x, y, i);
+                            diff = robertsOperator(x, y, i);
                             break;
                         case SOBEL_OPERATOR:
-                            newColor[i] = sobelOperator(x, y, i);
+                            diff = sobelOperator(x, y, i);
                             break;
                         case BORDER_SELECTION:
-                            newColor[i] = borderSelection(x, y, i);
+                            diff = borderSelection(x, y, i);
                             break;
                         default:
                             throw new AssertionError("Invalid filter type specified");
                     }
+                    newColor[i] = diff > limit ? 1f : 0f;
                 }
                 resultImage.setRGB(x, y, new Color(newColor[0], newColor[1], newColor[2]).getRGB());
             }
         }
     }
 
-    private float robertsOperator(int x, int y, int i) {
+    private int robertsOperator(int x, int y, int i) {
         if (x < imageWidth - 1 && y < imageHeight - 1) {
-            int F = Math.abs(colorComponents[i][x][y] - colorComponents[i][x + 1][y + 1])
+            return Math.abs(colorComponents[i][x][y] - colorComponents[i][x + 1][y + 1])
                     + Math.abs(colorComponents[i][x + 1][y] - colorComponents[i][x][y + 1]);
-            return F > limit ? 1f : 0f;
         } else {
-            return 0f;
+            return 0;
         }
     }
 
-    private float sobelOperator(int x, int y, int i) {
+    private int sobelOperator(int x, int y, int i) {
         if (x < imageWidth - 1 && x > 0 && y < imageHeight - 1 && y > 0) {
-            int S = Math.abs(
-                    (colorComponents[i][x + 1][y - 1] + 2 * colorComponents[i][x + 1][y] + colorComponents[i][x + 1][y + 1]) -
-                            (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x - 1][y] + colorComponents[i][x - 1][y + 1])) +
-                    Math.abs(
-                            (colorComponents[i][x - 1][y + 1] + 2 * colorComponents[i][x][y + 1] + colorComponents[i][x + 1][y + 1]) -
-                                    (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x][y - 1] + colorComponents[i][x + 1][y - 1])
-                    );
-            return S > limit ? 1f : 0f;
+            int Sx = (colorComponents[i][x + 1][y - 1] + 2 * colorComponents[i][x + 1][y] + colorComponents[i][x + 1][y + 1]) -
+                    (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x - 1][y] + colorComponents[i][x - 1][y + 1]);
+            int Sy = (colorComponents[i][x - 1][y + 1] + 2 * colorComponents[i][x][y + 1] + colorComponents[i][x + 1][y + 1]) -
+                    (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x][y - 1] + colorComponents[i][x + 1][y - 1]);
+            return Math.abs(Sx) + Math.abs(Sy);
         } else {
-            return 0f;
+            return 0;
         }
     }
 
-    private float borderSelection(int x, int y, int i) {
-        return 0f;
+    private int borderSelection(int x, int y, int i) {
+        if (x < imageWidth - 1 && x > 0 && y < imageHeight - 1 && y > 0) {
+            return (4 * colorComponents[i][x][y] -
+                    colorComponents[i][x + 1][y] -
+                    colorComponents[i][x - 1][y] -
+                    colorComponents[i][x][y + 1] -
+                    colorComponents[i][x][y - 1]) / 4;
+        } else {
+            return 0;
+        }
     }
 
 }
