@@ -2,6 +2,9 @@ package ru.nsu.fit.semenov.filter.my_frames;
 
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.semenov.filter.algorithms.*;
+import ru.nsu.fit.semenov.filter.filters.BorderSelectionFilter;
+import ru.nsu.fit.semenov.filter.filters.RobertsOperator;
+import ru.nsu.fit.semenov.filter.filters.SobelOperator;
 import ru.nsu.fit.semenov.filter.frame.BaseMainFrame;
 import ru.nsu.fit.semenov.filter.util.FileUtils;
 import ru.nsu.fit.semenov.filter.util.ImageUtils;
@@ -161,17 +164,17 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void initFiltersMenu() {
-        String submenu = "Filters";
+        String submenu = "filters";
         addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('f'));
 
         selectionMenuItem = addCheckBoxMenuItem(
-                "Filters/Select",
+                "filters/Select",
                 "Select zone of specified size",
                 KeyEvent.getExtendedKeyCodeForChar('s'),
                 "select.png",
                 this::selectAction
         );
-        selectionButton = addToolBarToggleButton("Filters/Select");
+        selectionButton = addToolBarToggleButton("filters/Select");
 
         String menuPathString = submenu + "/Greyscale";
         filtersButtons.add(
@@ -284,7 +287,19 @@ public final class MainFrame extends BaseMainFrame {
         startNewFrame(
                 new DiffFilterSettingsFrame(
                         this,
-                        result -> applyAlgorithm(new DifferentiatingFilterAlgorithm(result.getLimit(), result.getType()))
+                        result -> {
+                            switch (result.getType()) {
+                                case ROBERTS_OPERATOR:
+                                    applyAlgorithm(new FilterAlgorithm(new RobertsOperator(result.getLimit())));
+                                    break;
+                                case SOBEL_OPERATOR:
+                                    applyAlgorithm(new FilterAlgorithm(new SobelOperator(result.getLimit())));
+                                    break;
+                                case BORDER_SELECTION:
+                                    applyAlgorithm(new FilterAlgorithm(new BorderSelectionFilter(result.getLimit())));
+                                    break;
+                            }
+                        }
                 )
         );
     }

@@ -1,6 +1,6 @@
 package ru.nsu.fit.semenov.filter.my_frames;
 
-import ru.nsu.fit.semenov.filter.algorithms.DifferentiatingFilterAlgorithm.DifferentiatingFilterType;
+import ru.nsu.fit.semenov.filter.filters.DifferentiatingFilterType;
 import ru.nsu.fit.semenov.filter.frame.BaseFrame;
 import ru.nsu.fit.semenov.filter.util.FrameUtils;
 import ru.nsu.fit.semenov.filter.util.MyDocumentFilter;
@@ -10,7 +10,7 @@ import javax.swing.*;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
 
-import static ru.nsu.fit.semenov.filter.algorithms.DifferentiatingFilterAlgorithm.DifferentiatingFilterType.*;
+import static ru.nsu.fit.semenov.filter.filters.DifferentiatingFilterType.*;
 
 public class DiffFilterSettingsFrame extends BaseFrame {
 
