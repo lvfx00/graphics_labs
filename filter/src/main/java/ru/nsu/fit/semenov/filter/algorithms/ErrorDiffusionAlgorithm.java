@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.COLOR_COMPONENTS_NUM;
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.isIndexValid;
 
-public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
+public class ErrorDiffusionAlgorithm implements Algorithm {
     private static final ErrorDistribution[] ERROR_DISTRIBUTIONS = {
             new ErrorDistribution(1, 0, 0.4375f),
             new ErrorDistribution(-1, 1, 0.1875f),
@@ -25,9 +25,14 @@ public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
     }
 
     @Override
-    protected void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
+    public @NotNull BufferedImage apply(@NotNull BufferedImage sourceImage) {
+        BufferedImage resultImage = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                sourceImage.getType()
+        );
         float[][][] errors = new float[COLOR_COMPONENTS_NUM][sourceImage.getWidth()][sourceImage.getHeight()];
-
+        // TODO fix error
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
                 float[] oldColor = new float[COLOR_COMPONENTS_NUM];
@@ -48,7 +53,7 @@ public class ErrorDiffusionAlgorithm extends AbstractAlgorithm {
                 resultImage.setRGB(x, y, new Color(newColor[0], newColor[1], newColor[2]).getRGB());
             }
         }
-
+        return resultImage;
     }
 
     private static float findClosestInPalette(float paletteStep, float color) {

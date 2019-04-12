@@ -7,10 +7,15 @@ import java.awt.image.BufferedImage;
 
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.MAX_COLOR_VALUE;
 
-public final class NegativeAlgorithm extends AbstractAlgorithm {
+public final class NegativeAlgorithm implements Algorithm {
 
     @Override
-    public void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
+    public @NotNull BufferedImage apply(@NotNull BufferedImage sourceImage) {
+        BufferedImage resultImage = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                sourceImage.getType()
+        );
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
                 Color sourceColor = new Color(sourceImage.getRGB(x, y));
@@ -22,6 +27,7 @@ public final class NegativeAlgorithm extends AbstractAlgorithm {
                 resultImage.setRGB(x, y, resultColor.getRGB());
             }
         }
+        return resultImage;
     }
 
 }

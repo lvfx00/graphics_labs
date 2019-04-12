@@ -233,6 +233,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Image Doubling";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Image Doubling",
+                        KeyEvent.getExtendedKeyCodeForChar('i'),
+                        "image_doubling.png",
+                        this::imageDoublingAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         addToolBarSeparator();
     }
 
@@ -275,6 +287,10 @@ public final class MainFrame extends BaseMainFrame {
                         result -> applyAlgorithm(new DifferentiatingFilterAlgorithm(result.getLimit(), result.getType()))
                 )
         );
+    }
+
+    private void imageDoublingAction() {
+        applyAlgorithm(new BilinearInterpolationAlgorithm(2.0));
     }
 
     private void selectAction() {

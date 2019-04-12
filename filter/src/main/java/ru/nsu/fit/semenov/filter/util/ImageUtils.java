@@ -46,4 +46,17 @@ public class ImageUtils {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
+    public static int[][][] extractColorComponents(BufferedImage image) {
+        final int[][][] colorComponents = new int[image.getWidth()][image.getHeight()][COLOR_COMPONENTS_NUM];
+        for (int x = 0; x < image.getWidth(); ++x) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                Color color = new Color(image.getRGB(x, y));
+                colorComponents[x][y][0] = color.getRed();
+                colorComponents[x][y][1] = color.getGreen();
+                colorComponents[x][y][2] = color.getBlue();
+            }
+        }
+        return colorComponents;
+    }
+
 }

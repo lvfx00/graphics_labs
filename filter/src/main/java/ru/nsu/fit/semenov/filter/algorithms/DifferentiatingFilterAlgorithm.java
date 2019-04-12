@@ -1,13 +1,14 @@
 package ru.nsu.fit.semenov.filter.algorithms;
 
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.semenov.filter.util.ImageUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.COLOR_COMPONENTS_NUM;
 
-public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
+public class DifferentiatingFilterAlgorithm implements Algorithm {
 
     public enum DifferentiatingFilterType {
 
@@ -29,16 +30,14 @@ public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
     }
 
     @Override
-    protected void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
-        colorComponents = new int[COLOR_COMPONENTS_NUM][sourceImage.getWidth()][sourceImage.getHeight()];
-        for (int x = 0; x < sourceImage.getWidth(); ++x) {
-            for (int y = 0; y < sourceImage.getHeight(); ++y) {
-                Color color = new Color(sourceImage.getRGB(x, y));
-                colorComponents[0][x][y] = color.getRed();
-                colorComponents[1][x][y] = color.getGreen();
-                colorComponents[2][x][y] = color.getBlue();
-            }
-        }
+    public @NotNull BufferedImage apply(@NotNull BufferedImage sourceImage) {
+        colorComponents = ImageUtils.extractColorComponents(sourceImage);
+        BufferedImage resultImage = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                sourceImage.getType()
+        );
+        // TODO add greyscale
         imageWidth = sourceImage.getWidth();
         imageHeight = sourceImage.getHeight();
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
@@ -64,12 +63,13 @@ public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
                 resultImage.setRGB(x, y, new Color(newColor[0], newColor[1], newColor[2]).getRGB());
             }
         }
+        return resultImage;
     }
 
     private int robertsOperator(int x, int y, int i) {
         if (x < imageWidth - 1 && y < imageHeight - 1) {
-            return Math.abs(colorComponents[i][x][y] - colorComponents[i][x + 1][y + 1])
-                    + Math.abs(colorComponents[i][x + 1][y] - colorComponents[i][x][y + 1]);
+            return Math.abs(colorComponents[x][y][i] - colorComponents[x + 1][y + 1][i])
+                    + Math.abs(colorComponents[x + 1][y][i] - colorComponents[x][y + 1][i]);
         } else {
             return 0;
         }
@@ -77,10 +77,10 @@ public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
 
     private int sobelOperator(int x, int y, int i) {
         if (x < imageWidth - 1 && x > 0 && y < imageHeight - 1 && y > 0) {
-            int Sx = (colorComponents[i][x + 1][y - 1] + 2 * colorComponents[i][x + 1][y] + colorComponents[i][x + 1][y + 1]) -
-                    (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x - 1][y] + colorComponents[i][x - 1][y + 1]);
-            int Sy = (colorComponents[i][x - 1][y + 1] + 2 * colorComponents[i][x][y + 1] + colorComponents[i][x + 1][y + 1]) -
-                    (colorComponents[i][x - 1][y - 1] + 2 * colorComponents[i][x][y - 1] + colorComponents[i][x + 1][y - 1]);
+            int Sx = (colorComponents[x + 1][y - 1][i] + 2 * colorComponents[x + 1][y][i] + colorComponents[x + 1][y + 1][i]) -
+                    (colorComponents[x - 1][y - 1][i] + 2 * colorComponents[x - 1][y][i] + colorComponents[x - 1][y + 1][i]);
+            int Sy = (colorComponents[x - 1][y + 1][i] + 2 * colorComponents[x][y + 1][i] + colorComponents[x + 1][y + 1][i]) -
+                    (colorComponents[x - 1][y - 1][i] + 2 * colorComponents[x][y - 1][i] + colorComponents[x + 1][y - 1][i]);
             return Math.abs(Sx) + Math.abs(Sy);
         } else {
             return 0;
@@ -89,11 +89,11 @@ public class DifferentiatingFilterAlgorithm extends AbstractAlgorithm {
 
     private int borderSelection(int x, int y, int i) {
         if (x < imageWidth - 1 && x > 0 && y < imageHeight - 1 && y > 0) {
-            return (4 * colorComponents[i][x][y] -
-                    colorComponents[i][x + 1][y] -
-                    colorComponents[i][x - 1][y] -
-                    colorComponents[i][x][y + 1] -
-                    colorComponents[i][x][y - 1]) / 4;
+            return (4 * colorComponents[x][y][i] -
+                    colorComponents[x + 1][y][i] -
+                    colorComponents[x - 1][y][i] -
+                    colorComponents[x][y + 1][i] -
+                    colorComponents[x][y - 1][i]) / 4;
         } else {
             return 0;
         }

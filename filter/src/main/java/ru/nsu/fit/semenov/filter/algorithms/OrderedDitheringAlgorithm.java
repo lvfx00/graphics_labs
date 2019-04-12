@@ -7,14 +7,19 @@ import ru.nsu.fit.semenov.filter.util.IntMatrixUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class OrderedDitheringAlgorithm extends AbstractAlgorithm {
+public class OrderedDitheringAlgorithm implements Algorithm {
 
     private static final int DITHERING_MATRIX_SIZE_POW_OF_2 = 4;
     private static final int DITHERING_MATRIX_SIZE = 1 << DITHERING_MATRIX_SIZE_POW_OF_2;
     private static final int[][] ditheringMatrix = DitheringMatrix.getDitheringMatrix(DITHERING_MATRIX_SIZE_POW_OF_2);
 
     @Override
-    protected void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
+    public @NotNull BufferedImage apply(@NotNull BufferedImage sourceImage) {
+        BufferedImage resultImage = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                sourceImage.getType()
+        );
         int normFactor = (ImageUtils.MAX_COLOR_VALUE + 1) / (1 << (DITHERING_MATRIX_SIZE_POW_OF_2 * 2));
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
@@ -27,6 +32,7 @@ public class OrderedDitheringAlgorithm extends AbstractAlgorithm {
                 resultImage.setRGB(x, y, resultColor.getRGB());
             }
         }
+        return resultImage;
     }
 
     private static class DitheringMatrix {

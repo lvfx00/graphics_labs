@@ -7,10 +7,15 @@ import java.awt.image.BufferedImage;
 
 import static ru.nsu.fit.semenov.filter.util.ImageUtils.*;
 
-public final class GreyscaleAlgorithm extends AbstractAlgorithm {
+public final class GreyscaleAlgorithm implements Algorithm {
 
     @Override
-    public void apply(@NotNull BufferedImage sourceImage, @NotNull BufferedImage resultImage) {
+    public @NotNull BufferedImage apply(@NotNull BufferedImage sourceImage) {
+        BufferedImage resultImage = new BufferedImage(
+                sourceImage.getWidth(),
+                sourceImage.getHeight(),
+                sourceImage.getType()
+        );
         for (int x = 0; x < sourceImage.getWidth(); ++x) {
             for (int y = 0; y < sourceImage.getHeight(); ++y) {
                 float[] colorComponents = new float[3];
@@ -21,6 +26,7 @@ public final class GreyscaleAlgorithm extends AbstractAlgorithm {
                 resultImage.setRGB(x, y, new Color(intense, intense, intense).getRGB());
             }
         }
+        return resultImage;
     }
 
 }
