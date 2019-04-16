@@ -469,7 +469,8 @@ public final class MainFrame extends BaseMainFrame {
             try {
                 image = ImageIO.read(file);
             } catch (IOException e) {
-                // TODO show popup about invalid file
+                showMessageDialog(null, "I/O error happened :(");
+                System.err.println(e.getMessage());
                 return;
             }
             cleanup();
@@ -477,12 +478,16 @@ public final class MainFrame extends BaseMainFrame {
         }
     }
 
-    private void saveFileAction() {
-        // TODO
-    }
-
     private void saveAsFileAction() {
-        // TODO
+        final File file = FileUtils.getSaveFileName(this, "bmp", "Bitmap image files");
+        if (file != null && modifiedImage != null) {
+            try {
+                ImageIO.write(modifiedImage, "png", file);
+            } catch (IOException e) {
+                showMessageDialog(null, "I/O error happened :(");
+                System.err.println(e.getMessage());
+            }
+        }
     }
 
     private void exitAction() {
@@ -491,7 +496,7 @@ public final class MainFrame extends BaseMainFrame {
             case CANCEL_OPTION:
                 break;
             case OK_OPTION:
-                saveFileAction();
+                saveAsFileAction();
                 System.exit(0);
                 break;
             case NO_OPTION:
@@ -503,7 +508,8 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void copyToSecondAction() {
-        // TODO
+        zoomedImage = modifiedImage;
+        zoomedImageLabel.setIcon(new ImageIcon(zoomedImage));
     }
 
     private void aboutAction() {
