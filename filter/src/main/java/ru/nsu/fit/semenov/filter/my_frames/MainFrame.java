@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;
 
 public final class MainFrame extends BaseMainFrame {
@@ -248,6 +249,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Image Rotation";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Image Rotation",
+                        KeyEvent.getExtendedKeyCodeForChar('r'),
+                        "image_rotation.png",
+                        this::imageRotationAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         addToolBarSeparator();
     }
 
@@ -306,6 +319,17 @@ public final class MainFrame extends BaseMainFrame {
 
     private void imageDoublingAction() {
         applyAlgorithm(new BilinearInterpolationAlgorithm(2.0));
+    }
+
+    private void imageRotationAction() {
+        startNewFrame(
+                new RotationSettingsFrame(
+                        this,
+                        result -> applyAlgorithm(
+                                new RotationAlgorithm((double) result.getRotationAngle() * PI / 180)
+                        )
+                )
+        );
     }
 
     private void selectAction() {

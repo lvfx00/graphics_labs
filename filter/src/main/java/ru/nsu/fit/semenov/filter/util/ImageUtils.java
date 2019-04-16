@@ -59,4 +59,11 @@ public class ImageUtils {
         return colorComponents;
     }
 
+    public static Color getInterpolatedColor(double x, double y, BufferedImage image, Color defaultColor) {
+        if (x < 0 || x > image.getWidth() - 1 || y < 0 || y > image.getHeight() - 1) {
+            return defaultColor;
+        }
+        return new Color(image.getRGB((int) Math.round(x), (int) Math.round(y)));
+    }
+
 }
