@@ -2,9 +2,7 @@ package ru.nsu.fit.semenov.filter.my_frames;
 
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.semenov.filter.algorithms.*;
-import ru.nsu.fit.semenov.filter.filters.BorderSelectionFilter;
-import ru.nsu.fit.semenov.filter.filters.RobertsOperator;
-import ru.nsu.fit.semenov.filter.filters.SobelOperator;
+import ru.nsu.fit.semenov.filter.filters.*;
 import ru.nsu.fit.semenov.filter.frame.BaseMainFrame;
 import ru.nsu.fit.semenov.filter.util.FileUtils;
 import ru.nsu.fit.semenov.filter.util.ImageUtils;
@@ -249,6 +247,42 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Sharpness";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Sharpness",
+                        KeyEvent.getExtendedKeyCodeForChar('s'),
+                        "sharpness.png",
+                        this::sharpnessAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
+        menuPathString = submenu + "/Stamping";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Stamping",
+                        KeyEvent.getExtendedKeyCodeForChar('p'),
+                        "stamping.png",
+                        this::stampingAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
+        menuPathString = submenu + "/Watercolor";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Watercolor",
+                        KeyEvent.getExtendedKeyCodeForChar('w'),
+                        "watercolor.png",
+                        this::watercolorAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         menuPathString = submenu + "/Image Rotation";
         filtersButtons.add(
                 addMenuItem(
@@ -321,7 +355,7 @@ public final class MainFrame extends BaseMainFrame {
                 new DiffFilterSettingsFrame(
                         this,
                         result -> {
-                            ArrayList<Algorithm> algorithms = new ArrayList<>();
+                            List<Algorithm> algorithms = new ArrayList<>();
                             algorithms.add(new GreyscaleAlgorithm());
                             switch (result.getType()) {
                                 case ROBERTS_OPERATOR:
@@ -342,6 +376,21 @@ public final class MainFrame extends BaseMainFrame {
 
     private void imageDoublingAction() {
         applyAlgorithm(new BilinearInterpolationAlgorithm(2.0));
+    }
+
+    private void sharpnessAction() {
+        applyAlgorithm(new FilterAlgorithm(new SharpnessFilter()));
+    }
+
+    private void stampingAction() {
+        applyAlgorithm(new FilterAlgorithm(new StampingFilter()));
+    }
+
+    private void watercolorAction() {
+        List<Algorithm> algorithms = new ArrayList<>();
+        algorithms.add(new FilterAlgorithm(new WatercolorFilter()));
+        algorithms.add(new FilterAlgorithm(new SharpnessFilter()));
+        applyAlgorithms(algorithms);
     }
 
     private void imageRotationAction() {
