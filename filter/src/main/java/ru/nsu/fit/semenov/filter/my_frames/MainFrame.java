@@ -48,6 +48,8 @@ public final class MainFrame extends BaseMainFrame {
     private JToggleButton selectionButton;
     private JCheckBoxMenuItem selectionMenuItem;
 
+    private List<AbstractButton> thirdFrameButtons = new ArrayList<>();
+
     private boolean isFiltersEnabled = false;
     private List<AbstractButton> filtersButtons = new ArrayList<>();
 
@@ -119,7 +121,9 @@ public final class MainFrame extends BaseMainFrame {
 
     private void initMenus() {
         initFileMenu();
+        initActionMenu();
         initFiltersMenu();
+        initAboutMenu();
     }
 
     private void initFileMenu() {
@@ -137,17 +141,13 @@ public final class MainFrame extends BaseMainFrame {
                 "open_file.png",
                 this::openFileAction);
 
-        addMenuItem("File/Save",
-                "Save an active document",
-                KeyEvent.getExtendedKeyCodeForChar('s'),
-                "save.png",
-                this::saveFileAction);
-
-        addMenuItem("File/Save As",
+        thirdFrameButtons.add(
+                addMenuItem("File/Save As",
                 "Save an active document with a new name",
                 KeyEvent.getExtendedKeyCodeForChar('a'),
                 "save_as.png",
-                this::saveAsFileAction);
+                        this::saveAsFileAction)
+        );
 
         addMenuItem("File/Exit",
                 "Quit the application; prompts to save document",
@@ -157,23 +157,38 @@ public final class MainFrame extends BaseMainFrame {
 
         addToolBarButton("File/New");
         addToolBarButton("File/Open");
-        addToolBarButton("File/Save");
+        thirdFrameButtons.add(addToolBarButton("File/Save As"));
 
         addToolBarSeparator();
     }
 
-    private void initFiltersMenu() {
-        String submenu = "filters";
-        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('f'));
+    private void initActionMenu() {
+        addSubMenu("Action", KeyEvent.getExtendedKeyCodeForChar('a'));
 
         selectionMenuItem = addCheckBoxMenuItem(
-                "filters/Select",
+                "Action/Select",
                 "Select zone of specified size",
                 KeyEvent.getExtendedKeyCodeForChar('s'),
                 "select.png",
                 this::selectAction
         );
-        selectionButton = addToolBarToggleButton("filters/Select");
+        selectionButton = addToolBarToggleButton("Action/Select");
+
+        thirdFrameButtons.add(
+                addMenuItem("Action/Copy to second",
+                        "Copy image in third frame to second",
+                        KeyEvent.getExtendedKeyCodeForChar('c'),
+                        "copy_to_second.png",
+                        this::copyToSecondAction)
+        );
+        thirdFrameButtons.add(addToolBarButton("Action/Copy to second"));
+
+        addToolBarSeparator();
+    }
+
+    private void initFiltersMenu() {
+        String submenu = "Filters";
+        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('f'));
 
         String menuPathString = submenu + "/Greyscale";
         filtersButtons.add(
@@ -247,6 +262,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Blur";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Blur",
+                        KeyEvent.getExtendedKeyCodeForChar('b'),
+                        "blur.png",
+                        this::blurAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         menuPathString = submenu + "/Sharpness";
         filtersButtons.add(
                 addMenuItem(
@@ -308,6 +335,16 @@ public final class MainFrame extends BaseMainFrame {
         filtersButtons.add(addToolBarButton(menuPathString));
 
         addToolBarSeparator();
+    }
+
+    private void initAboutMenu() {
+        addSubMenu("About", KeyEvent.getExtendedKeyCodeForChar('a'));
+        addMenuItem("About/About",
+                "About author",
+                KeyEvent.getExtendedKeyCodeForChar('a'),
+                "about.png",
+                this::aboutAction);
+        addToolBarButton("About/About");
     }
 
     private void applyAlgorithm(Algorithm algorithm) {
@@ -376,6 +413,10 @@ public final class MainFrame extends BaseMainFrame {
 
     private void imageDoublingAction() {
         applyAlgorithm(new BilinearInterpolationAlgorithm(2.0));
+    }
+
+    private void blurAction() {
+        applyAlgorithm(new FilterAlgorithm(new BlurFilter()));
     }
 
     private void sharpnessAction() {
@@ -461,12 +502,21 @@ public final class MainFrame extends BaseMainFrame {
         }
     }
 
+    private void copyToSecondAction() {
+        // TODO
+    }
+
+    private void aboutAction() {
+        startNewFrame(new AboutFrame(this));
+    }
+
     private void cleanup() {
         plainImageLabel.setIcon(null);
         zoomedImageLabel.setIcon(null);
         modifiedImageLabel.setIcon(null);
         setSelectionSelected(false);
         setSelectionEnabled(false);
+        setThirdFrameButtonsEnabled(false);
         setFiltersEnabled(false);
     }
 
@@ -480,6 +530,12 @@ public final class MainFrame extends BaseMainFrame {
     private void setSelectionEnabled(boolean value) {
         selectionMenuItem.setEnabled(value);
         selectionButton.setEnabled(value);
+    }
+
+    private void setThirdFrameButtonsEnabled(boolean value) {
+        for (AbstractButton button : thirdFrameButtons) {
+            button.setEnabled(value);
+        }
     }
 
     private void setSelectionSelected(boolean value) {
@@ -501,7 +557,9 @@ public final class MainFrame extends BaseMainFrame {
             if (!isFiltersEnabled) {
                 setFiltersEnabled(true);
             }
-
+            for (AbstractButton button : filtersButtons) {
+                button.addActionListener(e1 -> setThirdFrameButtonsEnabled(true));
+            }
             handleSelectionMouseEvent(e);
         }
 
