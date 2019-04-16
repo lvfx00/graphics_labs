@@ -126,7 +126,7 @@ public class DiffFilterSettingsFrame extends BaseFrame {
         textField.setColumns(5);
         PlainDocument doc = (PlainDocument) textField.getDocument();
         doc.setDocumentFilter(MyDocumentFilter.getIntFilter(MIN_LIMIT_SIZE, MAX_LIMIT_SIZE));
-        textField.addKeyListener(new MyKeyAdapter(slider, textField));
+        textField.addKeyListener(MyKeyAdapter.fromIntKeyAdapter(slider, textField));
         textField.setText(text);
     }
 

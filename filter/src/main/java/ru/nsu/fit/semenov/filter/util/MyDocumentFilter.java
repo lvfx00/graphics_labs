@@ -33,6 +33,18 @@ public class MyDocumentFilter extends DocumentFilter {
         });
     }
 
+    public static MyDocumentFilter getFloatFilter(float minValue, float maxValue) {
+        return new MyDocumentFilter(str -> {
+            if (str.equals("")) return true;
+            try {
+                double val = Float.parseFloat(str);
+                return val >= minValue && val <= maxValue;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        });
+    }
+
     public MyDocumentFilter(Predicate<String> validationPredicate) {
         this.validationPredicate = validationPredicate;
     }

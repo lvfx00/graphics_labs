@@ -131,7 +131,7 @@ public final class ErrorDiffusionSettingsFrame extends BaseFrame {
     private void initJTextField(JTextField textField, String text, JSlider slider) {
         PlainDocument doc = (PlainDocument) textField.getDocument();
         doc.setDocumentFilter(MyDocumentFilter.getIntFilter(MIN_PALETTE_SIZE, MAX_PALETTE_SIZE));
-        textField.addKeyListener(new MyKeyAdapter(slider, textField));
+        textField.addKeyListener(MyKeyAdapter.fromIntKeyAdapter(slider, textField));
         textField.setText(text);
     }
 

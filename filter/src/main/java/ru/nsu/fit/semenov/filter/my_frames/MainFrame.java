@@ -261,11 +261,31 @@ public final class MainFrame extends BaseMainFrame {
         );
         filtersButtons.add(addToolBarButton(menuPathString));
 
+        menuPathString = submenu + "/Gamma Correction";
+        filtersButtons.add(
+                addMenuItem(
+                        menuPathString,
+                        "Gamma Correction",
+                        KeyEvent.getExtendedKeyCodeForChar('m'),
+                        "gamma_correction.png",
+                        this::gammaCorrectionAction
+                )
+        );
+        filtersButtons.add(addToolBarButton(menuPathString));
+
         addToolBarSeparator();
     }
 
     private void applyAlgorithm(Algorithm algorithm) {
         modifiedImage = algorithm.apply(zoomedImage);
+        modifiedImageLabel.setIcon(new ImageIcon(modifiedImage));
+    }
+
+    private void applyAlgorithms(List<Algorithm> algorithms) {
+        modifiedImage = algorithms.remove(0).apply(zoomedImage);
+        for (Algorithm algorithm : algorithms) {
+            modifiedImage = algorithm.apply(modifiedImage);
+        }
         modifiedImageLabel.setIcon(new ImageIcon(modifiedImage));
     }
 
@@ -301,17 +321,20 @@ public final class MainFrame extends BaseMainFrame {
                 new DiffFilterSettingsFrame(
                         this,
                         result -> {
+                            ArrayList<Algorithm> algorithms = new ArrayList<>();
+                            algorithms.add(new GreyscaleAlgorithm());
                             switch (result.getType()) {
                                 case ROBERTS_OPERATOR:
-                                    applyAlgorithm(new FilterAlgorithm(new RobertsOperator(result.getLimit())));
+                                    algorithms.add(new FilterAlgorithm(new RobertsOperator(result.getLimit())));
                                     break;
                                 case SOBEL_OPERATOR:
-                                    applyAlgorithm(new FilterAlgorithm(new SobelOperator(result.getLimit())));
+                                    algorithms.add(new FilterAlgorithm(new SobelOperator(result.getLimit())));
                                     break;
                                 case BORDER_SELECTION:
-                                    applyAlgorithm(new FilterAlgorithm(new BorderSelectionFilter(result.getLimit())));
+                                    algorithms.add(new FilterAlgorithm(new BorderSelectionFilter(result.getLimit())));
                                     break;
                             }
+                            applyAlgorithms(algorithms);
                         }
                 )
         );
@@ -328,6 +351,15 @@ public final class MainFrame extends BaseMainFrame {
                         result -> applyAlgorithm(
                                 new RotationAlgorithm((double) result.getRotationAngle() * PI / 180)
                         )
+                )
+        );
+    }
+
+    private void gammaCorrectionAction() {
+        startNewFrame(
+                new GammaSettingsFrame(
+                        this,
+                        result -> applyAlgorithm(new GammaCorrectionAlgorithm(result.getGamma()))
                 )
         );
     }

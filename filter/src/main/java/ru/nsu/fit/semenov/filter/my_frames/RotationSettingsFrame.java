@@ -41,7 +41,7 @@ public class RotationSettingsFrame extends BaseFrame {
     private final JTextField rotationAngleTextField = new JTextField();
 
     public RotationSettingsFrame(BaseFrame intentionFrame, ResultListener resultListener) {
-        super(FRAME_WIDTH, FRAME_HEIGHT, "Error Diffusion Parameters", intentionFrame);
+        super(FRAME_WIDTH, FRAME_HEIGHT, "Image Rotation Parameters", intentionFrame);
         this.resultListener = resultListener;
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
         add(initRotationAnglePanel());
@@ -77,7 +77,7 @@ public class RotationSettingsFrame extends BaseFrame {
 
         PlainDocument doc = (PlainDocument) rotationAngleTextField.getDocument();
         doc.setDocumentFilter(MyDocumentFilter.getIntFilter(MIN_ROTATION_ANGLE, MAX_ROTATION_ANGLE));
-        rotationAngleTextField.addKeyListener(new MyKeyAdapter(rotationAngleSlider, rotationAngleTextField));
+        rotationAngleTextField.addKeyListener(MyKeyAdapter.fromIntKeyAdapter(rotationAngleSlider, rotationAngleTextField));
         rotationAngleTextField.setText(String.valueOf(INITIAL_ROTATION_ANGLE));
         rotationAngleTextField.setColumns(5);
 
