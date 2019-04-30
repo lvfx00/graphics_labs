@@ -1,11 +1,11 @@
 package ru.nsu.fit.semenov.isolines;
 
 import ru.nsu.fit.semenov.isolines.frameutils.BaseMainFrame;
+import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,31 +14,54 @@ public final class MainFrame extends BaseMainFrame {
     private static final Color FRAME_BACKGOUND_COLOR = Color.WHITE;
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
-    private static final int ISOLINES_FRAME_WIDTH = 1200;
-    private static final int ISOLINES_FRAME_HEIGHT = 800;
+    private static final int ISOLINES_FRAME_WIDTH = 500;
+    private static final int ISOLINES_FRAME_HEIGHT = 500;
 
-    private JLabel isolinesLabel = new JLabel();
-    private BufferedImage isolinesImage =
-            new BufferedImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+    private final Color[] colors = {
+            Color.ORANGE,
+            Color.GRAY,
+            Color.CYAN,
+            Color.GREEN
+    };
+    private final BoundedFunction boundedFunction = new MyBoundedFunction();
 
-    private final IsolinesDrawer isolinesDrawer;
+    // --- ДАЛЬШЕ ХУЙНЯ --- //
+
+    private final JLabel isolinesLabel = new JLabel();
+    private final List<AbstractButton> isolinesButtonsList = new ArrayList<>(2);
+    private boolean isIsolinesShown;
+
+    private final JLabel mapLabel = new JLabel();
+    private final List<AbstractButton> mapButtonsList = new ArrayList<>(2);
+    private boolean isMapShown;
+
+    private final JLabel gridLabel = new JLabel();
+    private final List<AbstractButton> gridButtonsList = new ArrayList<>(2);
+    private boolean isGridShown;
 
 
     public MainFrame() {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Isolines");
         getContentPane().setBackground(FRAME_BACKGOUND_COLOR);
 
+        mapLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
+        gridLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
+        isolinesLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
+
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
-        JPanel isolinesPanel = new JPanel();
-        isolinesPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        isolinesPanel.add(isolinesLabel);
-        mainPanel.add(isolinesPanel);
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(ISOLINES_FRAME_WIDTH + 20, ISOLINES_FRAME_HEIGHT + 20));
+        layeredPane.add(mapLabel, new Integer(0));
+        layeredPane.add(gridLabel, new Integer(1));
+        layeredPane.add(isolinesLabel, new Integer(2));
 
-        JPanel chartsPanel = new JPanel();
-        chartsPanel.setLayout(new FlowLayout());
-        mainPanel.add(chartsPanel);
+        mainPanel.add(layeredPane);
+
+//        JPanel chartsPanel = new JPanel();
+//        chartsPanel.setLayout(new FlowLayout());
+//        mainPanel.add(chartsPanel);
 
         JScrollPane scrollPane = new JScrollPane(
                 mainPanel,
@@ -46,23 +69,6 @@ public final class MainFrame extends BaseMainFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         add(scrollPane, BorderLayout.CENTER);
-
-        isolinesLabel.setIcon(new ImageIcon());
-
-        final List<Color> colors = new ArrayList<>();
-        colors.add(Color.ORANGE);
-        colors.add(Color.GRAY);
-        colors.add(Color.CYAN);
-        colors.add(Color.GREEN);
-
-        isolinesDrawer = new IsolinesDrawer(
-                colors,
-                new MyFunction(),
-                -3,
-                3,
-                -3,
-                3
-        );
 
         initMenus();
         cleanup();
@@ -81,51 +87,92 @@ public final class MainFrame extends BaseMainFrame {
         addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('a'));
 
         String menuPathString = submenu + "/Map";
-        addMenuItem(
-                menuPathString,
-                "Map",
-                KeyEvent.getExtendedKeyCodeForChar('m'),
-                "map.png",
-                this::mapAction
+        mapButtonsList.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "Map",
+                        KeyEvent.getExtendedKeyCodeForChar('m'),
+                        "map.png",
+                        this::mapAction
+                )
         );
-        addToolBarButton(menuPathString);
+        mapButtonsList.add(addToolBarToggleButton(menuPathString));
 
         menuPathString = submenu + "/Isolines";
-        addMenuItem(
-                menuPathString,
-                "Isolines",
-                KeyEvent.getExtendedKeyCodeForChar('i'),
-                "isolines.png",
-                this::isolinesAction
+        isolinesButtonsList.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "Isolines",
+                        KeyEvent.getExtendedKeyCodeForChar('i'),
+                        "isolines.png",
+                        this::isolinesAction
+                )
         );
-        addToolBarButton(menuPathString);
+        isolinesButtonsList.add(addToolBarToggleButton(menuPathString));
 
         menuPathString = submenu + "/Grid";
-        addMenuItem(
-                menuPathString,
-                "Grid",
-                KeyEvent.getExtendedKeyCodeForChar('g'),
-                "grid.png",
-                this::gridAction
+        gridButtonsList.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "Grid",
+                        KeyEvent.getExtendedKeyCodeForChar('g'),
+                        "grid.png",
+                        this::gridAction
+                )
         );
-        addToolBarButton(menuPathString);
+        gridButtonsList.add(addToolBarToggleButton(menuPathString));
 
         addToolBarSeparator();
     }
 
     private void mapAction() {
-        isolinesImage = isolinesDrawer.drawMap(isolinesImage);
-        isolinesLabel.setIcon(new ImageIcon(isolinesImage));
+        if (isMapShown) {
+            mapLabel.setIcon(null);
+        } else {
+            mapLabel.setIcon(new ImageIcon(IsolinesDrawer.drawMap(
+                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
+                    boundedFunction,
+                    colors
+            )));
+        }
+        isMapShown = !isMapShown;
+        for (AbstractButton ab : mapButtonsList) {
+            ab.setSelected(isMapShown);
+        }
     }
 
     private void isolinesAction() {
-        isolinesImage = isolinesDrawer.drawIsolines(isolinesImage, 20, 20, -0.5);
-        isolinesLabel.setIcon(new ImageIcon(isolinesImage));
+        if (isIsolinesShown) {
+            isolinesLabel.setIcon(null);
+        } else {
+            isolinesLabel.setIcon(new ImageIcon(IsolinesDrawer.drawIsolines(
+                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
+                    boundedFunction,
+                    20,
+                    20,
+                    -0.5
+            )));
+        }
+        isIsolinesShown = !isIsolinesShown;
+        for (AbstractButton ab : isolinesButtonsList) {
+            ab.setSelected(isIsolinesShown);
+        }
     }
 
     private void gridAction() {
-        isolinesImage = isolinesDrawer.drawGrid(isolinesImage, 20, 20);
-        isolinesLabel.setIcon(new ImageIcon(isolinesImage));
+        if (isGridShown) {
+            gridLabel.setIcon(null);
+        } else {
+            gridLabel.setIcon(new ImageIcon(IsolinesDrawer.drawGrid(
+                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
+                    20,
+                    20
+            )));
+        }
+        isGridShown = !isGridShown;
+        for (AbstractButton ab : gridButtonsList) {
+            ab.setSelected(isGridShown);
+        }
     }
 
 }
