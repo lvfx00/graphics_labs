@@ -63,7 +63,9 @@ public final class IsolinesDrawer {
     }
 
     // YjXi = f00, Yj+1Xi = f10, YjXi+1 = f01, Yj+1Xi+1 = f11
-    public static BufferedImage drawIsolines(@NotNull BufferedImage image, BoundedFunction function, int k, int m, double level) {
+    public static BufferedImage drawIsolines(@NotNull BufferedImage image, BoundedFunction function, int k, int m, int colorsNum) {
+        final double step = (function.getMaxValue() - function.getMinValue()) / colorsNum;
+
         final int width = image.getWidth();
         final int height = image.getHeight();
         final double pixelWidthInD = (function.getMaxX() - function.getMinX()) / width;
@@ -84,63 +86,65 @@ public final class IsolinesDrawer {
             }
         }
 
-        for (int x = 0; x < k - 1; ++x) {
-            for (int y = 0; y < m - 1; ++y) {
-                Coord[] intersections = new Coord[4];
-                int count = 0;
-                for (NodeOffset nodeOffset : NODE_OFFSETS) {
-                    intersections[count] = getIntersection(
-                            nodeCoordsInD[y + nodeOffset.y1Offset][x + nodeOffset.x1Offset],
-                            nodeValues[y + nodeOffset.y1Offset][x + nodeOffset.x1Offset],
-                            nodeCoordsInD[y + nodeOffset.y2Offset][x + nodeOffset.x2Offset],
-                            nodeValues[y + nodeOffset.y2Offset][x + nodeOffset.x2Offset],
-                            level
-                    );
-                    if (intersections[count] != null) {
-                        count++;
+        for (double level = function.getMinValue() + step; level < function.getMaxValue(); level += step) {
+            for (int x = 0; x < k - 1; ++x) {
+                for (int y = 0; y < m - 1; ++y) {
+                    Coord[] intersections = new Coord[4];
+                    int count = 0;
+                    for (NodeOffset nodeOffset : NODE_OFFSETS) {
+                        intersections[count] = getIntersection(
+                                nodeCoordsInD[y + nodeOffset.y1Offset][x + nodeOffset.x1Offset],
+                                nodeValues[y + nodeOffset.y1Offset][x + nodeOffset.x1Offset],
+                                nodeCoordsInD[y + nodeOffset.y2Offset][x + nodeOffset.x2Offset],
+                                nodeValues[y + nodeOffset.y2Offset][x + nodeOffset.x2Offset],
+                                level
+                        );
+                        if (intersections[count] != null) {
+                            count++;
+                        }
                     }
+
+                    switch (count) {
+                        case 0:
+                            break;
+                        case 1:
+                        case 3:
+                            // TODO ???
+                            break;
+                        case 2:
+                            graphics2D.setColor(Color.RED);
+                            graphics2D.setStroke(new BasicStroke(2));
+
+                            graphics2D.drawOval(
+                                    (int) Math.floor(intersections[0].getX() / pixelWidthInD),
+                                    (int) Math.floor(intersections[0].getY() / pixelHeightInD),
+                                    2,
+                                    2
+                            );
+                            graphics2D.drawOval(
+                                    (int) Math.floor(intersections[1].getX() / pixelWidthInD),
+                                    (int) Math.floor(intersections[1].getY() / pixelHeightInD),
+                                    2,
+                                    2
+                            );
+
+                            graphics2D.setColor(Color.BLACK);
+                            graphics2D.setStroke(new BasicStroke(1));
+
+                            graphics2D.drawLine(
+                                    (int) Math.floor(intersections[0].getX() / pixelWidthInD),
+                                    (int) Math.floor(intersections[0].getY() / pixelHeightInD),
+                                    (int) Math.floor(intersections[1].getX() / pixelWidthInD),
+                                    (int) Math.floor(intersections[1].getY() / pixelHeightInD)
+                            );
+                            break;
+                        case 4:
+                            break;
+                        default:
+                            // TODO ???
+                    }
+
                 }
-
-                switch (count) {
-                    case 0:
-                        break;
-                    case 1:
-                    case 3:
-                        // TODO ???
-                        break;
-                    case 2:
-                        graphics2D.setColor(Color.RED);
-                        graphics2D.setStroke(new BasicStroke(2));
-
-                        graphics2D.drawOval(
-                                (int) Math.floor(intersections[0].getX() / pixelWidthInD),
-                                (int) Math.floor(intersections[0].getY() / pixelHeightInD),
-                                2,
-                                2
-                        );
-                        graphics2D.drawOval(
-                                (int) Math.floor(intersections[1].getX() / pixelWidthInD),
-                                (int) Math.floor(intersections[1].getY() / pixelHeightInD),
-                                2,
-                                2
-                        );
-
-                        graphics2D.setColor(Color.BLACK);
-                        graphics2D.setStroke(new BasicStroke(1));
-
-                        graphics2D.drawLine(
-                                (int) Math.floor(intersections[0].getX() / pixelWidthInD),
-                                (int) Math.floor(intersections[0].getY() / pixelHeightInD),
-                                (int) Math.floor(intersections[1].getX() / pixelWidthInD),
-                                (int) Math.floor(intersections[1].getY() / pixelHeightInD)
-                        );
-                        break;
-                    case 4:
-                        break;
-                    default:
-                        // TODO ???
-                }
-
             }
         }
 

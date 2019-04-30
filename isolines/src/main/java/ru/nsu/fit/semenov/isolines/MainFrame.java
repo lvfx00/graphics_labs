@@ -6,6 +6,7 @@ import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +18,22 @@ public final class MainFrame extends BaseMainFrame {
     private static final int ISOLINES_FRAME_WIDTH = 500;
     private static final int ISOLINES_FRAME_HEIGHT = 500;
 
+    private static final int MAP_LEGEND_WIDTH = 400;
+    private static final int MAP_LEGEND_HEIGHT = 30;
+
     private final Color[] colors = {
             Color.ORANGE,
+            Color.YELLOW,
+            Color.PINK,
             Color.GRAY,
             Color.CYAN,
-            Color.GREEN
+            Color.GREEN,
+            Color.MAGENTA,
+            Color.BLUE
     };
-    private final BoundedFunction boundedFunction = new MyBoundedFunction();
+    private final BoundedFunction function = new MyBoundedFunction();
+    private static final int GRID_WIDTH = 20;
+    private static final int GRID_HEIGHT = 20;
 
     // --- ДАЛЬШЕ ХУЙНЯ --- //
 
@@ -52,16 +62,13 @@ public final class MainFrame extends BaseMainFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(ISOLINES_FRAME_WIDTH + 20, ISOLINES_FRAME_HEIGHT + 20));
+        layeredPane.setPreferredSize(new Dimension(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT));
         layeredPane.add(mapLabel, new Integer(0));
         layeredPane.add(gridLabel, new Integer(1));
         layeredPane.add(isolinesLabel, new Integer(2));
 
         mainPanel.add(layeredPane);
-
-//        JPanel chartsPanel = new JPanel();
-//        chartsPanel.setLayout(new FlowLayout());
-//        mainPanel.add(chartsPanel);
+        mainPanel.add(initMapLegend());
 
         JScrollPane scrollPane = new JScrollPane(
                 mainPanel,
@@ -72,6 +79,50 @@ public final class MainFrame extends BaseMainFrame {
 
         initMenus();
         cleanup();
+    }
+
+    private JPanel initMapLegend() {
+        final double step = (function.getMaxValue() - function.getMinValue()) / colors.length;
+
+        JPanel mapLegendPanel = new JPanel();
+
+        BufferedImage image = ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH + 20, MAP_LEGEND_HEIGHT + 50);
+
+        Graphics2D graphics2D = image.createGraphics();
+        graphics2D.setStroke(new BasicStroke(2));
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.setFont(new Font("TimesRoman", Font.BOLD, 16));
+
+        final int xLegendOffset = 10;
+        final int yLegendOffset = 10;
+        final int oneColorWidth = MAP_LEGEND_WIDTH / colors.length;
+
+        graphics2D.drawRect(xLegendOffset, yLegendOffset, MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT);
+
+        for (int i = 0; i < colors.length; ++i) {
+            graphics2D.setColor(colors[i]);
+            graphics2D.fillRect(xLegendOffset + i * oneColorWidth, yLegendOffset, oneColorWidth, MAP_LEGEND_HEIGHT);
+            graphics2D.setColor(Color.BLACK);
+            graphics2D.drawLine(
+                    xLegendOffset + i * oneColorWidth,
+                    yLegendOffset,
+                    xLegendOffset + i * oneColorWidth,
+                    yLegendOffset + MAP_LEGEND_HEIGHT
+            );
+            if (i > 0) {
+                graphics2D.drawString(
+                        String.valueOf(step * i),
+                        xLegendOffset + i * oneColorWidth - 15,
+                        MAP_LEGEND_HEIGHT + yLegendOffset + 15
+                );
+            }
+        }
+
+        graphics2D.dispose();
+        JLabel mapLegendLabel = new JLabel();
+        mapLegendLabel.setIcon(new ImageIcon(image));
+        mapLegendPanel.add(mapLegendLabel);
+        return mapLegendPanel;
     }
 
     private void initMenus() {
@@ -131,7 +182,7 @@ public final class MainFrame extends BaseMainFrame {
         } else {
             mapLabel.setIcon(new ImageIcon(IsolinesDrawer.drawMap(
                     ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    boundedFunction,
+                    function,
                     colors
             )));
         }
@@ -147,10 +198,10 @@ public final class MainFrame extends BaseMainFrame {
         } else {
             isolinesLabel.setIcon(new ImageIcon(IsolinesDrawer.drawIsolines(
                     ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    boundedFunction,
-                    20,
-                    20,
-                    -0.5
+                    function,
+                    GRID_WIDTH,
+                    GRID_HEIGHT,
+                    colors.length
             )));
         }
         isIsolinesShown = !isIsolinesShown;
@@ -165,8 +216,8 @@ public final class MainFrame extends BaseMainFrame {
         } else {
             gridLabel.setIcon(new ImageIcon(IsolinesDrawer.drawGrid(
                     ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    20,
-                    20
+                    GRID_WIDTH,
+                    GRID_HEIGHT
             )));
         }
         isGridShown = !isGridShown;
