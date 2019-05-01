@@ -1,11 +1,14 @@
 package ru.nsu.fit.semenov.isolines;
 
-import ru.nsu.fit.semenov.isolines.frameutils.BaseMainFrame;
+import ru.nsu.fit.semenov.isolines.BoundedFunctionImpl.DoubleBiFunction;
+import ru.nsu.fit.semenov.isolines.frame_utils.BaseMainFrame;
+import ru.nsu.fit.semenov.isolines.utils.Coord;
 import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +18,8 @@ public final class MainFrame extends BaseMainFrame {
     private static final Color FRAME_BACKGOUND_COLOR = Color.WHITE;
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
-    private static final int ISOLINES_FRAME_WIDTH = 500;
-    private static final int ISOLINES_FRAME_HEIGHT = 500;
+    private static final Dimension MAP_MIN_SIZE = new Dimension(100, 100);
+    private static final Dimension MAP_INIT_SIZE = new Dimension(500, 500);
 
     private static final int MAP_LEGEND_WIDTH = 400;
     private static final int MAP_LEGEND_HEIGHT = 30;
@@ -31,9 +34,18 @@ public final class MainFrame extends BaseMainFrame {
             Color.MAGENTA,
             Color.BLUE
     };
-    private final BoundedFunction function = new MyBoundedFunction();
-    private static final int GRID_WIDTH = 20;
-    private static final int GRID_HEIGHT = 20;
+
+    private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(x) * Math.cos(y));
+
+    private Dimension mapSize = MAP_INIT_SIZE;
+    private double a = -3.0;
+    private double b = 3.0;
+    private double c = -3.0;
+    private double d = 3.0;
+    private int k = 10;
+    private int m = 10;
+    private BoundedFunction boundedFunction =
+            new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, -1.0, 1.0);
 
     // --- ДАЛЬШЕ ХУЙНЯ --- //
 
@@ -49,40 +61,52 @@ public final class MainFrame extends BaseMainFrame {
     private final List<AbstractButton> gridButtonsList = new ArrayList<>(2);
     private boolean isGridShown;
 
+    private final JLabel userIsolinesLabel = new JLabel();
+    private BufferedImage userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
+
+    private final JLabel statusLabel = new JLabel("status");
 
     public MainFrame() {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Isolines");
         getContentPane().setBackground(FRAME_BACKGOUND_COLOR);
 
-        mapLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
-        gridLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
-        isolinesLabel.setBounds(0, 0, ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT);
-
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT));
+        layeredPane.setMinimumSize(MAP_MIN_SIZE);
+        layeredPane.setPreferredSize(MAP_INIT_SIZE);
+
+        LayeredPaneMouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
+        layeredPane.addMouseListener(layeredPaneMouseAdapter);
+        layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
+
         layeredPane.add(mapLabel, new Integer(0));
         layeredPane.add(gridLabel, new Integer(1));
         layeredPane.add(isolinesLabel, new Integer(2));
+        userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
+        layeredPane.add(userIsolinesLabel, new Integer(3));
+
+        layeredPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                mapSize = new Dimension(e.getComponent().getWidth(), e.getComponent().getHeight());
+                redrawImages();
+            }
+        });
 
         mainPanel.add(layeredPane);
         mainPanel.add(initMapLegend());
 
-        JScrollPane scrollPane = new JScrollPane(
-                mainPanel,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-
-        add(scrollPane, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
+        add(initStatusPanel(), BorderLayout.SOUTH);
 
         initMenus();
-        cleanup();
     }
 
+    // TODO переделать на вызов рисования мапы
     private JPanel initMapLegend() {
-        final double step = (function.getMaxValue() - function.getMinValue()) / colors.length;
+        final double step = (boundedFunction.getMaxValue() - boundedFunction.getMinValue()) / colors.length;
 
         JPanel mapLegendPanel = new JPanel();
 
@@ -125,12 +149,58 @@ public final class MainFrame extends BaseMainFrame {
         return mapLegendPanel;
     }
 
-    private void initMenus() {
-        initActionMenu();
+    private JPanel initStatusPanel() {
+        JPanel statusPanel = new JPanel();
+        statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusPanel.setPreferredSize(new Dimension(getWidth(), 16));
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+        statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        statusPanel.add(statusLabel);
+        return statusPanel;
     }
 
-    private void cleanup() {
+    private void initMenus() {
+        initActionMenu();
+        initEditMenu();
+    }
 
+    private void init() {
+        // TODO расчитывать -1.0 и 1.0
+        boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, -1.0, 1.0);
+        redrawImages();
+    }
+
+    private void initEditMenu() {
+        String submenu = "Edit";
+        addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('e'));
+
+        String menuPathString = submenu + "/Preferences";
+        addMenuItem(
+                menuPathString,
+                "Preferences",
+                KeyEvent.getExtendedKeyCodeForChar('p'),
+                "preferences.png",
+                this::preferencesAction
+        );
+        addToolBarButton(menuPathString);
+
+        addToolBarSeparator();
+    }
+
+    private void preferencesAction() {
+        startNewFrame(new PreferencesFrame(
+                this,
+                preferencesValues -> {
+                    a = preferencesValues.getA();
+                    b = preferencesValues.getB();
+                    c = preferencesValues.getC();
+                    d = preferencesValues.getD();
+                    k = preferencesValues.getK();
+                    m = preferencesValues.getM();
+                    init();
+                },
+                new PreferencesFrame.PreferencesValues(a, b, c, d, k, m)
+        ));
     }
 
     private void initActionMenu() {
@@ -173,6 +243,16 @@ public final class MainFrame extends BaseMainFrame {
         );
         gridButtonsList.add(addToolBarToggleButton(menuPathString));
 
+        menuPathString = submenu + "/Erase";
+        addCheckBoxMenuItem(
+                menuPathString,
+                "Erase user isolines",
+                KeyEvent.getExtendedKeyCodeForChar('e'),
+                "erase.png",
+                this::eraseUserIsolinesAction
+        );
+        addToolBarToggleButton(menuPathString);
+
         addToolBarSeparator();
     }
 
@@ -180,11 +260,7 @@ public final class MainFrame extends BaseMainFrame {
         if (isMapShown) {
             mapLabel.setIcon(null);
         } else {
-            mapLabel.setIcon(new ImageIcon(IsolinesDrawer.drawMap(
-                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    function,
-                    colors
-            )));
+            drawMap();
         }
         isMapShown = !isMapShown;
         for (AbstractButton ab : mapButtonsList) {
@@ -192,17 +268,20 @@ public final class MainFrame extends BaseMainFrame {
         }
     }
 
+    private void drawMap() {
+        mapLabel.setIcon(new ImageIcon(IsolinesDrawer.drawMap(
+                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                boundedFunction,
+                colors
+        )));
+        mapLabel.setBounds(0, 0, mapSize.width, mapSize.height);
+    }
+
     private void isolinesAction() {
         if (isIsolinesShown) {
             isolinesLabel.setIcon(null);
         } else {
-            isolinesLabel.setIcon(new ImageIcon(IsolinesDrawer.drawIsolines(
-                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    function,
-                    GRID_WIDTH,
-                    GRID_HEIGHT,
-                    colors.length
-            )));
+            drawIsolines();
         }
         isIsolinesShown = !isIsolinesShown;
         for (AbstractButton ab : isolinesButtonsList) {
@@ -210,19 +289,87 @@ public final class MainFrame extends BaseMainFrame {
         }
     }
 
+    private void drawIsolines() {
+        isolinesLabel.setIcon(new ImageIcon(IsolinesDrawer.drawIsolines(
+                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                boundedFunction,
+                k,
+                m,
+                colors.length
+        )));
+        isolinesLabel.setBounds(0, 0, mapSize.width, mapSize.height);
+    }
+
     private void gridAction() {
         if (isGridShown) {
             gridLabel.setIcon(null);
         } else {
-            gridLabel.setIcon(new ImageIcon(IsolinesDrawer.drawGrid(
-                    ImageUtils.createOpaqueImage(ISOLINES_FRAME_WIDTH, ISOLINES_FRAME_HEIGHT),
-                    GRID_WIDTH,
-                    GRID_HEIGHT
-            )));
+            drawGrid();
         }
         isGridShown = !isGridShown;
         for (AbstractButton ab : gridButtonsList) {
             ab.setSelected(isGridShown);
+        }
+    }
+
+    private void drawGrid() {
+        gridLabel.setIcon(new ImageIcon(IsolinesDrawer.drawGrid(
+                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                k,
+                m
+        )));
+        gridLabel.setBounds(0, 0, mapSize.width, mapSize.height);
+    }
+
+    private void redrawImages() {
+        if (isGridShown) {
+            drawGrid();
+        }
+        if (isIsolinesShown) {
+            drawIsolines();
+        }
+        if (isMapShown) {
+            drawMap();
+        }
+    }
+
+    private void eraseUserIsolinesAction() {
+        userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
+        userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
+    }
+
+    private class LayeredPaneMouseAdapter extends MouseAdapter {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            Coord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
+            double level = boundedFunction.apply(coordsInD.getX(), coordsInD.getY());
+            System.out.println(level);
+            IsolinesDrawer.drawIsolines(userIsolinesImage, boundedFunction, k, m, level);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            Coord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
+            double level = boundedFunction.apply(coordsInD.getX(), coordsInD.getY());
+            statusLabel.setText("X = " + coordsInD.getX() +
+                    ",   Y = " + coordsInD.getY() +
+                    ",   Value = " + level
+            );
+        }
+
+        private Coord getMouseCoordsInD(int x, int y) {
+            final double pixelWidthInD = (boundedFunction.getMaxX() - boundedFunction.getMinX()) / mapSize.width;
+            final double pixelHeightInD = (boundedFunction.getMaxY() - boundedFunction.getMinY()) / mapSize.height;
+
+            final double xInD = x * pixelWidthInD + pixelWidthInD / 2 + boundedFunction.getMinX();
+            final double yInD = y * pixelHeightInD + pixelHeightInD / 2 + boundedFunction.getMinY();
+
+            return new Coord(xInD, yInD);
         }
     }
 

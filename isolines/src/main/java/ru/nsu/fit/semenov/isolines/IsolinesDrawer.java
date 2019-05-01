@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 
 public final class IsolinesDrawer {
 
+    private static final double DELTA = 0.0001;
     private static final NodeOffset[] NODE_OFFSETS = {
             new NodeOffset(0, 0, 1, 0),
             new NodeOffset(0, 0, 0, 1),
@@ -29,8 +30,8 @@ public final class IsolinesDrawer {
 
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                double XcoordInD = x * pixelWidthInD + pixelHeightInD / 2;
-                double YcoordInD = y * pixelHeightInD + pixelHeightInD / 2;
+                double XcoordInD = x * pixelWidthInD + pixelWidthInD / 2 + function.getMinX();
+                double YcoordInD = y * pixelHeightInD + pixelHeightInD / 2 + function.getMinY();
 
                 double value = function.apply(XcoordInD, YcoordInD) - function.getMinValue();
                 Color color = colors[(int) Math.floor(value / step)];
@@ -62,16 +63,36 @@ public final class IsolinesDrawer {
         return image;
     }
 
-    // YjXi = f00, Yj+1Xi = f10, YjXi+1 = f01, Yj+1Xi+1 = f11
-    public static BufferedImage drawIsolines(@NotNull BufferedImage image, BoundedFunction function, int k, int m, int colorsNum) {
+    public static BufferedImage drawIsolines(
+            @NotNull BufferedImage image,
+            BoundedFunction function,
+            int k,
+            int m,
+            int colorsNum
+    ) {
+        final double[] levels = new double[colorsNum - 1];
         final double step = (function.getMaxValue() - function.getMinValue()) / colorsNum;
+        int count = 0;
+        for (double level = function.getMinValue() + step; level < function.getMaxValue(); level += step) {
+            levels[count++] = level;
+        }
+        return drawIsolines(image, function, k, m, levels);
+    }
 
+    // YjXi = f00, Yj+1Xi = f10, YjXi+1 = f01, Yj+1Xi+1 = f11
+    public static BufferedImage drawIsolines(
+            @NotNull BufferedImage image,
+            BoundedFunction function,
+            int k,
+            int m,
+            double... levels
+    ) {
         final int width = image.getWidth();
         final int height = image.getHeight();
         final double pixelWidthInD = (function.getMaxX() - function.getMinX()) / width;
         final double pixelHeightInD = (function.getMaxY() - function.getMinY()) / height;
-        final double cellWidth = (function.getMaxX() - function.getMinX()) / (k - 1);
-        final double cellHeight = (function.getMaxY() - function.getMinY()) / (m - 1);
+        final double cellWidthInD = (function.getMaxX() - function.getMinX()) / (k - 1);
+        final double cellHeightInD = (function.getMaxY() - function.getMinY()) / (m - 1);
 
         final Graphics2D graphics2D = image.createGraphics();
         graphics2D.setStroke(new BasicStroke(1));
@@ -81,12 +102,12 @@ public final class IsolinesDrawer {
         Coord[][] nodeCoordsInD = new Coord[m][k];
         for (int x = 0; x < k; ++x) {
             for (int y = 0; y < m; ++y) {
-                nodeCoordsInD[y][x] = new Coord(cellWidth * x, cellHeight * y);
-                nodeValues[y][x] = function.apply(cellWidth * x, cellHeight * y);
+                nodeCoordsInD[y][x] = new Coord(cellWidthInD * x + function.getMinX(), cellHeightInD * y + function.getMinY());
+                nodeValues[y][x] = function.apply(nodeCoordsInD[y][x].getX(), nodeCoordsInD[y][x].getY());
             }
         }
 
-        for (double level = function.getMinValue() + step; level < function.getMaxValue(); level += step) {
+        for (double level : levels) {
             for (int x = 0; x < k - 1; ++x) {
                 for (int y = 0; y < m - 1; ++y) {
                     Coord[] intersections = new Coord[4];
@@ -104,42 +125,85 @@ public final class IsolinesDrawer {
                         }
                     }
 
+//                    ///// risovanie ------------------------------------------
+//                    graphics2D.setColor(Color.RED);
+//                    graphics2D.setStroke(new BasicStroke(2));
+//                    for (int i = 0; i < count; ++i) {
+//                        graphics2D.drawOval(
+//                                (int) Math.floor(intersections[i].getX() / pixelWidthInD),
+//                                (int) Math.floor(intersections[i].getY() / pixelHeightInD),
+//                                2,
+//                                2
+//                        );
+//                    }
+//                    graphics2D.setColor(Color.BLACK);
+//                    graphics2D.setStroke(new BasicStroke(1));
+//                    ////////---------------------------------------------------
+
                     switch (count) {
                         case 0:
                             break;
                         case 1:
+                            System.out.println("1");
+                            break;
                         case 3:
-                            // TODO ???
+                            System.out.println("3");
                             break;
                         case 2:
-                            graphics2D.setColor(Color.RED);
-                            graphics2D.setStroke(new BasicStroke(2));
-
-                            graphics2D.drawOval(
-                                    (int) Math.floor(intersections[0].getX() / pixelWidthInD),
-                                    (int) Math.floor(intersections[0].getY() / pixelHeightInD),
-                                    2,
-                                    2
-                            );
-                            graphics2D.drawOval(
-                                    (int) Math.floor(intersections[1].getX() / pixelWidthInD),
-                                    (int) Math.floor(intersections[1].getY() / pixelHeightInD),
-                                    2,
-                                    2
-                            );
-
-                            graphics2D.setColor(Color.BLACK);
-                            graphics2D.setStroke(new BasicStroke(1));
-
                             graphics2D.drawLine(
-                                    (int) Math.floor(intersections[0].getX() / pixelWidthInD),
-                                    (int) Math.floor(intersections[0].getY() / pixelHeightInD),
-                                    (int) Math.floor(intersections[1].getX() / pixelWidthInD),
-                                    (int) Math.floor(intersections[1].getY() / pixelHeightInD)
+                                    (int) Math.floor((intersections[0].getX() - function.getMinX()) / pixelWidthInD),
+                                    (int) Math.floor((intersections[0].getY() - function.getMinY()) / pixelHeightInD),
+                                    (int) Math.floor((intersections[1].getX() - function.getMinX()) / pixelWidthInD),
+                                    (int) Math.floor((intersections[1].getY() - function.getMinY()) / pixelHeightInD)
                             );
                             break;
-                        case 4:
+                        case 4: {
+//                            Coord central = new Coord(
+//                                    nodeCoordsInD[y][x].getX() + cellWidthInD / 2,
+//                                    nodeCoordsInD[y][x].getY() + cellHeightInD / 2
+//                            );
+//                            double centralValue = function.apply(central.getX(), central.getY());
+//
+//                            Coord intersection00 = getIntersection(central, centralValue, nodeCoordsInD[y][x], nodeValues[y][x], level);
+//                            Coord intersection01 = getIntersection(central, centralValue, nodeCoordsInD[y][x + 1], nodeValues[y][x + 1], level);
+//                            Coord intersection10 = getIntersection(central, centralValue, nodeCoordsInD[y + 1][x], nodeValues[y + 1][x], level);
+//                            Coord intersection11 = getIntersection(central, centralValue, nodeCoordsInD[y + 1][x + 1], nodeValues[y + 1][x + 1], level);
+//
+//                            if (intersection00 != null && intersection11 != null) {
+//                                graphics2D.drawLine(
+//                                        (int) Math.floor(intersections[0].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[0].getY() / pixelHeightInD),
+//                                        (int) Math.floor(intersections[1].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[1].getY() / pixelHeightInD)
+//                                );
+//                                graphics2D.drawLine(
+//                                        (int) Math.floor(intersections[2].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[2].getY() / pixelHeightInD),
+//                                        (int) Math.floor(intersections[3].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[3].getY() / pixelHeightInD)
+//                                );
+//
+//                            } else if (intersection01 != null && intersection10 != null) {
+//                                graphics2D.drawLine(
+//                                        (int) Math.floor(intersections[1].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[1].getY() / pixelHeightInD),
+//                                        (int) Math.floor(intersections[3].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[3].getY() / pixelHeightInD)
+//                                );
+//                                graphics2D.drawLine(
+//                                        (int) Math.floor(intersections[0].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[0].getY() / pixelHeightInD),
+//                                        (int) Math.floor(intersections[2].getX() / pixelWidthInD),
+//                                        (int) Math.floor(intersections[2].getY() / pixelHeightInD)
+//                                );
+//
+//                            } else {
+//                                // TODO ???
+//                            }
+
+
                             break;
+                        }
                         default:
                             // TODO ???
                     }

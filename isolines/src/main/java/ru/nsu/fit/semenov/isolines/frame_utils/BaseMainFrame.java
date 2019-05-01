@@ -1,4 +1,4 @@
-package ru.nsu.fit.semenov.isolines.frameutils;
+package ru.nsu.fit.semenov.isolines.frame_utils;
 
 import javax.swing.*;
 import java.awt.*;
