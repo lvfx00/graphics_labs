@@ -2,7 +2,7 @@ package ru.nsu.fit.semenov.isolines;
 
 import ru.nsu.fit.semenov.isolines.BoundedFunctionImpl.DoubleBiFunction;
 import ru.nsu.fit.semenov.isolines.frame_utils.BaseMainFrame;
-import ru.nsu.fit.semenov.isolines.utils.Coord;
+import ru.nsu.fit.semenov.isolines.utils.DoubleCoord;
 import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
 
 import javax.swing.*;
@@ -19,7 +19,7 @@ public final class MainFrame extends BaseMainFrame {
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
     private static final Dimension MAP_MIN_SIZE = new Dimension(100, 100);
-    private static final Dimension MAP_INIT_SIZE = new Dimension(500, 500);
+    private static final Dimension INIT_MAP_SIZE = new Dimension(500, 500);
 
     private static final int MAP_LEGEND_WIDTH = 400;
     private static final int MAP_LEGEND_HEIGHT = 30;
@@ -35,19 +35,17 @@ public final class MainFrame extends BaseMainFrame {
             Color.BLUE
     };
 
-    private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(x) * Math.cos(y));
+    private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(y) * Math.cos(x));
 
-    private Dimension mapSize = MAP_INIT_SIZE;
-    private double a = -3.0;
-    private double b = 3.0;
-    private double c = -3.0;
-    private double d = 3.0;
-    private int k = 10;
-    private int m = 10;
+    private Dimension mapSize = INIT_MAP_SIZE;
+    private double a = -5.0;
+    private double b = 5.0;
+    private double c = -5.0;
+    private double d = 5.0;
+    private int k = 20;
+    private int m = 20;
     private BoundedFunction boundedFunction =
             new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, -1.0, 1.0);
-
-    // --- ДАЛЬШЕ ХУЙНЯ --- //
 
     private final JLabel isolinesLabel = new JLabel();
     private final List<AbstractButton> isolinesButtonsList = new ArrayList<>(2);
@@ -61,8 +59,12 @@ public final class MainFrame extends BaseMainFrame {
     private final List<AbstractButton> gridButtonsList = new ArrayList<>(2);
     private boolean isGridShown;
 
+    private final JLabel controlPointsLabel = new JLabel();
+    private final List<AbstractButton> controlPointsButtonsList = new ArrayList<>(2);
+    private boolean isControlPointsShown;
+
     private final JLabel userIsolinesLabel = new JLabel();
-    private BufferedImage userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
+    private BufferedImage userIsolinesImage;
 
     private final JLabel statusLabel = new JLabel("status");
 
@@ -75,7 +77,7 @@ public final class MainFrame extends BaseMainFrame {
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setMinimumSize(MAP_MIN_SIZE);
-        layeredPane.setPreferredSize(MAP_INIT_SIZE);
+        layeredPane.setPreferredSize(INIT_MAP_SIZE);
 
         LayeredPaneMouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
         layeredPane.addMouseListener(layeredPaneMouseAdapter);
@@ -84,8 +86,11 @@ public final class MainFrame extends BaseMainFrame {
         layeredPane.add(mapLabel, new Integer(0));
         layeredPane.add(gridLabel, new Integer(1));
         layeredPane.add(isolinesLabel, new Integer(2));
+        layeredPane.add(controlPointsLabel, new Integer(3));
+
+        userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
         userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
-        layeredPane.add(userIsolinesLabel, new Integer(3));
+        layeredPane.add(userIsolinesLabel, new Integer(4));
 
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
@@ -243,6 +248,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         gridButtonsList.add(addToolBarToggleButton(menuPathString));
 
+        menuPathString = submenu + "/Control Points";
+        controlPointsButtonsList.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "View isoline control points",
+                        KeyEvent.getExtendedKeyCodeForChar('c'),
+                        "dots.png",
+                        this::controlPointsAction
+                )
+        );
+        controlPointsButtonsList.add(addToolBarToggleButton(menuPathString));
+
         menuPathString = submenu + "/Erase";
         addCheckBoxMenuItem(
                 menuPathString,
@@ -295,7 +312,7 @@ public final class MainFrame extends BaseMainFrame {
                 boundedFunction,
                 k,
                 m,
-                colors.length
+                calculatelevels()
         )));
         isolinesLabel.setBounds(0, 0, mapSize.width, mapSize.height);
     }
@@ -321,6 +338,29 @@ public final class MainFrame extends BaseMainFrame {
         gridLabel.setBounds(0, 0, mapSize.width, mapSize.height);
     }
 
+    private void controlPointsAction() {
+        if (isControlPointsShown) {
+            controlPointsLabel.setIcon(null);
+        } else {
+            drawControlPoints();
+        }
+        isControlPointsShown = !isControlPointsShown;
+        for (AbstractButton ab : controlPointsButtonsList) {
+            ab.setSelected(isControlPointsShown);
+        }
+    }
+
+    private void drawControlPoints() {
+        controlPointsLabel.setIcon(new ImageIcon(IsolinesDrawer.drawControlPoints(
+                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                boundedFunction,
+                k,
+                m,
+                calculatelevels()
+        )));
+        controlPointsLabel.setBounds(0, 0, mapSize.width, mapSize.height);
+    }
+
     private void redrawImages() {
         if (isGridShown) {
             drawGrid();
@@ -331,6 +371,9 @@ public final class MainFrame extends BaseMainFrame {
         if (isMapShown) {
             drawMap();
         }
+        if (isControlPointsShown) {
+            drawControlPoints();
+        }
     }
 
     private void eraseUserIsolinesAction() {
@@ -338,13 +381,24 @@ public final class MainFrame extends BaseMainFrame {
         userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
     }
 
+    private double[] calculatelevels() {
+        final double[] levels = new double[colors.length - 1];
+        final double step = (boundedFunction.getMaxValue() - boundedFunction.getMinValue()) / colors.length;
+        int count = 0;
+        for (double level = boundedFunction.getMinValue() + step; level < boundedFunction.getMaxValue(); level += step) {
+            levels[count++] = level;
+        }
+        return levels;
+    }
+
     private class LayeredPaneMouseAdapter extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
-            Coord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
+            DoubleCoord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
             double level = boundedFunction.apply(coordsInD.getX(), coordsInD.getY());
-            System.out.println(level);
             IsolinesDrawer.drawIsolines(userIsolinesImage, boundedFunction, k, m, level);
+            userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
+
         }
 
         @Override
@@ -354,7 +408,7 @@ public final class MainFrame extends BaseMainFrame {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            Coord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
+            DoubleCoord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
             double level = boundedFunction.apply(coordsInD.getX(), coordsInD.getY());
             statusLabel.setText("X = " + coordsInD.getX() +
                     ",   Y = " + coordsInD.getY() +
@@ -362,14 +416,14 @@ public final class MainFrame extends BaseMainFrame {
             );
         }
 
-        private Coord getMouseCoordsInD(int x, int y) {
+        private DoubleCoord getMouseCoordsInD(int x, int y) {
             final double pixelWidthInD = (boundedFunction.getMaxX() - boundedFunction.getMinX()) / mapSize.width;
             final double pixelHeightInD = (boundedFunction.getMaxY() - boundedFunction.getMinY()) / mapSize.height;
 
             final double xInD = x * pixelWidthInD + pixelWidthInD / 2 + boundedFunction.getMinX();
             final double yInD = y * pixelHeightInD + pixelHeightInD / 2 + boundedFunction.getMinY();
 
-            return new Coord(xInD, yInD);
+            return new DoubleCoord(xInD, yInD);
         }
     }
 

@@ -2,21 +2,21 @@ package ru.nsu.fit.semenov.isolines.utils;
 
 import java.util.Objects;
 
-public class Coord {
+public class IntCoord {
 
-    private final double x;
-    private final double y;
+    private final int x;
+    private final int y;
 
-    public Coord(double x, double y) {
+    public IntCoord(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
     }
 
@@ -24,9 +24,9 @@ public class Coord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Coord coord = (Coord) o;
-        return Double.compare(coord.x, x) == 0 &&
-                Double.compare(coord.y, y) == 0;
+        IntCoord intCoord = (IntCoord) o;
+        return x == intCoord.x &&
+                y == intCoord.y;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class Coord {
 
     @Override
     public String toString() {
-        return "Coord{" +
+        return "IntCoord{" +
                 "x=" + x +
                 ", y=" + y +
                 '}';
