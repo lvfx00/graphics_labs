@@ -21,21 +21,26 @@ public final class MainFrame extends BaseMainFrame {
     private static final Dimension MAP_MIN_SIZE = new Dimension(100, 100);
     private static final Dimension INIT_MAP_SIZE = new Dimension(500, 500);
 
-    private static final int MAP_LEGEND_WIDTH = 400;
-    private static final int MAP_LEGEND_HEIGHT = 30;
+    private static final int MAP_LEGEND_WIDTH = 300;
+    private static final int MAP_LEGEND_HEIGHT = 50;
 
     private final Color[] colors = {
+            Color.RED,
             Color.ORANGE,
             Color.YELLOW,
             Color.PINK,
-            Color.GRAY,
+            Color.LIGHT_GRAY,
             Color.CYAN,
-            Color.GREEN,
-            Color.MAGENTA,
-            Color.BLUE
+            new Color(0, 135, 255),
+            new Color(0, 50, 255)
     };
 
+    private final Color additionalColor = Color.BLUE;
+    private final Color[] interpolationColors = new Color[colors.length + 1];
+
     private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(y) * Math.cos(x));
+    private static final double minValue = -1.0;
+    private static final double maxValue = 1.0;
 
     private Dimension mapSize = INIT_MAP_SIZE;
     private double a = -5.0;
@@ -55,6 +60,10 @@ public final class MainFrame extends BaseMainFrame {
     private final List<AbstractButton> mapButtonsList = new ArrayList<>(2);
     private boolean isMapShown;
 
+    private final JLabel interpolatedMapLabel = new JLabel();
+    private final List<AbstractButton> interpolationButtonsList = new ArrayList<>(2);
+    private boolean isInterpolatedMapShown;
+
     private final JLabel gridLabel = new JLabel();
     private final List<AbstractButton> gridButtonsList = new ArrayList<>(2);
     private boolean isGridShown;
@@ -67,6 +76,7 @@ public final class MainFrame extends BaseMainFrame {
     private BufferedImage userIsolinesImage;
 
     private final JLabel statusLabel = new JLabel("status");
+    private JLabel mapLegendLabel = new JLabel();
 
     public MainFrame() {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Isolines");
@@ -84,6 +94,7 @@ public final class MainFrame extends BaseMainFrame {
         layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
 
         layeredPane.add(mapLabel, new Integer(0));
+        layeredPane.add(interpolatedMapLabel, new Integer(0));
         layeredPane.add(gridLabel, new Integer(1));
         layeredPane.add(isolinesLabel, new Integer(2));
         layeredPane.add(controlPointsLabel, new Integer(3));
@@ -101,57 +112,54 @@ public final class MainFrame extends BaseMainFrame {
         });
 
         mainPanel.add(layeredPane);
-        mainPanel.add(initMapLegend());
+
+        JPanel mapLegendPanel = new JPanel();
+        mapLegendPanel.setBorder(
+                BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Map Legend")
+        );
+        mapLegendPanel.add(mapLegendLabel);
+        mapLegendLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        drawMapLegend();
+        mainPanel.add(mapLegendPanel);
 
         add(mainPanel, BorderLayout.CENTER);
         add(initStatusPanel(), BorderLayout.SOUTH);
 
         initMenus();
+
+        System.arraycopy(colors, 0, interpolationColors, 0, colors.length);
+        interpolationColors[colors.length] = additionalColor;
     }
 
-    // TODO переделать на вызов рисования мапы
-    private JPanel initMapLegend() {
-        final double step = (boundedFunction.getMaxValue() - boundedFunction.getMinValue()) / colors.length;
-
-        JPanel mapLegendPanel = new JPanel();
-
-        BufferedImage image = ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH + 20, MAP_LEGEND_HEIGHT + 50);
-
-        Graphics2D graphics2D = image.createGraphics();
-        graphics2D.setStroke(new BasicStroke(2));
-        graphics2D.setColor(Color.BLACK);
-        graphics2D.setFont(new Font("TimesRoman", Font.BOLD, 16));
-
-        final int xLegendOffset = 10;
-        final int yLegendOffset = 10;
-        final int oneColorWidth = MAP_LEGEND_WIDTH / colors.length;
-
-        graphics2D.drawRect(xLegendOffset, yLegendOffset, MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT);
-
-        for (int i = 0; i < colors.length; ++i) {
-            graphics2D.setColor(colors[i]);
-            graphics2D.fillRect(xLegendOffset + i * oneColorWidth, yLegendOffset, oneColorWidth, MAP_LEGEND_HEIGHT);
-            graphics2D.setColor(Color.BLACK);
-            graphics2D.drawLine(
-                    xLegendOffset + i * oneColorWidth,
-                    yLegendOffset,
-                    xLegendOffset + i * oneColorWidth,
-                    yLegendOffset + MAP_LEGEND_HEIGHT
-            );
-            if (i > 0) {
-                graphics2D.drawString(
-                        String.valueOf(step * i),
-                        xLegendOffset + i * oneColorWidth - 15,
-                        MAP_LEGEND_HEIGHT + yLegendOffset + 15
-                );
-            }
+    private void drawMapLegend() {
+        if (!isInterpolatedMapShown && !isMapShown) {
+            mapLegendLabel.setIcon(new ImageIcon(ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT)));
+            return;
         }
 
-        graphics2D.dispose();
-        JLabel mapLegendLabel = new JLabel();
+        double len = 1;
+        BoundedFunction legendFuncliton = new BoundedFunctionImpl(
+                (x, y) -> minValue + x * (maxValue - minValue) / len,
+                0, len,
+                0, len,
+                minValue, maxValue
+        );
+        BufferedImage image = ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT);
+
+        if (isInterpolatedMapShown) {
+            IsolinesDrawer.drawInterpolatedMap(image, legendFuncliton, interpolationColors);
+        } else if (isMapShown) {
+            IsolinesDrawer.drawMap(image, legendFuncliton, colors);
+        }
+
+//        graphics2D.setFont(new Font("TimesRoman", Font.BOLD, 16));
+//                graphics2D.drawString(
+//                        String.valueOf(step * i),
+//                        xLegendOffset + i * oneColorWidth - 15,
+//                        MAP_LEGEND_HEIGHT + yLegendOffset + 15
+//                );
         mapLegendLabel.setIcon(new ImageIcon(image));
-        mapLegendPanel.add(mapLegendLabel);
-        return mapLegendPanel;
+
     }
 
     private JPanel initStatusPanel() {
@@ -170,8 +178,7 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void init() {
-        // TODO расчитывать -1.0 и 1.0
-        boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, -1.0, 1.0);
+        boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, minValue, maxValue);
         redrawImages();
     }
 
@@ -224,6 +231,18 @@ public final class MainFrame extends BaseMainFrame {
         );
         mapButtonsList.add(addToolBarToggleButton(menuPathString));
 
+        menuPathString = submenu + "/Interpolation";
+        interpolationButtonsList.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "Interpolated map",
+                        KeyEvent.getExtendedKeyCodeForChar('p'),
+                        "interpolation.png",
+                        this::interpolationAction
+                )
+        );
+        interpolationButtonsList.add(addToolBarToggleButton(menuPathString));
+
         menuPathString = submenu + "/Isolines";
         isolinesButtonsList.add(
                 addCheckBoxMenuItem(
@@ -274,14 +293,18 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void mapAction() {
-        if (isMapShown) {
-            mapLabel.setIcon(null);
-        } else {
-            drawMap();
-        }
         isMapShown = !isMapShown;
         for (AbstractButton ab : mapButtonsList) {
             ab.setSelected(isMapShown);
+        }
+        drawMapLegend();
+        if (!isMapShown) {
+            mapLabel.setIcon(null);
+        } else {
+            if (isInterpolatedMapShown) {
+                interpolationAction();
+            }
+            drawMap();
         }
     }
 
@@ -294,15 +317,40 @@ public final class MainFrame extends BaseMainFrame {
         mapLabel.setBounds(0, 0, mapSize.width, mapSize.height);
     }
 
-    private void isolinesAction() {
-        if (isIsolinesShown) {
-            isolinesLabel.setIcon(null);
-        } else {
-            drawIsolines();
+    private void interpolationAction() {
+        isInterpolatedMapShown = !isInterpolatedMapShown;
+        for (AbstractButton ab : interpolationButtonsList) {
+            ab.setSelected(isInterpolatedMapShown);
         }
+        drawMapLegend();
+        if (!isInterpolatedMapShown) {
+            interpolatedMapLabel.setIcon(null);
+        } else {
+            if (isMapShown) {
+                mapAction();
+            }
+            drawInterpolatedMap();
+        }
+    }
+
+    private void drawInterpolatedMap() {
+        interpolatedMapLabel.setIcon(new ImageIcon(IsolinesDrawer.drawInterpolatedMap(
+                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                boundedFunction,
+                interpolationColors
+        )));
+        interpolatedMapLabel.setBounds(0, 0, mapSize.width, mapSize.height);
+    }
+
+    private void isolinesAction() {
         isIsolinesShown = !isIsolinesShown;
         for (AbstractButton ab : isolinesButtonsList) {
             ab.setSelected(isIsolinesShown);
+        }
+        if (!isIsolinesShown) {
+            isolinesLabel.setIcon(null);
+        } else {
+            drawIsolines();
         }
     }
 
@@ -312,20 +360,20 @@ public final class MainFrame extends BaseMainFrame {
                 boundedFunction,
                 k,
                 m,
-                calculatelevels()
+                calculateLevels(boundedFunction, colors.length - 1)
         )));
         isolinesLabel.setBounds(0, 0, mapSize.width, mapSize.height);
     }
 
     private void gridAction() {
-        if (isGridShown) {
-            gridLabel.setIcon(null);
-        } else {
-            drawGrid();
-        }
         isGridShown = !isGridShown;
         for (AbstractButton ab : gridButtonsList) {
             ab.setSelected(isGridShown);
+        }
+        if (!isGridShown) {
+            gridLabel.setIcon(null);
+        } else {
+            drawGrid();
         }
     }
 
@@ -339,14 +387,14 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void controlPointsAction() {
-        if (isControlPointsShown) {
-            controlPointsLabel.setIcon(null);
-        } else {
-            drawControlPoints();
-        }
         isControlPointsShown = !isControlPointsShown;
         for (AbstractButton ab : controlPointsButtonsList) {
             ab.setSelected(isControlPointsShown);
+        }
+        if (!isControlPointsShown) {
+            controlPointsLabel.setIcon(null);
+        } else {
+            drawControlPoints();
         }
     }
 
@@ -356,7 +404,7 @@ public final class MainFrame extends BaseMainFrame {
                 boundedFunction,
                 k,
                 m,
-                calculatelevels()
+                calculateLevels(boundedFunction, colors.length - 1)
         )));
         controlPointsLabel.setBounds(0, 0, mapSize.width, mapSize.height);
     }
@@ -374,6 +422,9 @@ public final class MainFrame extends BaseMainFrame {
         if (isControlPointsShown) {
             drawControlPoints();
         }
+        if (isInterpolatedMapShown) {
+            drawInterpolatedMap();
+        }
     }
 
     private void eraseUserIsolinesAction() {
@@ -381,11 +432,11 @@ public final class MainFrame extends BaseMainFrame {
         userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
     }
 
-    private double[] calculatelevels() {
-        final double[] levels = new double[colors.length - 1];
-        final double step = (boundedFunction.getMaxValue() - boundedFunction.getMinValue()) / colors.length;
+    private double[] calculateLevels(BoundedFunction function, int levelsNum) {
+        final double[] levels = new double[levelsNum];
+        final double step = (function.getMaxValue() - function.getMinValue()) / (levelsNum + 1);
         int count = 0;
-        for (double level = boundedFunction.getMinValue() + step; level < boundedFunction.getMaxValue(); level += step) {
+        for (double level = function.getMinValue() + step; level < function.getMaxValue(); level += step) {
             levels[count++] = level;
         }
         return levels;

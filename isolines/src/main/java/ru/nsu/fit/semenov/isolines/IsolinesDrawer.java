@@ -56,6 +56,35 @@ public final class IsolinesDrawer {
         return image;
     }
 
+    public static BufferedImage drawInterpolatedMap(@NotNull BufferedImage image, BoundedFunction function, Color[] colors) {
+        final double step = (function.getMaxValue() - function.getMinValue()) / (colors.length - 1);
+
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+        final double pixelWidthInD = (function.getMaxX() - function.getMinX()) / width;
+        final double pixelHeightInD = (function.getMaxY() - function.getMinY()) / height;
+
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                double XcoordInD = x * pixelWidthInD + pixelWidthInD / 2 + function.getMinX();
+                double YcoordInD = y * pixelHeightInD + pixelHeightInD / 2 + function.getMinY();
+
+                double value = function.apply(XcoordInD, YcoordInD) - function.getMinValue();
+
+                double coef = value / step - Math.floor(value / step);
+                int index = (int) Math.floor(value / step);
+
+                int red = colors[index].getRed() + (int) ((colors[index + 1].getRed() - colors[index].getRed()) * coef);
+                int green = colors[index].getGreen() + (int) ((colors[index + 1].getGreen() - colors[index].getGreen()) * coef);
+                int blue = colors[index].getBlue() + (int) ((colors[index + 1].getBlue() - colors[index].getBlue()) * coef);
+
+                image.setRGB(x, y, new Color(red, green, blue).getRGB());
+            }
+        }
+
+        return image;
+    }
+
     public static BufferedImage drawGrid(@NotNull BufferedImage image, int k, int m) {
         final int width = image.getWidth();
         final int height = image.getHeight();
@@ -110,7 +139,7 @@ public final class IsolinesDrawer {
 
         };
 
-        return processIntersectionDots(image, processor, function, k, m, levels);
+        return processIsolines(image, processor, function, k, m, levels);
     }
 
     public static BufferedImage drawIsolines(
@@ -140,10 +169,10 @@ public final class IsolinesDrawer {
 
         };
 
-        return processIntersectionDots(image, processor, function, k, m, levels);
+        return processIsolines(image, processor, function, k, m, levels);
     }
 
-    private static BufferedImage processIntersectionDots(
+    public static BufferedImage processIsolines(
             @NotNull BufferedImage image,
             IntersectionProcessor processor,
             BoundedFunction function,
