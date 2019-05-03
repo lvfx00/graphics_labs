@@ -1,4 +1,4 @@
-package ru.nsu.fit.semenov.isolines;
+package ru.nsu.fit.semenov.isolines.model;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;

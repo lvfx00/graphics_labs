@@ -1,4 +1,4 @@
-package ru.nsu.fit.semenov.isolines;
+package ru.nsu.fit.semenov.isolines.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.semenov.isolines.frame_utils.BaseFrame;

@@ -1,4 +1,4 @@
-package ru.nsu.fit.semenov.isolines;
+package ru.nsu.fit.semenov.isolines.model;
 
 public class BoundedFunctionImpl implements BoundedFunction {
 
