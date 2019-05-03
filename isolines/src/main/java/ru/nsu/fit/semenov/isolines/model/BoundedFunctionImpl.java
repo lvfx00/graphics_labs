@@ -1,6 +1,11 @@
 package ru.nsu.fit.semenov.isolines.model;
 
-public class BoundedFunctionImpl implements BoundedFunction {
+import ru.nsu.fit.semenov.isolines.utils.Rectangle;
+
+public final class BoundedFunctionImpl implements BoundedFunction {
+
+    private static final double X_STEPS = 1000;
+    private static final double Y_STEPS = 1000;
 
     @FunctionalInterface
     public interface DoubleBiFunction {
@@ -10,27 +15,26 @@ public class BoundedFunctionImpl implements BoundedFunction {
     }
 
     private final DoubleBiFunction function;
-    private final double minX;
-    private final double maxX;
-    private final double minY;
-    private final double maxY;
+    private final Rectangle domain;
     private final double minValue;
     private final double maxValue;
 
-    public BoundedFunctionImpl(
-            DoubleBiFunction function,
-            double minX,
-            double maxX,
-            double minY,
-            double maxY,
-            double minValue,
-            double maxValue
-    ) {
+    public BoundedFunctionImpl(DoubleBiFunction function, Rectangle domain) {
         this.function = function;
-        this.minX = minX;
-        this.maxX = maxX;
-        this.minY = minY;
-        this.maxY = maxY;
+        this.domain = domain;
+        double minValue = Double.MAX_VALUE;
+        double maxValue = -Double.MAX_VALUE;
+        for (double x = domain.getX(); x <= domain.getX() + domain.getWidth(); x += domain.getWidth() / X_STEPS) {
+            for (double y = domain.getY(); y <= domain.getY() + domain.getHeight(); y += domain.getHeight() / Y_STEPS) {
+                double val = function.apply(x, y);
+                if (val > maxValue) {
+                    maxValue = val;
+                }
+                if (val < minValue) {
+                    minValue = val;
+                }
+            }
+        }
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
@@ -41,23 +45,8 @@ public class BoundedFunctionImpl implements BoundedFunction {
     }
 
     @Override
-    public double getMinX() {
-        return minX;
-    }
-
-    @Override
-    public double getMaxX() {
-        return maxX;
-    }
-
-    @Override
-    public double getMinY() {
-        return minY;
-    }
-
-    @Override
-    public double getMaxY() {
-        return maxY;
+    public Rectangle getDomain() {
+        return domain;
     }
 
     @Override

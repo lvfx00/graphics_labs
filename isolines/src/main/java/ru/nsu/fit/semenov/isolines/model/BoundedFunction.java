@@ -1,16 +1,12 @@
 package ru.nsu.fit.semenov.isolines.model;
 
+import ru.nsu.fit.semenov.isolines.utils.Rectangle;
+
 public interface BoundedFunction {
 
     double apply(double x, double y);
 
-    double getMinX();
-
-    double getMaxX();
-
-    double getMinY();
-
-    double getMaxY();
+    Rectangle getDomain();
 
     double getMinValue();
 

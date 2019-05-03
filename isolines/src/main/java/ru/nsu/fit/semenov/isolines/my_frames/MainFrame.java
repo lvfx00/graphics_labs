@@ -7,6 +7,7 @@ import ru.nsu.fit.semenov.isolines.model.BoundedFunctionImpl;
 import ru.nsu.fit.semenov.isolines.model.BoundedFunctionImpl.DoubleBiFunction;
 import ru.nsu.fit.semenov.isolines.model.IsolinesDrawer;
 import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
+import ru.nsu.fit.semenov.isolines.utils.Rectangle;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -32,9 +33,9 @@ public final class MainFrame extends BaseMainFrame {
 
     private final Color[] colors = {
             Color.RED,
+            new Color(255, 100, 0),
             Color.ORANGE,
             Color.YELLOW,
-            Color.PINK,
             Color.LIGHT_GRAY,
             Color.CYAN,
             new Color(0, 135, 255),
@@ -45,17 +46,16 @@ public final class MainFrame extends BaseMainFrame {
     private final Color[] interpolationColors = new Color[colors.length + 1];
 
     private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(y) * Math.cos(x));
-    private static final double minValue = -1.0;
-    private static final double maxValue = 1.0;
 
     private Dimension mapSize = INIT_MAP_SIZE;
+
+    private BoundedFunction boundedFunction;
     private double a = -5.0;
     private double b = 5.0;
     private double c = -5.0;
     private double d = 5.0;
     private int k = 20;
     private int m = 20;
-    private BoundedFunction boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, -1.0, 1.0);
 
     private final List<ImageLayerData> imageLayerDataList = new ArrayList<>();
 
@@ -114,6 +114,8 @@ public final class MainFrame extends BaseMainFrame {
 
         System.arraycopy(colors, 0, interpolationColors, 0, colors.length);
         interpolationColors[colors.length] = additionalColor;
+
+        init();
     }
 
     private void drawMapLegend() {
@@ -124,12 +126,11 @@ public final class MainFrame extends BaseMainFrame {
             return;
         }
 
-        double len = 1;
+        double minValue = boundedFunction.getMinValue();
+        double maxValue = boundedFunction.getMaxValue();
         BoundedFunction legendFuncliton = new BoundedFunctionImpl(
-                (x, y) -> minValue + x * (maxValue - minValue) / len,
-                0, len,
-                0, len,
-                minValue, maxValue
+                (x, y) -> minValue + x * (maxValue - minValue), // -> x ???
+                new Rectangle(0, 0, 1, 1)
         );
         BufferedImage image = ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT);
 
@@ -165,7 +166,7 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void init() {
-        boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, a, b, c, d, minValue, maxValue);
+        boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, new Rectangle(a, c, b - a, d - c));
         redrawImages();
     }
 
