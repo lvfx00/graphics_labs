@@ -27,16 +27,16 @@ public final class MainFrame extends BaseMainFrame {
     private static final int FRAME_HEIGHT = 600;
     private static final Dimension MAP_MIN_SIZE = new Dimension(100, 100);
     private static final Dimension INIT_MAP_SIZE = new Dimension(500, 500);
+    private static final Dimension MIN_FRAME_SIZE = new Dimension(500, 500);
 
-    private static final int MAP_LEGEND_WIDTH = 300;
-    private static final int MAP_LEGEND_HEIGHT = 50;
+    private static final int MAP_LEGEND_HEIGHT = 80;
 
     private final Color[] colors = {
             Color.RED,
             new Color(255, 100, 0),
             Color.ORANGE,
             Color.YELLOW,
-            Color.LIGHT_GRAY,
+            Color.GREEN,
             Color.CYAN,
             new Color(0, 135, 255),
             new Color(0, 50, 255)
@@ -59,6 +59,9 @@ public final class MainFrame extends BaseMainFrame {
 
     private final List<ImageLayerData> imageLayerDataList = new ArrayList<>();
 
+    private final List<AbstractButton> interpolationButtons = new ArrayList<>(2);
+    private boolean isInterpolationSelected = false;
+
 //    private final JLabel userIsolinesLabel = new JLabel();
 //    private BufferedImage userIsolinesImage;
 
@@ -67,6 +70,7 @@ public final class MainFrame extends BaseMainFrame {
 
     public MainFrame() {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Isolines");
+        setMinimumSize(MIN_FRAME_SIZE);
         initMenus();
 
         getContentPane().setBackground(FRAME_BACKGOUND_COLOR);
@@ -95,6 +99,7 @@ public final class MainFrame extends BaseMainFrame {
             public void componentResized(ComponentEvent e) {
                 mapSize = new Dimension(e.getComponent().getWidth(), e.getComponent().getHeight());
                 redrawImages();
+                drawMapLegend();
             }
         });
 
@@ -106,7 +111,6 @@ public final class MainFrame extends BaseMainFrame {
         );
         mapLegendPanel.add(mapLegendLabel);
         mapLegendLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        drawMapLegend();
         mainPanel.add(mapLegendPanel);
 
         add(mainPanel, BorderLayout.CENTER);
@@ -119,35 +123,46 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void drawMapLegend() {
-        final boolean isInterpolatedMapShown = imageLayerDataList.get(ImageLayerDataIndex.INTERPOLATED_MAP.ordinal()).isShown();
-        final boolean isMapShown = imageLayerDataList.get(ImageLayerDataIndex.MAP.ordinal()).isShown();
-        if (!isInterpolatedMapShown && !isMapShown) {
-            mapLegendLabel.setIcon(new ImageIcon(ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT)));
+        int mapLegendWidth = mapSize.width - 40;
+        if (!imageLayerDataList.get(ImageLayerDataIndex.MAP.ordinal()).isShown()) {
+            mapLegendLabel.setIcon(new ImageIcon(ImageUtils.createOpaqueImage(mapLegendWidth, MAP_LEGEND_HEIGHT * 3 / 4)));
             return;
         }
 
-        double minValue = boundedFunction.getMinValue();
-        double maxValue = boundedFunction.getMaxValue();
+        BufferedImage legendImage = ImageUtils.createOpaqueImage(mapLegendWidth, MAP_LEGEND_HEIGHT / 2);
         BoundedFunction legendFuncliton = new BoundedFunctionImpl(
-                (x, y) -> minValue + x * (maxValue - minValue), // -> x ???
+                (x, y) -> x,
                 new Rectangle(0, 0, 1, 1)
         );
-        BufferedImage image = ImageUtils.createOpaqueImage(MAP_LEGEND_WIDTH, MAP_LEGEND_HEIGHT);
 
-        if (isInterpolatedMapShown) {
-            IsolinesDrawer.drawInterpolatedMap(image, legendFuncliton, interpolationColors);
+        if (isInterpolationSelected) {
+            IsolinesDrawer.drawInterpolatedMap(legendImage, legendFuncliton, interpolationColors);
         } else {
-            IsolinesDrawer.drawMap(image, legendFuncliton, colors);
+            IsolinesDrawer.drawMap(legendImage, legendFuncliton, colors);
         }
 
-//        graphics2D.setFont(new Font("TimesRoman", Font.BOLD, 16));
-//                graphics2D.drawString(
-//                        String.valueOf(step * i),
-//                        xLegendOffset + i * oneColorWidth - 15,
-//                        MAP_LEGEND_HEIGHT + yLegendOffset + 15
-//                );
-        mapLegendLabel.setIcon(new ImageIcon(image));
+        BufferedImage concatImage = ImageUtils.concatImagesVertically(
+                legendImage,
+                ImageUtils.createOpaqueImage(mapLegendWidth, MAP_LEGEND_HEIGHT / 4)
+        );
 
+        Graphics2D graphics2D = concatImage.createGraphics();
+        graphics2D.setFont(new Font("TimesRoman", Font.BOLD, 15));
+        graphics2D.setStroke(new BasicStroke(2));
+        graphics2D.setColor(Color.BLACK);
+
+        for (double level : calculateLevels(boundedFunction, colors.length - 1)) {
+            int width = (int) (mapLegendWidth * (level - boundedFunction.getMinValue()) /
+                    (boundedFunction.getMaxValue() - boundedFunction.getMinValue()));
+            graphics2D.drawLine(width, 0, width, legendImage.getHeight() - 1);
+            graphics2D.drawString(
+                    String.format("%.2f", level),
+                    width - 15,
+                    MAP_LEGEND_HEIGHT / 2 + 20
+            );
+        }
+        graphics2D.dispose();
+        mapLegendLabel.setIcon(new ImageIcon(concatImage));
     }
 
     private JPanel initStatusPanel() {
@@ -163,11 +178,13 @@ public final class MainFrame extends BaseMainFrame {
     private void initMenus() {
         initActionMenu();
         initEditMenu();
+        drawMapLegend();
     }
 
     private void init() {
         boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, new Rectangle(a, c, b - a, d - c));
         redrawImages();
+        drawMapLegend();
     }
 
     private void initEditMenu() {
@@ -206,38 +223,44 @@ public final class MainFrame extends BaseMainFrame {
     private void initActionMenu() {
         String submenu = "Action";
         addSubMenu(submenu, KeyEvent.getExtendedKeyCodeForChar('a'));
+
         addImageLayer(
                 ImageLayerDataIndex.MAP,
-                () -> IsolinesDrawer.drawMap(ImageUtils.createOpaqueImage(mapSize.width, mapSize.height), boundedFunction, colors),
                 () -> {
-                    drawMapLegend();
-                    ImageLayerData data = imageLayerDataList.get(ImageLayerDataIndex.INTERPOLATED_MAP.ordinal());
-                    if (data.isShown()) commonImageLayerAction(data);
+                    if (isInterpolationSelected) {
+                        return IsolinesDrawer.drawInterpolatedMap(
+                                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                                boundedFunction,
+                                interpolationColors
+                        );
+                    } else {
+                        return IsolinesDrawer.drawMap(
+                                ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
+                                boundedFunction,
+                                colors
+                        );
+                    }
                 },
+                this::drawMapLegend,
                 submenu,
                 "Draw map",
                 "Map",
                 'm',
                 "map.png"
         );
-        addImageLayer(
-                ImageLayerDataIndex.INTERPOLATED_MAP,
-                () -> IsolinesDrawer.drawInterpolatedMap(
-                        ImageUtils.createOpaqueImage(mapSize.width, mapSize.height),
-                        boundedFunction,
-                        interpolationColors
-                ),
-                () -> {
-                    drawMapLegend();
-                    ImageLayerData data = imageLayerDataList.get(ImageLayerDataIndex.MAP.ordinal());
-                    if (data.isShown()) commonImageLayerAction(data);
-                },
-                submenu,
-                "Interpolation",
-                "Draw interpolated map",
-                'p',
-                "interpolation.png"
+
+        String menuPathString = submenu + "/Interpolation";
+        interpolationButtons.add(
+                addCheckBoxMenuItem(
+                        menuPathString,
+                        "enable interpolation map mode",
+                        KeyEvent.getExtendedKeyCodeForChar('i'),
+                        "interpolation.png",
+                        this::interpolationAction
+                )
         );
+        interpolationButtons.add(addToolBarToggleButton(menuPathString));
+
         addImageLayer(
                 ImageLayerDataIndex.ISOLINES,
                 () -> IsolinesDrawer.drawIsolines(
@@ -254,6 +277,7 @@ public final class MainFrame extends BaseMainFrame {
                 'i',
                 "isolines.png"
         );
+
         addImageLayer(
                 ImageLayerDataIndex.GRID,
                 () -> IsolinesDrawer.drawGrid(ImageUtils.createOpaqueImage(mapSize.width, mapSize.height), k, m),
@@ -264,6 +288,7 @@ public final class MainFrame extends BaseMainFrame {
                 'g',
                 "grid.png"
         );
+
         addImageLayer(
                 ImageLayerDataIndex.CONTROL_POINTS,
                 () -> IsolinesDrawer.drawControlPoints(
@@ -348,12 +373,7 @@ public final class MainFrame extends BaseMainFrame {
         }
     }
 
-//    private void eraseUserIsolinesAction() {
-//        userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
-//        userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
-//    }
-
-    private double[] calculateLevels(BoundedFunction function, int levelsNum) {
+    private static double[] calculateLevels(BoundedFunction function, int levelsNum) {
         final double[] levels = new double[levelsNum];
         final double step = (function.getMaxValue() - function.getMinValue()) / (levelsNum + 1);
         int count = 0;
@@ -362,6 +382,24 @@ public final class MainFrame extends BaseMainFrame {
         }
         return levels;
     }
+
+    private void interpolationAction() {
+        isInterpolationSelected = !isInterpolationSelected;
+        for (AbstractButton button : interpolationButtons) {
+            button.setSelected(isInterpolationSelected);
+        }
+        ImageLayerData mapLayerData = imageLayerDataList.get(ImageLayerDataIndex.MAP.ordinal());
+        if (mapLayerData.isShown()) {
+            showImageLayerAction(mapLayerData);
+            drawMapLegend();
+        }
+    }
+
+//    private void eraseUserIsolinesAction() {
+//        userIsolinesImage = ImageUtils.createOpaqueImage(mapSize.width, mapSize.height);
+//        userIsolinesLabel.setIcon(new ImageIcon(userIsolinesImage));
+//    }
+
 
 //    private class LayeredPaneMouseAdapter extends MouseAdapter {
 //        @Override

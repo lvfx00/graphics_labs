@@ -17,4 +17,27 @@ public class ImageUtils {
         return image;
     }
 
+    public static BufferedImage concatImagesVertically(BufferedImage img1, BufferedImage img2) {
+        if (img1.getWidth() != img2.getWidth() || img1.getMinX() != img2.getMinX()) {
+            throw new IllegalArgumentException("Invalid arguments specified");
+        }
+
+        BufferedImage newImage = new BufferedImage(
+                img1.getWidth(),
+                img1.getHeight() + img2.getHeight(),
+                BufferedImage.TYPE_INT_ARGB
+        );
+
+        for (int x = 0; x < img1.getWidth(); ++x) {
+            for (int y = 0; y < img1.getHeight(); ++y) {
+                newImage.setRGB(x, y, img1.getRGB(x, y));
+            }
+            for (int y = 0; y < img2.getHeight(); ++y) {
+                newImage.setRGB(x, y + img1.getHeight(), img2.getRGB(x, y));
+            }
+        }
+
+        return newImage;
+    }
+
 }
