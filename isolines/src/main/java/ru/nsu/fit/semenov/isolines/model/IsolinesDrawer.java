@@ -99,10 +99,10 @@ public final class IsolinesDrawer {
 
     public static BufferedImage drawControlPoints(
             @NotNull BufferedImage image,
-            BoundedFunction function,
+            @NotNull BoundedFunction function,
             int k,
             int m,
-            double... levels
+            @NotNull List<Double> levels
     ) {
         IntersectionProcessor processor = new IntersectionProcessor() {
 
@@ -135,10 +135,10 @@ public final class IsolinesDrawer {
 
     public static BufferedImage drawIsolines(
             @NotNull BufferedImage image,
-            BoundedFunction function,
+            @NotNull BoundedFunction function,
             int k,
             int m,
-            double... levels
+            @NotNull List<Double> levels
     ) {
         IntersectionProcessor processor = new IntersectionProcessor() {
 
@@ -165,11 +165,11 @@ public final class IsolinesDrawer {
 
     public static BufferedImage processIsolines(
             @NotNull BufferedImage image,
-            IntersectionProcessor processor,
-            BoundedFunction function,
+            @NotNull IntersectionProcessor processor,
+            @NotNull BoundedFunction function,
             int k,
             int m,
-            double... levels
+            @NotNull List<Double> levels
     ) {
         Graphics2D graphics2D = image.createGraphics();
         processor.setupGraphics(graphics2D);
@@ -183,7 +183,7 @@ public final class IsolinesDrawer {
     }
 
     private static List<Pair<IntCoord, IntCoord>> getIsolines(
-            BoundedFunction function,
+            @NotNull BoundedFunction function,
             int width,
             int height,
             int k,
