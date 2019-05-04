@@ -138,7 +138,8 @@ public final class IsolinesDrawer {
             @NotNull BoundedFunction function,
             int k,
             int m,
-            @NotNull List<Double> levels
+            @NotNull List<Double> levels,
+            @NotNull Color isolineColor
     ) {
         IntersectionProcessor processor = new IntersectionProcessor() {
 
@@ -155,7 +156,7 @@ public final class IsolinesDrawer {
             @Override
             public void setupGraphics(Graphics2D graphics2D) {
                 graphics2D.setStroke(new BasicStroke(1));
-                graphics2D.setColor(Color.BLACK);
+                graphics2D.setColor(isolineColor);
             }
 
         };

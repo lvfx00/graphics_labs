@@ -6,21 +6,26 @@ import ru.nsu.fit.semenov.isolines.model.BoundedFunction;
 import ru.nsu.fit.semenov.isolines.model.BoundedFunctionImpl;
 import ru.nsu.fit.semenov.isolines.model.BoundedFunctionImpl.DoubleBiFunction;
 import ru.nsu.fit.semenov.isolines.model.IsolinesDrawer;
-import ru.nsu.fit.semenov.isolines.utils.CoordsTransformer;
-import ru.nsu.fit.semenov.isolines.utils.DoubleCoord;
-import ru.nsu.fit.semenov.isolines.utils.ImageUtils;
+import ru.nsu.fit.semenov.isolines.parser.Configuration;
+import ru.nsu.fit.semenov.isolines.parser.Parser;
 import ru.nsu.fit.semenov.isolines.utils.Rectangle;
+import ru.nsu.fit.semenov.isolines.utils.*;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public final class MainFrame extends BaseMainFrame {
 
@@ -33,11 +38,9 @@ public final class MainFrame extends BaseMainFrame {
 
     private static final int MAP_LEGEND_HEIGHT = 80;
 
-    private static final Color additionalColor = Color.BLUE;
-
     private static final DoubleBiFunction HARDCODED_FUNCTION = ((x, y) -> Math.sin(y) * Math.cos(x));
 
-    private final Color[] colors = {
+    private Color[] colors = {
             Color.RED,
             new Color(255, 100, 0),
             Color.ORANGE,
@@ -45,10 +48,10 @@ public final class MainFrame extends BaseMainFrame {
             Color.GREEN,
             Color.CYAN,
             new Color(0, 135, 255),
-            new Color(0, 50, 255)
+            Color.BLUE
     };
-
-    private final Color[] interpolationColors = new Color[colors.length + 1];
+    private Color[] interpolationColors;
+    private Color isolinesColor = Color.BLACK;
 
     private Dimension mapSize = INIT_MAP_SIZE;
 
@@ -117,9 +120,7 @@ public final class MainFrame extends BaseMainFrame {
         add(mainPanel, BorderLayout.CENTER);
         add(initStatusPanel(), BorderLayout.SOUTH);
 
-        System.arraycopy(colors, 0, interpolationColors, 0, colors.length);
-        interpolationColors[colors.length] = additionalColor;
-
+        initInterpolationColors();
         init();
     }
 
@@ -177,6 +178,7 @@ public final class MainFrame extends BaseMainFrame {
     }
 
     private void initMenus() {
+        initFileMenu();
         initActionMenu();
         initEditMenu();
         initAboutMenu();
@@ -186,6 +188,26 @@ public final class MainFrame extends BaseMainFrame {
         boundedFunction = new BoundedFunctionImpl(HARDCODED_FUNCTION, new Rectangle(a, c, b - a, d - c));
         resizeImages();
         drawMapLegend();
+    }
+
+    private void initFileMenu() {
+        addSubMenu("File", KeyEvent.getExtendedKeyCodeForChar('f'));
+
+        addMenuItem("File/Open",
+                "Open an existing document",
+                KeyEvent.getExtendedKeyCodeForChar('o'),
+                "open_file.png",
+                this::openFileAction);
+
+        addMenuItem("File/Exit",
+                "Quit the application; prompts to save document",
+                KeyEvent.getExtendedKeyCodeForChar('e'),
+                "exit.png",
+                this::exitAction);
+
+        addToolBarButton("File/Open");
+
+        addToolBarSeparator();
     }
 
     private void initEditMenu() {
@@ -269,7 +291,8 @@ public final class MainFrame extends BaseMainFrame {
                         boundedFunction,
                         k,
                         m,
-                        calculateLevels(boundedFunction, colors.length - 1)
+                        calculateLevels(boundedFunction, colors.length - 1),
+                        isolinesColor
                 ),
                 null,
                 submenu,
@@ -332,6 +355,33 @@ public final class MainFrame extends BaseMainFrame {
 
     private void aboutAction() {
         startNewFrame(new AboutFrame(this));
+    }
+
+    private void openFileAction() {
+        final File file = FileUtils.getOpenFileName(this, "bmp", "Bitmap image files");
+        if (file != null) {
+            Configuration configuration;
+            try {
+                configuration = Parser.parseFile(file);
+            } catch (ParseException pe) {
+                showMessageDialog(null, "Invalid file specified");
+                return;
+            } catch (IOException ioe) {
+                showMessageDialog(null, "I/O error happened :(");
+                return;
+            }
+
+            k = configuration.getK();
+            m = configuration.getM();
+            colors = configuration.getLegendColors().toArray(new Color[0]);
+            isolinesColor = configuration.getIsolinesColor();
+            initInterpolationColors();
+            init();
+        }
+    }
+
+    private void exitAction() {
+        dispose();
     }
 
     private void addImageLayer(
@@ -422,7 +472,8 @@ public final class MainFrame extends BaseMainFrame {
                         boundedFunction,
                         k,
                         m,
-                        userIsolinesLevels
+                        userIsolinesLevels,
+                        isolinesColor
                 )
         ));
         userIsolinesLabel.setBounds(0, 0, mapSize.width, mapSize.height);
@@ -431,6 +482,12 @@ public final class MainFrame extends BaseMainFrame {
     private void eraseUserIsolinesAction() {
         userIsolinesLevels.clear();
         userIsolinesLabel.setIcon(null);
+    }
+
+    private void initInterpolationColors() {
+        interpolationColors = new Color[colors.length + 1];
+        System.arraycopy(colors, 0, interpolationColors, 0, colors.length);
+        interpolationColors[colors.length] = colors[colors.length - 1];
     }
 
     private class LayeredPaneMouseAdapter extends MouseAdapter {
