@@ -105,6 +105,10 @@ public class PreferencesFrame extends BaseFrame {
             JOptionPane.showMessageDialog(null, "You have to specify all of the parameters!");
             return;
         }
+        if (a >= b || c >= d) {
+            JOptionPane.showMessageDialog(null, "Constraints: a < b && c < d");
+            return;
+        }
         resultListener.onFinished(new PreferencesValues(a, b, c, d, k, m));
         super.okAction();
     }
@@ -169,6 +173,7 @@ public class PreferencesFrame extends BaseFrame {
 
         return functionOptionsPanel;
     }
+
 
     private JPanel initGridOptionsPanel(int k, int m) {
         JPanel gridOptionsPanel = new JPanel();

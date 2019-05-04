@@ -179,7 +179,7 @@ public final class MainFrame extends BaseMainFrame {
     private void initMenus() {
         initActionMenu();
         initEditMenu();
-        drawMapLegend();
+        initAboutMenu();
     }
 
     private void init() {
@@ -320,6 +320,20 @@ public final class MainFrame extends BaseMainFrame {
         addToolBarSeparator();
     }
 
+    private void initAboutMenu() {
+        addSubMenu("About", KeyEvent.getExtendedKeyCodeForChar('a'));
+        addMenuItem("About/About",
+                "About author",
+                KeyEvent.getExtendedKeyCodeForChar('a'),
+                "about.png",
+                this::aboutAction);
+        addToolBarButton("About/About");
+    }
+
+    private void aboutAction() {
+        startNewFrame(new AboutFrame(this));
+    }
+
     private void addImageLayer(
             ImageLayerDataIndex dataIndex,
             Supplier<BufferedImage> imageSupplier,
@@ -433,7 +447,7 @@ public final class MainFrame extends BaseMainFrame {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            DoubleCoord coordsInD = getMouseCoordsInD(e.getX(), e.getY());
+            DoubleCoord coordsInD = getCoordsPixel(e.getX(), e.getY());
             double level = boundedFunction.apply(coordsInD.getX(), coordsInD.getY());
             statusLabel.setText("X = " + coordsInD.getX() +
                     ",   Y = " + coordsInD.getY() +
@@ -442,12 +456,12 @@ public final class MainFrame extends BaseMainFrame {
         }
 
         private void addUserIsolineByCoords(int x, int y) {
-            DoubleCoord coordsInD = getMouseCoordsInD(x, y);
+            DoubleCoord coordsInD = getCoordsPixel(x, y);
             userIsolinesLevels.add(boundedFunction.apply(coordsInD.getX(), coordsInD.getY()));
             drawUserIsolines();
         }
 
-        private DoubleCoord getMouseCoordsInD(int x, int y) {
+        private DoubleCoord getCoordsPixel(int x, int y) {
             CoordsTransformer transformer = new CoordsTransformer(
                     mapSize.width,
                     mapSize.height,

@@ -228,12 +228,14 @@ public final class IsolinesDrawer {
 
                     switch (count) {
                         case 1:
-                            System.out.println("1");
-                            done = true;
-                            break;
                         case 3:
-                            System.out.println("3");
-                            done = true;
+                            for (int i = 0; i < 2; ++i) {
+                                for (int j = 0; j < 2; ++j) {
+                                    if (nodeValues[x + i][y + j] == level) {
+                                        nodeValues[x + i][y + j] += DELTA;
+                                    }
+                                }
+                            }
                             break;
                         case 2:
                             isolinesList.add(transformer.makePairOfDToP(intersections[0], intersections[1]));
