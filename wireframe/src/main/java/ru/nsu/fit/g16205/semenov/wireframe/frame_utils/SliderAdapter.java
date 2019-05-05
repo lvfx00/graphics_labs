@@ -1,4 +1,4 @@
-package ru.nsu.fit.g16205.semenov.wireframe.utils;
+package ru.nsu.fit.g16205.semenov.wireframe.frame_utils;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;

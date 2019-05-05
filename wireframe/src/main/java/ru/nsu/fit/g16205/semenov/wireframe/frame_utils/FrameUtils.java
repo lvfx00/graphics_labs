@@ -2,7 +2,6 @@ package ru.nsu.fit.g16205.semenov.wireframe.frame_utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.SliderAdapter;
 
 import javax.swing.*;
 import javax.swing.text.DocumentFilter;

@@ -1,22 +1,22 @@
-package ru.nsu.fit.g16205.semenov.wireframe.utils;
+package ru.nsu.fit.g16205.semenov.wireframe.model;
 
 import java.util.Objects;
 
-public class IntCoord {
+public class DoubleCoord {
 
-    private final int x;
-    private final int y;
+    private final double x;
+    private final double y;
 
-    public IntCoord(int x, int y) {
+    public DoubleCoord(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
@@ -24,9 +24,9 @@ public class IntCoord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IntCoord intCoord = (IntCoord) o;
-        return x == intCoord.x &&
-                y == intCoord.y;
+        DoubleCoord coord = (DoubleCoord) o;
+        return Double.compare(coord.x, x) == 0 &&
+                Double.compare(coord.y, y) == 0;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class IntCoord {
 
     @Override
     public String toString() {
-        return "IntCoord{" +
+        return "DoubleCoord{" +
                 "x=" + x +
                 ", y=" + y +
                 '}';
