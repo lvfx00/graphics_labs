@@ -3,7 +3,7 @@ package ru.nsu.fit.g16205.semenov.wireframe.utils.transformer;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
 
-public class FixedRatioCoordsTransformer implements CoordsTransformer {
+public class FixedRatioCoordsTransformer {
 
     private final DoublePoint offset;
     private final double ratio;
@@ -13,7 +13,6 @@ public class FixedRatioCoordsTransformer implements CoordsTransformer {
         this.offset = offset;
     }
 
-    @Override
     public IntPoint toPixel(double x, double y) {
         return new IntPoint(
                 (int) Math.floor((x - offset.getX()) / ratio),
@@ -21,7 +20,6 @@ public class FixedRatioCoordsTransformer implements CoordsTransformer {
         );
     }
 
-    @Override
     public DoublePoint toCoords(int x, int y) {
         return new DoublePoint(
                 x * ratio + ratio / 2 + offset.getX(),

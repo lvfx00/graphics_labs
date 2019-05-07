@@ -24,11 +24,21 @@ public class CoordsTransformerImpl implements CoordsTransformer {
     }
 
     @Override
+    public IntPoint toPixel(DoublePoint point) {
+        return toPixel(point.getX(), point.getY());
+    }
+
+    @Override
     public DoublePoint toCoords(int x, int y) {
         return new DoublePoint(
                 x * horizontalRatio + horizontalRatio / 2 + offsetInCoords.getX(),
                 y * verticalRatio + verticalRatio / 2 + offsetInCoords.getY()
         );
+    }
+
+    @Override
+    public DoublePoint toCoords(IntPoint point) {
+        return toCoords(point.getX(), point.getY());
     }
 
 }

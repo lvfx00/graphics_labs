@@ -1,6 +1,5 @@
 package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
 
-import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
@@ -16,7 +15,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,23 +22,26 @@ public class GeneratrixFrame extends BaseFrame {
 
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
-    private static final int CIRCLE_RADIUS = 5;
+    private static final int CIRCLE_RADIUS = 8;
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
-    private static final Color PREVIEW_IMAGE_COLOR = Color.BLACK;
+    private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
     private static final Color CIRCLE_COLOR = Color.RED;
+    private static final Color CURVE_COLOR = Color.CYAN;
+    private static final int NO_SELECTED_POINT = -1;
 
     private final DoubleRectangle definitionArea;
     private final JLabel previewLabel = new JLabel();
     private final List<DoublePoint> anchorPoints = new ArrayList<>();
-    private List<IntPoint> anchorPointsOnImage;
     private @Nullable
-    DoublePoint selectedAnchorPoint = null;
+    int selectedAnchorPointIndex = NO_SELECTED_POINT;
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
 
     public GeneratrixFrame(@NotNull DoubleRectangle definitionArea) {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Generatrix Options", null);
         this.definitionArea = definitionArea;
+
+
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(previewLabel, new Integer(0));
@@ -56,21 +57,44 @@ public class GeneratrixFrame extends BaseFrame {
     }
 
     private void refresh() {
-        BufferedImage previewImage = ImageUtils.createImage(imageSize, PREVIEW_IMAGE_COLOR);
+        BufferedImage previewImage = ImageUtils.createImage(imageSize, PREVIEW_BACKGROUND_COLOR);
 
-        anchorPointsOnImage = anchorPoints
+        List<IntPoint> anchorPointsOnImage = anchorPoints
                 .stream()
                 .map(c -> coordsTransformer.toPixel(c.getX(), c.getY()))
                 .collect(Collectors.toList());
-        PreviewCreator.drawAnchorPoints(anchorPointsOnImage, previewImage, CIRCLE_COLOR, CIRCLE_RADIUS);
+        drawAnchorPoints(anchorPointsOnImage, previewImage);
+
+        CurveCreator.getCurvePoints(anchorPoints)
+                .map(point -> coordsTransformer.toPixel(point))
+                .forEach(point -> previewImage.setRGB(point.getX(), point.getY(), CURVE_COLOR.getRGB()));
 
         previewLabel.setIcon(new ImageIcon(previewImage));
         previewLabel.setBounds(0, 0, imageSize.width, imageSize.height);
     }
 
+    public static void drawAnchorPoints(@NotNull Iterable<IntPoint> anchorPoints, @NotNull BufferedImage image) {
+        Graphics2D graphics2D = image.createGraphics();
+        graphics2D.setColor(CIRCLE_COLOR);
+        IntPoint previous = null;
+        for (IntPoint point : anchorPoints) {
+            graphics2D.drawOval(
+                    point.getX() - CIRCLE_RADIUS,
+                    point.getY() - CIRCLE_RADIUS,
+                    CIRCLE_RADIUS * 2,
+                    CIRCLE_RADIUS * 2
+            );
+            if (previous != null) {
+                graphics2D.drawLine(previous.getX(), previous.getY(), point.getX(), point.getY());
+            }
+            previous = point;
+        }
+        graphics2D.dispose();
+    }
+
     private @Nullable
-    IntPoint findSelectedAnchorPoint(IntPoint clicked) {
-        for (IntPoint point : anchorPointsOnImage) {
+    DoublePoint findSelectedAnchorPoint(DoublePoint clicked) {
+        for (DoublePoint point : anchorPoints) {
             if (intersects(point.getX(), point.getY(), clicked.getX(), clicked.getY())) {
                 return point;
             }
@@ -78,20 +102,9 @@ public class GeneratrixFrame extends BaseFrame {
         return null;
     }
 
-    // TODO вынести куда-нибудь
-    private boolean intersects(int x1, int y1, int x2, int y2) {
-        return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) < CIRCLE_RADIUS * CIRCLE_RADIUS;
-    }
-
-    private static SimpleMatrix toMatrix(@NotNull Collection<DoublePoint> coords) {
-        SimpleMatrix matrix = new SimpleMatrix(coords.size(), 2);
-        int i = 0;
-        for (DoublePoint c : coords) {
-            matrix.set(i, 0, c.getX());
-            matrix.set(i, 1, c.getY());
-            ++i;
-        }
-        return matrix;
+    private boolean intersects(double x1, double y1, double x2, double y2) {
+        DoublePoint rectangle = coordsTransformer.toCoords(CIRCLE_RADIUS, CIRCLE_RADIUS);
+        return (Math.abs(x1 - x2) < rectangle.getX() && Math.abs(y1 - y2) < rectangle.getY());
     }
 
     private class LayeredPaneComponentListener extends ComponentAdapter {
@@ -102,7 +115,7 @@ public class GeneratrixFrame extends BaseFrame {
             imageSize = matchRatio(c.getWidth(), c.getHeight());
             coordsTransformer = new CoordsTransformerImpl(
                     new DoublePoint(definitionArea.getMinX(), definitionArea.getMinY()),
-                    definitionArea.getWidth()/ imageSize.width,
+                    definitionArea.getWidth() / imageSize.width,
                     definitionArea.getHeight() / imageSize.height
             );
             refresh();
@@ -122,33 +135,54 @@ public class GeneratrixFrame extends BaseFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            IntPoint clicked = new IntPoint(e.getX(), e.getY());
-            final IntPoint selectedPoint = findSelectedAnchorPoint(clicked);
-            if (selectedPoint == null) {
-                DoublePoint c = coordsTransformer.toCoords(e.getX(), e.getY());
-                anchorPoints.add(c);
-                selectedAnchorPoint = c;
-            } else {
-                selectedAnchorPoint = anchorPoints.get(anchorPointsOnImage.indexOf(selectedPoint));
+            DoublePoint clicked = coordsTransformer.toCoords(getValidPoint(e.getX(), e.getY()));
+            switch (e.getButton()) {
+                case MouseEvent.BUTTON1:
+                    handleLeftButtonClick(clicked);
+                    break;
+                case MouseEvent.BUTTON3:
+                    handleRightButtonClick(clicked);
+                    break;
             }
-            refresh();
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            selectedAnchorPoint = null;
+            selectedAnchorPointIndex = NO_SELECTED_POINT;
         }
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            if (selectedAnchorPoint == null) {
-                System.out.println("never happened");
-                return;
-            }
-            DoublePoint newAnchorPoint = new DoublePoint(e.getX(), e.getY());
-            anchorPoints.set(anchorPoints.indexOf(selectedAnchorPoint), newAnchorPoint);
-            selectedAnchorPoint = newAnchorPoint;
+            if (selectedAnchorPointIndex == NO_SELECTED_POINT) return;
+            DoublePoint clicked = coordsTransformer.toCoords(getValidPoint(e.getX(), e.getY()));
+            anchorPoints.set(selectedAnchorPointIndex, clicked);
             refresh();
+        }
+
+        private void handleLeftButtonClick(DoublePoint clicked) {
+            final DoublePoint selectedPoint = findSelectedAnchorPoint(clicked);
+            if (selectedPoint == null) {
+                anchorPoints.add(clicked);
+                selectedAnchorPointIndex = anchorPoints.indexOf(clicked);
+            } else {
+                selectedAnchorPointIndex = anchorPoints.indexOf(selectedPoint);
+            }
+            refresh();
+        }
+
+        private void handleRightButtonClick(DoublePoint clicked) {
+            final DoublePoint selectedPoint = findSelectedAnchorPoint(clicked);
+            if (selectedPoint != null) {
+                anchorPoints.remove(selectedPoint);
+            }
+            refresh();
+        }
+
+        private IntPoint getValidPoint(int x, int y) {
+            return new IntPoint(
+                    Math.max(Math.min(x, imageSize.width - CIRCLE_RADIUS), CIRCLE_RADIUS),
+                    Math.max(Math.min(y, imageSize.height - CIRCLE_RADIUS), CIRCLE_RADIUS)
+            );
         }
 
     }

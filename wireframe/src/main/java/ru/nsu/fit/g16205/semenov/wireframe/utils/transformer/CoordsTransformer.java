@@ -7,5 +7,9 @@ public interface CoordsTransformer {
 
     IntPoint toPixel(double x, double y);
 
+    IntPoint toPixel(DoublePoint point);
+
     DoublePoint toCoords(int x, int y);
+
+    DoublePoint toCoords(IntPoint point);
 }
