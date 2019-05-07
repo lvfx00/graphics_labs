@@ -4,24 +4,24 @@ import java.util.Objects;
 
 public class DoubleRectangle {
 
-    private final double x;
-    private final double y;
+    private final double minX;
+    private final double minY;
     private final double width;
     private final double height;
 
-    public DoubleRectangle(double x, double y, double width, double height) {
-        this.x = x;
-        this.y = y;
+    public DoubleRectangle(double minX, double minY, double width, double height) {
+        this.minX = minX;
+        this.minY = minY;
         this.width = width;
         this.height = height;
     }
 
-    public double getX() {
-        return x;
+    public double getMinX() {
+        return minX;
     }
 
-    public double getY() {
-        return y;
+    public double getMinY() {
+        return minY;
     }
 
     public double getWidth() {
@@ -37,22 +37,22 @@ public class DoubleRectangle {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DoubleRectangle doubleRectangle = (DoubleRectangle) o;
-        return Double.compare(doubleRectangle.x, x) == 0 &&
-                Double.compare(doubleRectangle.y, y) == 0 &&
+        return Double.compare(doubleRectangle.minX, minX) == 0 &&
+                Double.compare(doubleRectangle.minY, minY) == 0 &&
                 Double.compare(doubleRectangle.width, width) == 0 &&
                 Double.compare(doubleRectangle.height, height) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, width, height);
+        return Objects.hash(minX, minY, width, height);
     }
 
     @Override
     public String toString() {
         return "DoubleRectangle{" +
-                "x=" + x +
-                ", y=" + y +
+                "minX=" + minX +
+                ", minY=" + minY +
                 ", width=" + width +
                 ", height=" + height +
                 '}';

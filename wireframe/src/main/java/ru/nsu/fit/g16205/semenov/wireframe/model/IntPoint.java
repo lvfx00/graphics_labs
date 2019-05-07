@@ -2,21 +2,21 @@ package ru.nsu.fit.g16205.semenov.wireframe.model;
 
 import java.util.Objects;
 
-public class DoubleCoord {
+public class IntPoint {
 
-    private final double x;
-    private final double y;
+    private final int x;
+    private final int y;
 
-    public DoubleCoord(double x, double y) {
+    public IntPoint(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
     }
 
@@ -24,9 +24,9 @@ public class DoubleCoord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DoubleCoord coord = (DoubleCoord) o;
-        return Double.compare(coord.x, x) == 0 &&
-                Double.compare(coord.y, y) == 0;
+        IntPoint intPoint = (IntPoint) o;
+        return x == intPoint.x &&
+                y == intPoint.y;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DoubleCoord {
 
     @Override
     public String toString() {
-        return "DoubleCoord{" +
+        return "IntPoint{" +
                 "x=" + x +
                 ", y=" + y +
                 '}';
