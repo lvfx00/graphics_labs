@@ -26,22 +26,25 @@ public class GeneratrixFrame extends BaseFrame {
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
     private static final Color CIRCLE_COLOR = Color.RED;
-    private static final Color CURVE_COLOR = Color.CYAN;
+    private static final Color INACTIVE_CURVE_COLOR = Color.LIGHT_GRAY;
+    private static final Color ACTIVE_CURVE_COLOR = Color.CYAN;
     private static final int NO_SELECTED_POINT = -1;
 
-    private final DoubleRectangle definitionArea;
     private final JLabel previewLabel = new JLabel();
+    private final DoubleRectangle definitionArea;
     private final List<DoublePoint> anchorPoints = new ArrayList<>();
-    private @Nullable
-    int selectedAnchorPointIndex = NO_SELECTED_POINT;
+    private int selectedAnchorPointIndex = NO_SELECTED_POINT;
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
+    private BezierCurve bezierCurve = null;
+
+    private double startActive = 0.1;
+    private double endActive = 0.8;
+    private int n = 100;
 
     public GeneratrixFrame(@NotNull DoubleRectangle definitionArea) {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Generatrix Options", null);
         this.definitionArea = definitionArea;
-
-
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(previewLabel, new Integer(0));
@@ -63,33 +66,24 @@ public class GeneratrixFrame extends BaseFrame {
                 .stream()
                 .map(c -> coordsTransformer.toPixel(c.getX(), c.getY()))
                 .collect(Collectors.toList());
-        drawAnchorPoints(anchorPointsOnImage, previewImage);
+        PreviewCreator.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_COLOR, CIRCLE_RADIUS);
 
-        CurveCreator.getCurvePoints(anchorPoints)
-                .map(point -> coordsTransformer.toPixel(point))
-                .forEach(point -> previewImage.setRGB(point.getX(), point.getY(), CURVE_COLOR.getRGB()));
+        if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
+            bezierCurve = new BezierCurve(BezierCurve2DAdapter.pointsToMatrix(anchorPoints));
+            PreviewCreator.drawBezierCurve(
+                    bezierCurve,
+                    previewImage,
+                    coordsTransformer,
+                    ACTIVE_CURVE_COLOR,
+                    INACTIVE_CURVE_COLOR,
+                    endActive * bezierCurve.getTotalLength(),
+                    startActive * bezierCurve.getTotalLength(),
+                    1000
+            );
+        }
 
         previewLabel.setIcon(new ImageIcon(previewImage));
         previewLabel.setBounds(0, 0, imageSize.width, imageSize.height);
-    }
-
-    public static void drawAnchorPoints(@NotNull Iterable<IntPoint> anchorPoints, @NotNull BufferedImage image) {
-        Graphics2D graphics2D = image.createGraphics();
-        graphics2D.setColor(CIRCLE_COLOR);
-        IntPoint previous = null;
-        for (IntPoint point : anchorPoints) {
-            graphics2D.drawOval(
-                    point.getX() - CIRCLE_RADIUS,
-                    point.getY() - CIRCLE_RADIUS,
-                    CIRCLE_RADIUS * 2,
-                    CIRCLE_RADIUS * 2
-            );
-            if (previous != null) {
-                graphics2D.drawLine(previous.getX(), previous.getY(), point.getX(), point.getY());
-            }
-            previous = point;
-        }
-        graphics2D.dispose();
     }
 
     private @Nullable
