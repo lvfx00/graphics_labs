@@ -2,6 +2,8 @@ package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
+import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
+import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.MyDocumentFilter;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoubleRectangle;
 import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
@@ -22,66 +24,52 @@ public class GeneratrixFrame extends BaseFrame {
 
     private static final int FRAME_WIDTH = 800;
     private static final int FRAME_HEIGHT = 600;
-    private static final int CIRCLE_RADIUS = 8;
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
-    private static final Color CIRCLE_COLOR = Color.RED;
-    private static final Color INACTIVE_CURVE_COLOR = Color.LIGHT_GRAY;
-    private static final Color ACTIVE_CURVE_COLOR = Color.CYAN;
     private static final int NO_SELECTED_POINT = -1;
+    private static final int CIRCLE_RADIUS = 8;
+    private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(0, 0, 1, Math.PI * 2);
+    private static final int INIT_N = 10;
+    private static final int INIT_M = 10;
+    private static final int INIT_K = 5;
 
     private final JLabel previewLabel = new JLabel();
-    private final DoubleRectangle definitionArea;
     private final List<DoublePoint> anchorPoints = new ArrayList<>();
     private int selectedAnchorPointIndex = NO_SELECTED_POINT;
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
     private BezierCurve bezierCurve = null;
 
-    private double startActive = 0.1;
-    private double endActive = 0.8;
-    private int n = 100;
+    // [] for lambdas!
+    private double[] a = new double[]{DEFINITION_AREA.getMinX()};
+    private double[] b = new double[]{DEFINITION_AREA.getMinX() + DEFINITION_AREA.getWidth()};
+    private double[] c = new double[]{DEFINITION_AREA.getMinY()};
+    private double[] d = new double[]{DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight()};
+    private int[] n = new int[]{INIT_N};
+    private int[] m = new int[]{INIT_M};
+    private int[] k = new int[]{INIT_K};
 
-    public GeneratrixFrame(@NotNull DoubleRectangle definitionArea) {
+    public GeneratrixFrame() {
         super(FRAME_WIDTH, FRAME_HEIGHT, "Generatrix Options", null);
-        this.definitionArea = definitionArea;
-
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.add(previewLabel, new Integer(0));
-        layeredPane.addComponentListener(new LayeredPaneComponentListener());
-        MouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
-        layeredPane.addMouseListener(layeredPaneMouseAdapter);
-        layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
-
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
-        mainPanel.add(layeredPane);
+        mainPanel.add(initLayeredPane());
+//        mainPanel.add(initParametersPanel());
+        mainPanel.add(initControlPanel());
         add(mainPanel);
     }
 
     private void refresh() {
         BufferedImage previewImage = ImageUtils.createImage(imageSize, PREVIEW_BACKGROUND_COLOR);
-
         List<IntPoint> anchorPointsOnImage = anchorPoints
                 .stream()
                 .map(c -> coordsTransformer.toPixel(c.getX(), c.getY()))
                 .collect(Collectors.toList());
-        PreviewCreator.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_COLOR, CIRCLE_RADIUS);
-
+        PreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
-            bezierCurve = new BezierCurve(BezierCurve2DAdapter.pointsToMatrix(anchorPoints));
-            PreviewCreator.drawBezierCurve(
-                    bezierCurve,
-                    previewImage,
-                    coordsTransformer,
-                    ACTIVE_CURVE_COLOR,
-                    INACTIVE_CURVE_COLOR,
-                    endActive * bezierCurve.getTotalLength(),
-                    startActive * bezierCurve.getTotalLength(),
-                    1000
-            );
+            bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
+            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, a[0], b[0]);
         }
-
         previewLabel.setIcon(new ImageIcon(previewImage));
         previewLabel.setBounds(0, 0, imageSize.width, imageSize.height);
     }
@@ -101,6 +89,31 @@ public class GeneratrixFrame extends BaseFrame {
         return (Math.abs(x1 - x2) < rectangle.getX() && Math.abs(y1 - y2) < rectangle.getY());
     }
 
+    private @NotNull JLayeredPane initLayeredPane() {
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.add(previewLabel, new Integer(0));
+        layeredPane.addComponentListener(new LayeredPaneComponentListener());
+        MouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
+        layeredPane.addMouseListener(layeredPaneMouseAdapter);
+        layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
+        return layeredPane;
+    }
+
+//    private @NotNull JPanel initParametersPanel() {
+//        JPanel parametersPanel = new JPanel();
+//        parametersPanel.setLayout(new GridLayout(0, 4, 10, 10));
+//
+//        FrameUtils.addAllToPanel(parametersPanel,
+//                FrameUtils.createJLabel("a:"),
+//                FrameUtils.createJTextFieldWithListeners(
+//                        String.valueOf(a[0]),
+//                        10,
+//                        MyDocumentFilter.getDoubleFilter()
+//                ),
+//                )
+//
+//    }
+
     private class LayeredPaneComponentListener extends ComponentAdapter {
 
         @Override
@@ -108,9 +121,9 @@ public class GeneratrixFrame extends BaseFrame {
             Component c = e.getComponent();
             imageSize = matchRatio(c.getWidth(), c.getHeight());
             coordsTransformer = new CoordsTransformerImpl(
-                    new DoublePoint(definitionArea.getMinX(), definitionArea.getMinY()),
-                    definitionArea.getWidth() / imageSize.width,
-                    definitionArea.getHeight() / imageSize.height
+                    new DoublePoint(DEFINITION_AREA.getMinX(), DEFINITION_AREA.getMinY()),
+                    DEFINITION_AREA.getWidth() / imageSize.width,
+                    DEFINITION_AREA.getHeight() / imageSize.height
             );
             refresh();
         }

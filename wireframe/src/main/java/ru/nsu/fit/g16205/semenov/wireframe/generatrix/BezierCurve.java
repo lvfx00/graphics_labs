@@ -2,11 +2,37 @@ package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
 
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 
-import java.sql.SQLOutput;
+import java.util.Collection;
 import java.util.stream.DoubleStream;
 
 public class BezierCurve {
+
+    public static class Adapter2D {
+
+        private  Adapter2D() {
+        }
+
+        public static @NotNull DoublePoint matrixToPoint(@NotNull SimpleMatrix matrix) {
+            if (matrix.numCols() != 2 || matrix.numRows() != 1) {
+                throw new IllegalArgumentException("Invalid matrix specified");
+            }
+            return new DoublePoint(matrix.get(0, 0), matrix.get(0, 1));
+        }
+
+        public static @NotNull SimpleMatrix pointsToMatrix(@NotNull Collection<DoublePoint> points) {
+            SimpleMatrix matrix = new SimpleMatrix(points.size(), 2);
+            int i = 0;
+            for (DoublePoint c : points) {
+                matrix.set(i, 0, c.getX());
+                matrix.set(i, 1, c.getY());
+                ++i;
+            }
+            return matrix;
+        }
+
+    }
 
     public static final int MIN_POINTS_NUM = 4;
     private static final int N_FOR_LENGTH = 100;
@@ -30,10 +56,8 @@ public class BezierCurve {
             throw new IllegalArgumentException("You have to define at least 4 anchor points to create curve");
         }
         this.anchorPoints = anchorPoints;
-
-        SimpleMatrix previousPoint = null;
         lengthsOfParts = new double[partsNum];
-
+        SimpleMatrix previousPoint = null;
         for (int i = 0; i < partsNum; ++i) {
             for (double t = 0.; t < 1.; t += 1. / N_FOR_LENGTH) {
                 SimpleMatrix point = getPoint(i, t);
@@ -44,26 +68,19 @@ public class BezierCurve {
             }
         }
         totalLength = DoubleStream.of(lengthsOfParts).sum();
-
-        System.out.println("parts num: " + partsNum);
-        System.out.println("total length: " + totalLength);
-        for (int i = 0; i < lengthsOfParts.length; i++) {
-            System.out.println("length[" + i + "] = " + lengthsOfParts[i]);
-        }
-
     }
 
     public @NotNull SimpleMatrix getPoint(double parameter) {
         if (parameter < 0 || parameter > totalLength) {
             throw new IllegalArgumentException("Invalid length specified");
         }
-        double length = 0;
+        double previousPartsLength = 0;
         for (int i = 0; i < partsNum; ++i) {
-            double newLength = length + lengthsOfParts[i];
+            final double newLength = previousPartsLength + lengthsOfParts[i];
             if (parameter <= newLength) {
-                return getPoint(i, (parameter - length) / lengthsOfParts[i]);
+                return getPoint(i, (parameter - previousPartsLength) / lengthsOfParts[i]);
             }
-            length = newLength;
+            previousPartsLength = newLength;
         }
         throw new AssertionError("Never reached");
     }
