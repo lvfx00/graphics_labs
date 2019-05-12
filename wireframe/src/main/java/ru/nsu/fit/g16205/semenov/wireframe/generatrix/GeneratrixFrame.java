@@ -3,7 +3,6 @@ package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
-import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoubleRectangle;
 import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
@@ -34,7 +33,8 @@ public class GeneratrixFrame extends BaseFrame {
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
     private static final int NO_SELECTED_POINT = -1;
     private static final int CIRCLE_RADIUS = 8;
-    private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(0, 0, 1, Math.PI * 2);
+    private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(-1, -1, 2, 2);
+    private static final DoubleRectangle ABCD_AREA = new DoubleRectangle(0, 0, 1, 2);
     private static final int INIT_N = 10;
     private static final int INIT_M = 10;
     private static final int INIT_K = 5;
@@ -46,15 +46,15 @@ public class GeneratrixFrame extends BaseFrame {
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
     private @Nullable BezierCurve bezierCurve = null;
-
-    // [] for lambdas!
-    private double[] a = new double[]{DEFINITION_AREA.getMinX()};
-    private double[] b = new double[]{DEFINITION_AREA.getMinX() + DEFINITION_AREA.getWidth()};
-    private double[] c = new double[]{DEFINITION_AREA.getMinY()};
-    private double[] d = new double[]{DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight()};
-    private int[] n = new int[]{INIT_N};
-    private int[] m = new int[]{INIT_M};
-    private int[] k = new int[]{INIT_K};
+    private @NotNull CurveParameters curveParameters = new CurveParameters(
+            ABCD_AREA.getMinX(),
+            ABCD_AREA.getMinX() + DEFINITION_AREA.getWidth(),
+            DEFINITION_AREA.getMinY(),
+            DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight(),
+            INIT_N,
+            INIT_M,
+            INIT_K
+    );
 
     public GeneratrixFrame(
             @Nullable BaseFrame intentionFrame,
@@ -74,15 +74,13 @@ public class GeneratrixFrame extends BaseFrame {
                 layeredPane.setPreferredSize(new Dimension(e.getComponent().getWidth(), e.getComponent().getHeight()));
             }
         });
-
         mainPanel.add(layeredPane);
+
         if (initialData != null) {
             anchorPoints.addAll(BezierCurve.Adapter2D.matrixToPointsList(initialData.getCurve().getAnchorPoints()));
-            mainPanel.add(initParametersPanel(initialData.getParameters()));
-            refresh();
-        } else {
-            mainPanel.add(initParametersPanel(null));
+            curveParameters = initialData.getParameters();
         }
+        mainPanel.add(initParametersPanel());
         mainPanel.add(initControlPanel());
         add(mainPanel);
     }
@@ -91,12 +89,9 @@ public class GeneratrixFrame extends BaseFrame {
     protected void okAction() {
         if (bezierCurve != null) {
             if (resultListener != null) {
-                resultListener.onFinished(new CurveData(
-                        bezierCurve,
-                        new CurveParameters(a[0], b[0], c[0], d[0], n[0], k[0], m[0])
-                ));
+                resultListener.onFinished(new CurveData(bezierCurve, curveParameters));
             }
-            dispose();
+            onWindowClose(null);
         } else {
             JOptionPane.showMessageDialog(null, "You have to define at least 4 points for curve");
         }
@@ -111,7 +106,7 @@ public class GeneratrixFrame extends BaseFrame {
         PreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
             bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
-            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, a[0], b[0]);
+            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, curveParameters.getA(), curveParameters.getB());
         } else {
             bezierCurve = null;
         }
@@ -143,103 +138,12 @@ public class GeneratrixFrame extends BaseFrame {
         return layeredPane;
     }
 
-    private @NotNull JPanel initParametersPanel(@Nullable CurveParameters initialValues) {
-        final double minA = DEFINITION_AREA.getMinX();
-        final double maxB = DEFINITION_AREA.getMinX() + DEFINITION_AREA.getWidth();
-        final double minC = DEFINITION_AREA.getMinY();
-        final double maxD = DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight();
-        final int spinnersWidth = 6;
-        final double doubleStep = 0.01;
-        final int intStep = 1;
-
-        if (initialValues == null) {
-            initialValues = new CurveParameters(minA, maxB, minC, maxD, INIT_N, INIT_M, INIT_K);
-        }
-
-        final JPanel abcdPanel = new JPanel();
-        abcdPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        final JSpinner aSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getA(), minA, maxB, doubleStep),
-                spinnersWidth
-        );
-        final JSpinner bSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getB(), minA, maxB, doubleStep),
-                spinnersWidth
-        );
-        final JSpinner cSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getC(), minC, maxD, doubleStep),
-                spinnersWidth
-        );
-        final JSpinner dSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getD(), minC, maxD, doubleStep),
-                spinnersWidth
-        );
-        FrameUtils.addAllToPanel(
-                abcdPanel,
-                FrameUtils.createJLabel("A:"),
-                aSpinner,
-                FrameUtils.createJLabel("B:"),
-                bSpinner,
-                FrameUtils.createJLabel("C:"),
-                cSpinner,
-                FrameUtils.createJLabel("D:"),
-                dSpinner
-        );
-
-        final JPanel nmkPanel = new JPanel();
-        nmkPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        final JSpinner nSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getN(), 2, 1000, intStep),
-                spinnersWidth
-        );
-        final JSpinner mSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getM(), 2, 1000, intStep),
-                spinnersWidth
-        );
-        final JSpinner kSpinner = FrameUtils.createSpinner(
-                new SpinnerNumberModel(initialValues.getK(), 1, 100, intStep),
-                spinnersWidth
-        );
-        FrameUtils.addAllToPanel(
-                nmkPanel,
-                FrameUtils.createJLabel("N:"),
-                nSpinner,
-                FrameUtils.createJLabel("M:"),
-                mSpinner,
-                FrameUtils.createJLabel("K:"),
-                kSpinner
-        );
-
-        final JPanel setButtonPanel = new JPanel();
-        setButtonPanel.setLayout(new FlowLayout());
-        final JButton setButton = new JButton("Set values");
-        setButton.addActionListener(e -> {
-            double a = (Double) aSpinner.getValue();
-            double b = (Double) bSpinner.getValue();
-            double c = (Double) cSpinner.getValue();
-            double d = (Double) dSpinner.getValue();
-            int n = (Integer) nSpinner.getValue();
-            int m = (Integer) mSpinner.getValue();
-            int k = (Integer) kSpinner.getValue();
-            if (a > b || c > d) {
-                JOptionPane.showMessageDialog(null, "Constraints: A < B && C < D");
-                return;
-            }
-            this.a[0] = a;
-            this.b[0] = b;
-            this.c[0] = c;
-            this.d[0] = d;
-            this.n[0] = n;
-            this.m[0] = m;
-            this.k[0] = k;
+    private @NotNull JPanel initParametersPanel() {
+        final ParametersPanel parametersPanel = new ParametersPanel(DEFINITION_AREA, curveParameters);
+        parametersPanel.addChangeListener(parameters -> {
+            curveParameters = parameters;
             refresh();
         });
-        setButtonPanel.add(setButton);
-
-        final JPanel parametersPanel = new JPanel();
-        parametersPanel.setLayout(new BoxLayout(parametersPanel, BoxLayout.Y_AXIS));
-        FrameUtils.addAllToPanel(parametersPanel, abcdPanel, nmkPanel, setButtonPanel);
-
         return parametersPanel;
     }
 
