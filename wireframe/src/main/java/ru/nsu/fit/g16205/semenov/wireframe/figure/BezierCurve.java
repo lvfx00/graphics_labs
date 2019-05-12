@@ -1,8 +1,8 @@
-package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
+package ru.nsu.fit.g16205.semenov.wireframe.figure;
 
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint;
 
 import java.util.ArrayList;
 import java.util.Collection;

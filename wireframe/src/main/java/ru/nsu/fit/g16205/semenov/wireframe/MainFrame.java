@@ -3,8 +3,8 @@ package ru.nsu.fit.g16205.semenov.wireframe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseMainFrame;
-import ru.nsu.fit.g16205.semenov.wireframe.generatrix.CurveData;
-import ru.nsu.fit.g16205.semenov.wireframe.generatrix.GeneratrixFrame;
+import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureData;
+import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureEditFrame;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -13,8 +13,8 @@ public class MainFrame extends BaseMainFrame {
 
     private static final Dimension INIT_FRAME_SIZE = new Dimension(800, 600);
 
-    private @Nullable CurveData curveData = null;
-    private @NotNull GeneratrixFrame.ResultListener resultListener = this::addFigure;
+    private @Nullable FigureData figureData = null;
+    private @NotNull FigureEditFrame.ResultListener resultListener = this::addFigure;
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -81,15 +81,15 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void addFigureAction() {
-        startNewFrame(new GeneratrixFrame(this, null, resultListener));
+        startNewFrame(new FigureEditFrame(this, null, resultListener));
     }
 
     private void editFigureAction() {
-        startNewFrame(new GeneratrixFrame(this, curveData, resultListener));
+        startNewFrame(new FigureEditFrame(this, figureData, resultListener));
     }
 
-    private void addFigure(@NotNull CurveData curveData) {
-        this.curveData = curveData;
+    private void addFigure(@NotNull FigureData figureData) {
+        this.figureData = figureData;
 
     }
 

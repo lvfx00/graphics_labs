@@ -1,7 +1,7 @@
-package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
+package ru.nsu.fit.g16205.semenov.wireframe.figure;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.IntPoint;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
 
 import java.awt.*;

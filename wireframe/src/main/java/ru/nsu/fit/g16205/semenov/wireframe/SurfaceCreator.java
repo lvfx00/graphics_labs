@@ -4,9 +4,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.wireframe.generatrix.BezierCurve;
-import ru.nsu.fit.g16205.semenov.wireframe.generatrix.CurveData;
-import ru.nsu.fit.g16205.semenov.wireframe.generatrix.CurveParameters;
+import ru.nsu.fit.g16205.semenov.wireframe.figure.BezierCurve;
+import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureData;
+import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +23,9 @@ public class SurfaceCreator {
         return new SimpleMatrix(1, 3, true, new double[]{curvePointY * Math.cos(v), curvePointY * Math.sin(v), curvePointX});
     }
 
-    public static List<Pair<SimpleMatrix, SimpleMatrix>> createSurface(CurveData curveData) {
-        final BezierCurve curve = curveData.getCurve();
-        final CurveParameters parameters = curveData.getParameters();
+    public static List<Pair<SimpleMatrix, SimpleMatrix>> createSurface(FigureData figureData) {
+        final BezierCurve curve = figureData.getCurve();
+        final FigureParameters parameters = figureData.getParameters();
         final double a = parameters.getA();
         final double b = parameters.getB();
         final double c = parameters.getC();

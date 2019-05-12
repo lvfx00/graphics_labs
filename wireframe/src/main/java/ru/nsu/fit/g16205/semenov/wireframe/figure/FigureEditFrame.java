@@ -1,11 +1,9 @@
-package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
+package ru.nsu.fit.g16205.semenov.wireframe.figure;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
-import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
-import ru.nsu.fit.g16205.semenov.wireframe.model.DoubleRectangle;
-import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.*;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformerImpl;
@@ -18,23 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GeneratrixFrame extends BaseFrame {
+public class FigureEditFrame extends BaseFrame {
 
     @FunctionalInterface
     public interface ResultListener {
 
-        void onFinished(@NotNull CurveData curveData);
+        void onFinished(@NotNull FigureData figureData);
 
     }
 
-    private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 550);
-    private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 550);
-    private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
+    private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 800);
+    private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 800);
+    private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(-1, -1, 2, 2);
+    private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = DEFINITION_AREA.getWidth() / DEFINITION_AREA.getHeight();
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
     private static final int NO_SELECTED_POINT = -1;
     private static final int CIRCLE_RADIUS = 8;
-    private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(-1, -1, 2, 2);
-    private static final DoubleRectangle ABCD_AREA = new DoubleRectangle(0, 0, 1, 2);
+    private static final DoubleRectangle INIT_ABCD_AREA = new DoubleRectangle(0, 0, 1, 2 * Math.PI);
     private static final int INIT_N = 10;
     private static final int INIT_M = 10;
     private static final int INIT_K = 5;
@@ -46,22 +44,26 @@ public class GeneratrixFrame extends BaseFrame {
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
     private @Nullable BezierCurve bezierCurve = null;
-    private @NotNull CurveParameters curveParameters = new CurveParameters(
-            ABCD_AREA.getMinX(),
-            ABCD_AREA.getMinX() + DEFINITION_AREA.getWidth(),
-            DEFINITION_AREA.getMinY(),
-            DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight(),
+    private @NotNull FigureParameters figureParameters = new FigureParameters(
+            INIT_ABCD_AREA.getMinX(),
+            INIT_ABCD_AREA.getMinX() + INIT_ABCD_AREA.getWidth(),
+            INIT_ABCD_AREA.getMinY(),
+            INIT_ABCD_AREA.getMinY() + INIT_ABCD_AREA.getHeight(),
             INIT_N,
             INIT_M,
-            INIT_K
+            INIT_K,
+            new DoublePoint3D(0, 0, 0),
+            0,
+            0,
+            0
     );
 
-    public GeneratrixFrame(
+    public FigureEditFrame(
             @Nullable BaseFrame intentionFrame,
-            @Nullable CurveData initialData,
+            @Nullable FigureData initialData,
             @Nullable ResultListener resultListener
     ) {
-        super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Generatrix Options", intentionFrame);
+        super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Figure Edit", intentionFrame);
         this.resultListener = resultListener;
         setMinimumSize(MIN_FRAME_SIZE);
         JPanel mainPanel = new JPanel();
@@ -78,7 +80,7 @@ public class GeneratrixFrame extends BaseFrame {
 
         if (initialData != null) {
             anchorPoints.addAll(BezierCurve.Adapter2D.matrixToPointsList(initialData.getCurve().getAnchorPoints()));
-            curveParameters = initialData.getParameters();
+            figureParameters = initialData.getParameters();
         }
         mainPanel.add(initParametersPanel());
         mainPanel.add(initControlPanel());
@@ -89,7 +91,7 @@ public class GeneratrixFrame extends BaseFrame {
     protected void okAction() {
         if (bezierCurve != null) {
             if (resultListener != null) {
-                resultListener.onFinished(new CurveData(bezierCurve, curveParameters));
+                resultListener.onFinished(new FigureData(bezierCurve, figureParameters));
             }
             onWindowClose(null);
         } else {
@@ -106,7 +108,7 @@ public class GeneratrixFrame extends BaseFrame {
         PreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
             bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
-            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, curveParameters.getA(), curveParameters.getB());
+            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, figureParameters.getA(), figureParameters.getB());
         } else {
             bezierCurve = null;
         }
@@ -124,7 +126,11 @@ public class GeneratrixFrame extends BaseFrame {
     }
 
     private boolean intersects(double x1, double y1, double x2, double y2) {
-        DoublePoint rectangle = coordsTransformer.toCoords(CIRCLE_RADIUS, CIRCLE_RADIUS);
+        DoublePoint rect = coordsTransformer.toCoords(CIRCLE_RADIUS, CIRCLE_RADIUS);
+        DoublePoint rectangle = new DoublePoint(
+                rect.getX() - DEFINITION_AREA.getMinX(),
+                rect.getY() - DEFINITION_AREA.getMinY()
+        );
         return (Math.abs(x1 - x2) < rectangle.getX() && Math.abs(y1 - y2) < rectangle.getY());
     }
 
@@ -139,9 +145,9 @@ public class GeneratrixFrame extends BaseFrame {
     }
 
     private @NotNull JPanel initParametersPanel() {
-        final ParametersPanel parametersPanel = new ParametersPanel(DEFINITION_AREA, curveParameters);
+        final ParametersPanel parametersPanel = new ParametersPanel(INIT_ABCD_AREA, figureParameters);
         parametersPanel.addChangeListener(parameters -> {
-            curveParameters = parameters;
+            figureParameters = parameters;
             refresh();
         });
         return parametersPanel;
@@ -154,9 +160,8 @@ public class GeneratrixFrame extends BaseFrame {
             Component c = e.getComponent();
             imageSize = matchRatio(c.getWidth(), c.getHeight());
             coordsTransformer = new CoordsTransformerImpl(
-                    new DoublePoint(DEFINITION_AREA.getMinX(), DEFINITION_AREA.getMinY()),
-                    DEFINITION_AREA.getWidth() / imageSize.width,
-                    DEFINITION_AREA.getHeight() / imageSize.height
+                    DEFINITION_AREA,
+                    new IntRectangle(0, 0, imageSize.width, imageSize.height)
             );
             refresh();
         }
@@ -176,6 +181,8 @@ public class GeneratrixFrame extends BaseFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             DoublePoint clicked = coordsTransformer.toCoords(getValidPoint(e.getX(), e.getY()));
+//            System.out.println("pixel: (" + e.getX() + ", " + e.getY() + ")");
+//            System.out.println("coord: (" + clicked.getX() + ", " + clicked.getY() + ")");
             switch (e.getButton()) {
                 case MouseEvent.BUTTON1:
                     handleLeftButtonClick(clicked);
