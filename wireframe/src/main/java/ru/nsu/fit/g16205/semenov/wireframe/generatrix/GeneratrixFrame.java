@@ -1,9 +1,9 @@
 package ru.nsu.fit.g16205.semenov.wireframe.generatrix;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
-import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.MyDocumentFilter;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoubleRectangle;
 import ru.nsu.fit.g16205.semenov.wireframe.model.IntPoint;
@@ -11,7 +11,6 @@ import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformerImpl;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,8 +21,8 @@ import java.util.stream.Collectors;
 
 public class GeneratrixFrame extends BaseFrame {
 
-    private static final int FRAME_WIDTH = 800;
-    private static final int FRAME_HEIGHT = 600;
+    private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 550);
+    private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 550);
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
     private static final int NO_SELECTED_POINT = -1;
@@ -50,11 +49,21 @@ public class GeneratrixFrame extends BaseFrame {
     private int[] k = new int[]{INIT_K};
 
     public GeneratrixFrame() {
-        super(FRAME_WIDTH, FRAME_HEIGHT, "Generatrix Options", null);
+        super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Generatrix Options", null);
+        setMinimumSize(MIN_FRAME_SIZE);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
-        mainPanel.add(initLayeredPane());
-//        mainPanel.add(initParametersPanel());
+
+        JLayeredPane layeredPane = initLayeredPane();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                layeredPane.setPreferredSize(new Dimension(e.getComponent().getWidth(), e.getComponent().getHeight()));
+            }
+        });
+
+        mainPanel.add(layeredPane);
+        mainPanel.add(initParametersPanel(null)); // TODO intention's parameters
         mainPanel.add(initControlPanel());
         add(mainPanel);
     }
@@ -74,8 +83,7 @@ public class GeneratrixFrame extends BaseFrame {
         previewLabel.setBounds(0, 0, imageSize.width, imageSize.height);
     }
 
-    private @Nullable
-    DoublePoint findSelectedAnchorPoint(DoublePoint clicked) {
+    private @Nullable DoublePoint findSelectedAnchorPoint(DoublePoint clicked) {
         for (DoublePoint point : anchorPoints) {
             if (intersects(point.getX(), point.getY(), clicked.getX(), clicked.getY())) {
                 return point;
@@ -99,20 +107,106 @@ public class GeneratrixFrame extends BaseFrame {
         return layeredPane;
     }
 
-//    private @NotNull JPanel initParametersPanel() {
-//        JPanel parametersPanel = new JPanel();
-//        parametersPanel.setLayout(new GridLayout(0, 4, 10, 10));
-//
-//        FrameUtils.addAllToPanel(parametersPanel,
-//                FrameUtils.createJLabel("a:"),
-//                FrameUtils.createJTextFieldWithListeners(
-//                        String.valueOf(a[0]),
-//                        10,
-//                        MyDocumentFilter.getDoubleFilter()
-//                ),
-//                )
-//
-//    }
+    private @NotNull JPanel initParametersPanel(@Nullable CurveParameters initialValues) {
+        final double minA = DEFINITION_AREA.getMinX();
+        final double maxB = DEFINITION_AREA.getMinX() + DEFINITION_AREA.getWidth();
+        final double minC = DEFINITION_AREA.getMinY();
+        final double maxD = DEFINITION_AREA.getMinY() + DEFINITION_AREA.getHeight();
+        final int spinnersWidth = 6;
+        final double doubleStep = 0.01;
+        final int intStep = 1;
+
+        if (initialValues == null) {
+            initialValues = new CurveParameters(minA, maxB, minC, maxD, INIT_N, INIT_M, INIT_K);
+        }
+
+        final JPanel abcdPanel = new JPanel();
+        abcdPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        final JSpinner aSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getA(), minA, maxB, doubleStep),
+                spinnersWidth
+        );
+        final JSpinner bSpinner =  FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getB(), minA, maxB, doubleStep),
+                spinnersWidth
+        );
+        final JSpinner cSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getC(), minC, maxD, doubleStep),
+                spinnersWidth
+        );
+        final JSpinner dSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getD(), minC, maxD, doubleStep),
+                spinnersWidth
+        );
+        FrameUtils.addAllToPanel(
+                abcdPanel,
+                FrameUtils.createJLabel("A:"),
+                aSpinner,
+                FrameUtils.createJLabel("B:"),
+                bSpinner,
+                FrameUtils.createJLabel("C:"),
+                cSpinner,
+                FrameUtils.createJLabel("D:"),
+                dSpinner
+        );
+
+        final JPanel nmkPanel = new JPanel();
+        nmkPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        final JSpinner nSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getN(), 2, 1000, intStep),
+                spinnersWidth
+        );
+        final JSpinner mSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getM(), 2, 1000, intStep),
+                spinnersWidth
+        );
+        final JSpinner kSpinner = FrameUtils.createSpinner(
+                new SpinnerNumberModel(initialValues.getK(), 1, 100, intStep),
+                spinnersWidth
+        );
+        FrameUtils.addAllToPanel(
+                nmkPanel,
+                FrameUtils.createJLabel("N:"),
+                nSpinner,
+                FrameUtils.createJLabel("M:"),
+                mSpinner,
+                FrameUtils.createJLabel("K:"),
+                kSpinner
+        );
+
+        final JPanel setButtonPanel = new JPanel();
+        setButtonPanel.setLayout(new FlowLayout());
+        final JButton setButton = new JButton("Set values");
+        setButton.addActionListener(e -> {
+            double a = (Double) aSpinner.getValue();
+            double b = (Double) bSpinner.getValue();
+            double c = (Double) cSpinner.getValue();
+            double d = (Double) dSpinner.getValue();
+            int n = (Integer) nSpinner.getValue();
+            int m = (Integer) mSpinner.getValue();
+            int k = (Integer) kSpinner.getValue();
+            if (a > b || c > d) {
+                JOptionPane.showMessageDialog(null, "Constraints: A < B && C < D");
+                return;
+            }
+            this.a[0] = a;
+            this.b[0] = b;
+            this.c[0] = c;
+            this.d[0] = d;
+            this.n[0] = n;
+            this.m[0] = m;
+            this.k[0] = k;
+            refresh();
+        });
+        setButtonPanel.add(setButton);
+
+        final JPanel parametersPanel = new JPanel();
+        parametersPanel.setLayout(new BoxLayout(parametersPanel, BoxLayout.Y_AXIS));
+        FrameUtils.addAllToPanel(parametersPanel, abcdPanel, nmkPanel, setButtonPanel);
+
+        return parametersPanel;
+    }
+
 
     private class LayeredPaneComponentListener extends ComponentAdapter {
 

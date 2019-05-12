@@ -12,11 +12,11 @@ public class BaseFrame extends JFrame {
 
     public BaseFrame(int width, int height, String title, @Nullable BaseFrame intentionFrame) {
         this.intentionFrame = intentionFrame;
-//        try {
-//            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-//        } catch (Exception e) {
-//            System.err.println(e.getMessage());
-//        }
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         setLocationByPlatform(true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {

@@ -7,8 +7,6 @@ import javax.swing.*;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class FrameUtils {
 
@@ -56,59 +54,48 @@ public class FrameUtils {
         return textField;
     }
 
-    public static JTextField initJTextFieldWithListeners(
-            @NotNull JTextField textField,
+    public static JTextField createJTextField(
             @NotNull String initialText,
             int fieldWidth,
-            @NotNull DocumentFilter documentFilter,
-            @NotNull TextFieldListener... listeners
-    ) {
-        initJTextField(textField, initialText, fieldWidth, documentFilter);
-        for (TextFieldListener listener : listeners) {
-            textField.addActionListener(e -> listener.textChanged(textField.getText()));
-        }
-        return textField;
-    }
-
-    public static JTextField createJTextFieldWithListeners(
-            @NotNull String initialText,
-            int fieldWidth,
-            @NotNull DocumentFilter documentFilter,
-            @NotNull TextFieldListener... listeners
+            @NotNull DocumentFilter documentFilter
     ) {
         JTextField jTextField = new JTextField();
-        return initJTextFieldWithListeners(jTextField, initialText, fieldWidth, documentFilter, listeners);
+        return initJTextField(jTextField, initialText, fieldWidth, documentFilter);
     }
 
-    public static JTextField initJTextFieldForSlider(
-            @NotNull JTextField textField,
-            int fieldWidth,
-            @NotNull DocumentFilter documentFilter,
-            @NotNull String initialText,
-            @NotNull SliderAdapter sliderAdapter,
-            @NotNull JSlider... sliders
+    public static JTextField addListener(
+            @NotNull JTextField jTextField,
+            @NotNull TextFieldListener listener
     ) {
-        initJTextField(textField, initialText, fieldWidth, documentFilter);
-        sliderAdapter.addSlider(sliders);
+        jTextField.addActionListener(e -> listener.textChanged(jTextField.getText()));
+        return jTextField;
+    }
+
+    public static JTextField linkSlider(
+            @NotNull JTextField textField,
+            @NotNull SliderAdapter sliderAdapter,
+            @NotNull JSlider slider
+    ) {
+        sliderAdapter.addSlider(slider);
         textField.addKeyListener(sliderAdapter);
         return textField;
-    }
-
-    public static JTextField createJTextFieldForSlider(
-            int fieldWidth,
-            @NotNull DocumentFilter documentFilter,
-            @NotNull String initialText,
-            @NotNull SliderAdapter sliderAdapter,
-            @NotNull JSlider... sliders
-    ) {
-        JTextField jTextField = new JTextField();
-        return initJTextFieldForSlider(jTextField, fieldWidth, documentFilter, initialText, sliderAdapter, sliders);
     }
 
     public static JLabel createJLabel(String text) {
         JLabel jLabel = new JLabel(text);
         jLabel.setHorizontalAlignment(JLabel.RIGHT);
         return jLabel;
+    }
+
+    public static @NotNull JSpinner createSpinner(@NotNull AbstractSpinnerModel spinnerModel, int width) {
+        if (width < 1) {
+            throw new IllegalArgumentException("Invalid width specified");
+        }
+        JSpinner spinner = new JSpinner(spinnerModel);
+        Component mySpinnerEditor = spinner.getEditor();
+        JFormattedTextField jftf = ((JSpinner.DefaultEditor) mySpinnerEditor).getTextField();
+        jftf.setColumns(width);
+        return spinner;
     }
 
 }

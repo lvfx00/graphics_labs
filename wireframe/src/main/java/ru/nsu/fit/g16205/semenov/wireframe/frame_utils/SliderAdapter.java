@@ -19,8 +19,8 @@ public abstract class SliderAdapter extends KeyAdapter {
         };
     }
 
-    public void addSlider(JSlider... sliders) {
-        sliderList.addAll(Arrays.asList(sliders));
+    public void addSlider(JSlider slider) {
+        sliderList.add(slider);
     }
 
     @Override
