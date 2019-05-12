@@ -21,6 +21,13 @@ import java.util.stream.Collectors;
 
 public class GeneratrixFrame extends BaseFrame {
 
+    @FunctionalInterface
+    public interface ResultListener {
+
+        void onFinished(@NotNull CurveData curveData);
+
+    }
+
     private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 550);
     private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 550);
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 3. / 2;
@@ -32,12 +39,13 @@ public class GeneratrixFrame extends BaseFrame {
     private static final int INIT_M = 10;
     private static final int INIT_K = 5;
 
+    private final @Nullable ResultListener resultListener;
     private final JLabel previewLabel = new JLabel();
     private final List<DoublePoint> anchorPoints = new ArrayList<>();
     private int selectedAnchorPointIndex = NO_SELECTED_POINT;
     private Dimension imageSize;
     private CoordsTransformer coordsTransformer;
-    private BezierCurve bezierCurve = null;
+    private @Nullable BezierCurve bezierCurve = null;
 
     // [] for lambdas!
     private double[] a = new double[]{DEFINITION_AREA.getMinX()};
@@ -48,8 +56,13 @@ public class GeneratrixFrame extends BaseFrame {
     private int[] m = new int[]{INIT_M};
     private int[] k = new int[]{INIT_K};
 
-    public GeneratrixFrame() {
-        super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Generatrix Options", null);
+    public GeneratrixFrame(
+            @Nullable BaseFrame intentionFrame,
+            @Nullable CurveData initialData,
+            @Nullable ResultListener resultListener
+    ) {
+        super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Generatrix Options", intentionFrame);
+        this.resultListener = resultListener;
         setMinimumSize(MIN_FRAME_SIZE);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
@@ -63,9 +76,30 @@ public class GeneratrixFrame extends BaseFrame {
         });
 
         mainPanel.add(layeredPane);
-        mainPanel.add(initParametersPanel(null)); // TODO intention's parameters
+        if (initialData != null) {
+            anchorPoints.addAll(BezierCurve.Adapter2D.matrixToPointsList(initialData.getCurve().getAnchorPoints()));
+            mainPanel.add(initParametersPanel(initialData.getParameters()));
+            refresh();
+        } else {
+            mainPanel.add(initParametersPanel(null));
+        }
         mainPanel.add(initControlPanel());
         add(mainPanel);
+    }
+
+    @Override
+    protected void okAction() {
+        if (bezierCurve != null) {
+            if (resultListener != null) {
+                resultListener.onFinished(new CurveData(
+                        bezierCurve,
+                        new CurveParameters(a[0], b[0], c[0], d[0], n[0], k[0], m[0])
+                ));
+            }
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(null, "You have to define at least 4 points for curve");
+        }
     }
 
     private void refresh() {
@@ -78,6 +112,8 @@ public class GeneratrixFrame extends BaseFrame {
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
             bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
             PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, a[0], b[0]);
+        } else {
+            bezierCurve = null;
         }
         previewLabel.setIcon(new ImageIcon(previewImage));
         previewLabel.setBounds(0, 0, imageSize.width, imageSize.height);
@@ -126,7 +162,7 @@ public class GeneratrixFrame extends BaseFrame {
                 new SpinnerNumberModel(initialValues.getA(), minA, maxB, doubleStep),
                 spinnersWidth
         );
-        final JSpinner bSpinner =  FrameUtils.createSpinner(
+        final JSpinner bSpinner = FrameUtils.createSpinner(
                 new SpinnerNumberModel(initialValues.getB(), minA, maxB, doubleStep),
                 spinnersWidth
         );
@@ -206,7 +242,6 @@ public class GeneratrixFrame extends BaseFrame {
 
         return parametersPanel;
     }
-
 
     private class LayeredPaneComponentListener extends ComponentAdapter {
 

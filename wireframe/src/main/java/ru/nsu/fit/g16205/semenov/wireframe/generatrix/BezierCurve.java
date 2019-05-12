@@ -4,7 +4,9 @@ import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.wireframe.model.DoublePoint;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.DoubleStream;
 
 public class BezierCurve {
@@ -19,6 +21,17 @@ public class BezierCurve {
                 throw new IllegalArgumentException("Invalid matrix specified");
             }
             return new DoublePoint(matrix.get(0, 0), matrix.get(0, 1));
+        }
+
+        public static @NotNull List<DoublePoint> matrixToPointsList(@NotNull SimpleMatrix matrix) {
+            if (matrix.numCols() != 2 || matrix.numRows() < 1) {
+                throw new IllegalArgumentException("Invalid matrix specified");
+            }
+            final List<DoublePoint> points = new ArrayList<>(matrix.numRows());
+            for(int i = 0; i < matrix.numRows(); ++i) {
+                points.add(new DoublePoint(matrix.get(i, 0), matrix.get(i, 1)));
+            }
+            return points;
         }
 
         public static @NotNull SimpleMatrix pointsToMatrix(@NotNull Collection<DoublePoint> points) {
@@ -104,6 +117,10 @@ public class BezierCurve {
             distance += (point1.get(0, i) - point2.get(0, i)) * (point1.get(0, i) - point2.get(0, i));
         }
         return Math.sqrt(distance);
+    }
+
+    public SimpleMatrix getAnchorPoints() {
+        return anchorPoints;
     }
 
     private static @NotNull SimpleMatrix getTMatrix(double t) {
