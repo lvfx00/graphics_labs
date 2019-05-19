@@ -17,10 +17,15 @@ public class SurfaceCreator {
     }
 
     private static SimpleMatrix getSurfacePoint(@NotNull BezierCurve curve, double u, double v) {
-        final SimpleMatrix curvePoint = curve.getPoint(u);
+        final SimpleMatrix curvePoint = curve.getPoint(u * curve.getTotalLength());
         final double curvePointX = curvePoint.get(0, 0);
         final double curvePointY = curvePoint.get(0, 1);
-        return new SimpleMatrix(1, 3, true, new double[]{curvePointY * Math.cos(v), curvePointY * Math.sin(v), curvePointX});
+        return new SimpleMatrix(
+                4,
+                1,
+                false,
+                new double[]{curvePointY * Math.cos(v), curvePointY * Math.sin(v), curvePointX, 1}
+        );
     }
 
     public static List<Pair<SimpleMatrix, SimpleMatrix>> createSurface(FigureData figureData) {
@@ -36,6 +41,9 @@ public class SurfaceCreator {
         final int numSegments = (n * (m + 1) + (n + 1) * m) * k * 2;
         final List<Pair<SimpleMatrix, SimpleMatrix>> surfaceSegments = new ArrayList<>(numSegments);
 
+        System.out.println("a: " + a);
+        System.out.println("b: " + b);
+
         for (int i = 0; i <= m; ++i) {
             @Nullable SimpleMatrix previousPoint = null;
             final double iterV = ((double) i) / m;
@@ -43,6 +51,7 @@ public class SurfaceCreator {
             for (int j = 0; j <= n * k; ++j) {
                 final double iterU = ((double) j) / (n * k);
                 final double u = a * (1 - iterU) + b * iterU;
+                System.out.println("u " + u);
                 final SimpleMatrix surfacePoint = getSurfacePoint(curve, u, v);
                 if (previousPoint != null) {
                     surfaceSegments.add(Pair.of(previousPoint, surfacePoint));
@@ -54,6 +63,7 @@ public class SurfaceCreator {
             @Nullable SimpleMatrix previousPoint = null;
             final double iterU = ((double) j) / n;
             final double u = a * (1 - iterU) + b * iterU;
+            System.out.println("U " + u);
             for (int i = 0; i <= m * k; ++i) {
                 final double iterV = ((double) i) / (m * k);
                 final double v = c * (1 - iterV) + d * iterV;
