@@ -1,4 +1,4 @@
-package ru.nsu.fit.g16205.semenov.wireframe.camera;
+package ru.nsu.fit.g16205.semenov.wireframe.model.camera;
 
 public class PyramidOfView {
 

@@ -1,9 +1,13 @@
-package ru.nsu.fit.g16205.semenov.wireframe.figure;
+package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
+import ru.nsu.fit.g16205.semenov.wireframe.FigurePreviewDrawer;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.*;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.*;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformerImpl;
@@ -105,10 +109,10 @@ public class FigureEditFrame extends BaseFrame {
                 .stream()
                 .map(c -> coordsTransformer.toPixel(c.getX(), c.getY()))
                 .collect(Collectors.toList());
-        PreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
+        FigurePreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
             bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
-            PreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, figureParameters.getA(), figureParameters.getB());
+            FigurePreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, figureParameters.getA(), figureParameters.getB());
         } else {
             bezierCurve = null;
         }
@@ -145,12 +149,12 @@ public class FigureEditFrame extends BaseFrame {
     }
 
     private @NotNull JPanel initParametersPanel() {
-        final ParametersPanel parametersPanel = new ParametersPanel(INIT_ABCD_AREA, figureParameters);
-        parametersPanel.addChangeListener(parameters -> {
+        final FigureParametersPanel figureParametersPanel = new FigureParametersPanel(INIT_ABCD_AREA, figureParameters);
+        figureParametersPanel.addChangeListener(parameters -> {
             figureParameters = parameters;
             refresh();
         });
-        return parametersPanel;
+        return figureParametersPanel;
     }
 
     private class LayeredPaneComponentListener extends ComponentAdapter {

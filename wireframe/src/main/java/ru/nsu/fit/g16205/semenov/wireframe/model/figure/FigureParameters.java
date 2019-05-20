@@ -1,7 +1,6 @@
-package ru.nsu.fit.g16205.semenov.wireframe.figure;
+package ru.nsu.fit.g16205.semenov.wireframe.model.figure;
 
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 
 public class FigureParameters {
 

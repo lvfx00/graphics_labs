@@ -1,6 +1,6 @@
-package ru.nsu.fit.g16205.semenov.wireframe.camera;
+package ru.nsu.fit.g16205.semenov.wireframe.model.camera;
 
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 
 public class CameraPosition {
 

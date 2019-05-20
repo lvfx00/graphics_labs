@@ -2,6 +2,7 @@ package ru.nsu.fit.g16205.semenov.wireframe.camera;
 
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.wireframe.model.camera.PyramidOfView;
 
 public class ViewPortProjector {
 

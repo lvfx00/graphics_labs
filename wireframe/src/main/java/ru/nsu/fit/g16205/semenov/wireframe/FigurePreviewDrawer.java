@@ -1,20 +1,21 @@
-package ru.nsu.fit.g16205.semenov.wireframe.figure;
+package ru.nsu.fit.g16205.semenov.wireframe;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.IntPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntPoint;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class PreviewDrawer {
+public class FigurePreviewDrawer {
 
     private static final Color CIRCLE_COLOR = Color.RED;
     private static final Color INACTIVE_CURVE_COLOR = Color.LIGHT_GRAY;
     private static final Color ACTIVE_CURVE_COLOR = Color.CYAN;
     private static final double PARAMETER_STEP = 1. / 1000;
 
-    private PreviewDrawer() {
+    private FigurePreviewDrawer() {
     }
 
     public static void drawBezierCurve(

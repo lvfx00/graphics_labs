@@ -1,10 +1,10 @@
 package ru.nsu.fit.g16205.semenov.wireframe.utils.transformer;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoubleRectangle;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.IntPoint;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.IntRectangle;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoubleRectangle;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntRectangle;
 
 public class CoordsTransformerImpl implements CoordsTransformer {
 

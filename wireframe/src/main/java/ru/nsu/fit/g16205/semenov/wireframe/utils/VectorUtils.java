@@ -2,7 +2,7 @@ package ru.nsu.fit.g16205.semenov.wireframe.utils;
 
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 
 public class VectorUtils {
 
@@ -37,11 +37,11 @@ public class VectorUtils {
         if (matrix.numCols() != 1 || matrix.numRows() != 4) {
             throw new IllegalArgumentException("Invalid matrix size");
         }
-        matrix.divide(matrix.get(3, 0));
+        SimpleMatrix newMatrix = matrix.divide(matrix.get(3, 0));
         return new DoublePoint3D(
-                matrix.get(0, 0),
-                matrix.get(0, 1),
-                matrix.get(0, 2)
+                newMatrix.get(0, 0),
+                newMatrix.get(1, 0),
+                newMatrix.get(2, 0)
         );
     }
 

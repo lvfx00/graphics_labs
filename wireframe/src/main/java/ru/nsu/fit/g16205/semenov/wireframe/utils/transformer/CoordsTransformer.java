@@ -1,7 +1,7 @@
 package ru.nsu.fit.g16205.semenov.wireframe.utils.transformer;
 
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.IntPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntPoint;
 
 public interface CoordsTransformer {
 

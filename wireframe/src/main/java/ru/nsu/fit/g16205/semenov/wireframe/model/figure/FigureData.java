@@ -1,4 +1,4 @@
-package ru.nsu.fit.g16205.semenov.wireframe.figure;
+package ru.nsu.fit.g16205.semenov.wireframe.model.figure;
 
 public class FigureData {
 

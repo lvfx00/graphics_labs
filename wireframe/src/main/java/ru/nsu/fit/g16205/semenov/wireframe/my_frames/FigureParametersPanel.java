@@ -1,9 +1,10 @@
-package ru.nsu.fit.g16205.semenov.wireframe.figure;
+package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoublePoint3D;
-import ru.nsu.fit.g16205.semenov.wireframe.model.geometric.DoubleRectangle;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoubleRectangle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ParametersPanel extends JPanel {
+public class FigureParametersPanel extends JPanel {
 
     public interface ChangeListener {
 
@@ -26,7 +27,7 @@ public class ParametersPanel extends JPanel {
 
     private final List<ChangeListener> changeListeners = new ArrayList<>();
 
-    public ParametersPanel(@NotNull DoubleRectangle definitionArea, @NotNull FigureParameters initialValues) {
+    public FigureParametersPanel(@NotNull DoubleRectangle definitionArea, @NotNull FigureParameters initialValues) {
         final double minA = definitionArea.getMinX();
         final double maxB = definitionArea.getMinX() + definitionArea.getWidth();
         final double minC = definitionArea.getMinY();

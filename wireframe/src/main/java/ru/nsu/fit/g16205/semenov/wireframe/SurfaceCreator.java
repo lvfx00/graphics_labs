@@ -4,9 +4,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.wireframe.figure.BezierCurve;
-import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureData;
-import ru.nsu.fit.g16205.semenov.wireframe.figure.FigureParameters;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
+import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +41,6 @@ public class SurfaceCreator {
         final int numSegments = (n * (m + 1) + (n + 1) * m) * k * 2;
         final List<Pair<SimpleMatrix, SimpleMatrix>> surfaceSegments = new ArrayList<>(numSegments);
 
-        System.out.println("a: " + a);
-        System.out.println("b: " + b);
-
         for (int i = 0; i <= m; ++i) {
             @Nullable SimpleMatrix previousPoint = null;
             final double iterV = ((double) i) / m;
@@ -51,7 +48,6 @@ public class SurfaceCreator {
             for (int j = 0; j <= n * k; ++j) {
                 final double iterU = ((double) j) / (n * k);
                 final double u = a * (1 - iterU) + b * iterU;
-                System.out.println("u " + u);
                 final SimpleMatrix surfacePoint = getSurfacePoint(curve, u, v);
                 if (previousPoint != null) {
                     surfaceSegments.add(Pair.of(previousPoint, surfacePoint));
@@ -63,7 +59,6 @@ public class SurfaceCreator {
             @Nullable SimpleMatrix previousPoint = null;
             final double iterU = ((double) j) / n;
             final double u = a * (1 - iterU) + b * iterU;
-            System.out.println("U " + u);
             for (int i = 0; i <= m * k; ++i) {
                 final double iterV = ((double) i) / (m * k);
                 final double v = c * (1 - iterV) + d * iterV;

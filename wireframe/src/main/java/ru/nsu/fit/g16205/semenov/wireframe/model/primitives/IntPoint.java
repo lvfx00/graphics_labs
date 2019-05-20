@@ -1,4 +1,4 @@
-package ru.nsu.fit.g16205.semenov.wireframe.model.geometric;
+package ru.nsu.fit.g16205.semenov.wireframe.model.primitives;
 
 import java.util.Objects;
 

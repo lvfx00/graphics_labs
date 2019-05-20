@@ -1,4 +1,6 @@
-package ru.nsu.fit.g16205.semenov.wireframe.model.geometric;
+package ru.nsu.fit.g16205.semenov.wireframe.model.primitives;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -25,6 +27,19 @@ public class DoublePoint3D {
     public double getZ() {
         return z;
     }
+
+    public @NotNull DoublePoint3D plus(@NotNull DoublePoint3D point3D) {
+        return new DoublePoint3D(x + point3D.getX(), y + point3D.getY(), z + point3D.getZ());
+    }
+
+    public @NotNull DoublePoint3D minus(@NotNull DoublePoint3D point3D) {
+        return new DoublePoint3D(x - point3D.getX(), y - point3D.getY(), z - point3D.getZ());
+    }
+
+    public double[] asArray() {
+        return new double[]{x, y, z};
+    }
+
 
     @Override
     public boolean equals(Object o) {
