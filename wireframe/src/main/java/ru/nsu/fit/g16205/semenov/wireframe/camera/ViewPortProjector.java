@@ -19,9 +19,9 @@ public class ViewPortProjector {
                 4,
                 true,
                 new double[]{
-                        2 / sw * zf, 0, 0, 0,
-                        0, 2 / sh * zf, 0, 0,
-                        0, 0, zf / (zb - zf), -zf * zb / (zb - zf),
+                        2 / sw * zb, 0, 0, 0,
+                        0, 2 / sh * zb, 0, 0,
+                        0, 0, zf / (zf - zb), -zf * zb / (zf - zb),
                         0, 0, 1, 0
                 }
         );

@@ -2,34 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7e9f6974-3b09-4dce-8c51-cf8017d48365" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraParameters.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/CameraParametersPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/GeometryUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/EditFigureFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureSelectionFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraPosition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraPosition.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/PyramidOfView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/PyramidOfView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/BezierCurve.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/BezierCurve.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/FigureData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/FigureData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/FigureEditFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/FigureParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/FigureParameters.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/ParametersPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/PreviewDrawer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/FigurePreviewDrawer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/geometric/DoublePoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/DoublePoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/geometric/DoublePoint3D.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/DoublePoint3D.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/geometric/DoubleRectangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/DoubleRectangle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/geometric/IntPoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/IntPoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/geometric/IntRectangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/IntRectangle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/CoordsTransformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/CoordsTransformer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/CoordsTransformerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/CoordsTransformerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/FixedRatioCoordsTransformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/transformer/FixedRatioCoordsTransformer.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -53,7 +31,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="561">
+            <state relative-caret-position="714">
               <caret line="42" selection-start-line="42" selection-end-line="42" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -62,11 +40,45 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/Main.java">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+            <state relative-caret-position="1507">
+              <caret line="249" selection-start-line="249" selection-end-line="249" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#3076#3327#0" expanded="true" />
+                <element signature="e#3326#3327#0" expanded="true" />
+                <element signature="method#initFileMenu#0;class#MainFrame#0" />
+                <element signature="method#initEditMenu#0;class#MainFrame#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/BezierCurve.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="283">
+              <caret line="109" lean-forward="true" selection-start-line="109" selection-end-line="109" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#BezierCurve#0;class#BezierCurve#0" />
+                <element signature="method#getPoint#1;class#BezierCurve#0" />
+                <element signature="method#getDistance#0;class#BezierCurve#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraParameters.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="3" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
+              <folding>
+                <element signature="e#542#543#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -74,7 +86,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
+            <state relative-caret-position="238">
               <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -85,24 +97,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="232">
-              <caret line="184" column="27" lean-forward="true" selection-start-line="184" selection-start-column="27" selection-end-line="184" selection-end-column="27" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="method#initFileMenu#0;class#MainFrame#0" />
-                <element signature="method#initEditMenu#0;class#MainFrame#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="23" column="37" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
+            <state relative-caret-position="-1009">
+              <caret line="27" column="65" selection-start-line="27" selection-start-column="65" selection-end-line="27" selection-end-column="65" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -111,10 +109,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/FigurePreviewDrawer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="43" selection-start-line="43" selection-end-line="43" />
+            <state relative-caret-position="170">
+              <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -132,19 +130,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraPosition.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="11" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/DoublePoint3D.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="37" selection-start-line="37" selection-end-line="37" />
+            <state relative-caret-position="255">
+              <caret line="15" column="72" selection-start-line="15" selection-start-column="72" selection-end-line="15" selection-end-column="72" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -153,10 +142,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="33" column="23" selection-start-line="33" selection-start-column="23" selection-end-line="33" selection-end-column="23" />
+            <state relative-caret-position="1020">
+              <caret line="60" column="4" selection-start-line="60" selection-start-column="4" selection-end-line="60" selection-end-column="4" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -180,7 +169,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/generatrix/BeizerCurve2DAdapter.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/generatrix/PreviewCreator.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/generatrix/BezierCurve2DAdapter.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/generatrix/PreviewDrawer.java" />
@@ -222,22 +210,23 @@
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/figure/FigurePreviewDrawer.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/FigurePreviewDrawer.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraParameters.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/CameraParametersPanel.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/GeometryUtils.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/primitives/DoublePoint3D.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" />
         <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/BezierCurve.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="70" />
-    <option name="width" value="939" />
-    <option name="height" value="1089" />
+    <option name="width" value="940" />
+    <option name="height" value="1090" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -247,7 +236,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -329,19 +317,11 @@
               <item name="wireframe" type="462c0819:PsiDirectoryNode" />
               <item name="my_frames" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="wireframe" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wireframe" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="wireframe" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -415,7 +395,9 @@
       <workItem from="1557638513748" duration="22684000" />
       <workItem from="1557915973763" duration="927000" />
       <workItem from="1558250256290" duration="26711000" />
-      <workItem from="1558337918187" duration="486000" />
+      <workItem from="1558337918187" duration="4812000" />
+      <workItem from="1558517097179" duration="5000" />
+      <workItem from="1558588196471" duration="1332000" />
     </task>
     <task id="LOCAL-00001" summary="Added project skeleton">
       <created>1557040316985</created>
@@ -487,17 +469,24 @@
       <option name="project" value="LOCAL" />
       <updated>1558260871901</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Added many things :)">
+      <created>1558338427469</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1558338427469</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="105206000" />
+    <option name="totallyTimeSpent" value="110869000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="55" y="-7" width="1488" height="878" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2359944" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2429972" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -545,7 +534,8 @@
     <MESSAGE value="Added Surface Creator" />
     <MESSAGE value="Added rotation parameters" />
     <MESSAGE value="Added 3D model" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added 3D model" />
+    <MESSAGE value="Added many things :)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added many things :)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -789,28 +779,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/FigurePreviewDrawer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraParameters.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="3" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
-          <folding>
-            <element signature="e#424#425#0" expanded="true" />
-            <element signature="e#460#461#0" expanded="true" />
-            <element signature="e#546#547#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-simple/0.38/cd7516e71525d51adcb07fab4688acb25b0d8f5d/ejml-simple-0.38-sources.jar!/org/ejml/simple/SimpleBase.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="175">
@@ -837,29 +805,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/BezierCurve.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="91" column="23" selection-start-line="91" selection-start-column="23" selection-end-line="91" selection-end-column="23" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#BezierCurve#0;class#BezierCurve#0" />
-            <element signature="method#getPoint#1;class#BezierCurve#0" />
-            <element signature="method#getDistance#0;class#BezierCurve#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="47" column="40" selection-start-line="47" selection-start-column="40" selection-end-line="47" selection-end-column="40" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/GeometryUtils.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
@@ -870,58 +815,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2788">
-          <caret line="182" selection-start-line="182" selection-end-line="182" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="42" selection-start-line="42" selection-end-line="42" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#FigureParametersPanel#0;class#FigureParametersPanel#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="43" selection-start-line="43" selection-end-line="43" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureSelectionFrame.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
         </state>
       </provider>
     </entry>
@@ -942,10 +839,111 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="22" column="37" selection-start-line="22" selection-start-column="37" selection-end-line="22" selection-end-column="37" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3094">
+          <caret line="182" selection-start-line="182" selection-end-line="182" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/SurfaceCreator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="42" selection-start-line="42" selection-end-line="42" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/camera/CameraParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="3" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
+          <folding>
+            <element signature="e#542#543#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#FigureParametersPanel#0;class#FigureParametersPanel#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/FigurePreviewDrawer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureSelectionFrame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/CameraTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="33" column="23" selection-start-line="33" selection-start-column="23" selection-end-line="33" selection-end-column="23" />
+        <state relative-caret-position="255">
+          <caret line="15" column="72" selection-start-line="15" selection-start-column="72" selection-end-line="15" selection-end-column="72" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/VectorUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="60" column="4" selection-start-line="60" selection-start-column="4" selection-end-line="60" selection-end-column="4" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/model/figure/BezierCurve.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="109" lean-forward="true" selection-start-line="109" selection-end-line="109" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#BezierCurve#0;class#BezierCurve#0" />
+            <element signature="method#getPoint#1;class#BezierCurve#0" />
+            <element signature="method#getDistance#0;class#BezierCurve#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/ProjectionCreator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1009">
+          <caret line="27" column="65" selection-start-line="27" selection-start-column="65" selection-end-line="27" selection-end-column="65" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -954,22 +952,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="184" column="27" lean-forward="true" selection-start-line="184" selection-start-column="27" selection-end-line="184" selection-end-column="27" />
+        <state relative-caret-position="1507">
+          <caret line="249" selection-start-line="249" selection-end-line="249" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#3076#3327#0" expanded="true" />
+            <element signature="e#3326#3327#0" expanded="true" />
             <element signature="method#initFileMenu#0;class#MainFrame#0" />
             <element signature="method#initEditMenu#0;class#MainFrame#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/camera/ViewPortProjector.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="23" column="37" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

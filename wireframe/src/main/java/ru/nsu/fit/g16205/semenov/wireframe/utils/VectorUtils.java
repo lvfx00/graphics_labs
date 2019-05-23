@@ -22,18 +22,25 @@ public class VectorUtils {
     }
 
     public static @NotNull DoublePoint3D toPoint3D(@NotNull SimpleMatrix matrix) {
-        if (matrix.numCols() != 3 || matrix.numRows() != 1) {
-            throw new IllegalArgumentException("Invalid matrix size");
+        if (matrix.numCols() == 3 && matrix.numRows() == 1) {
+            return new DoublePoint3D(
+                    matrix.get(0, 0),
+                    matrix.get(0, 1),
+                    matrix.get(0, 2)
+            );
         }
-        return new DoublePoint3D(
-                matrix.get(0, 0),
-                matrix.get(0, 1),
-                matrix.get(0, 2)
-        );
+        if (matrix.numCols() == 1 && matrix.numRows() == 3) {
+            return new DoublePoint3D(
+                    matrix.get(0, 0),
+                    matrix.get(1, 0),
+                    matrix.get(2, 0)
+            );
+        }
+        throw new IllegalArgumentException("Invalid matrix size");
     }
 
     // vertical vector required!
-    public static @NotNull DoublePoint3D homogeneousToPoint3D(@NotNull SimpleMatrix matrix) {
+    public static @NotNull DoublePoint3D homogenToPoint3D(@NotNull SimpleMatrix matrix) {
         if (matrix.numCols() != 1 || matrix.numRows() != 4) {
             throw new IllegalArgumentException("Invalid matrix size");
         }
@@ -47,6 +54,10 @@ public class VectorUtils {
 
     public static @NotNull SimpleMatrix toMatrix(@NotNull DoublePoint3D point3D) {
         return new SimpleMatrix(1, 3, true, new double[]{point3D.getX(), point3D.getY(), point3D.getZ()});
+    }
+
+    public static @NotNull SimpleMatrix toHomogenMatrix(@NotNull DoublePoint3D point3D) {
+        return new SimpleMatrix(1, 4, true, new double[]{point3D.getX(), point3D.getY(), point3D.getZ(), 1});
     }
 
 }

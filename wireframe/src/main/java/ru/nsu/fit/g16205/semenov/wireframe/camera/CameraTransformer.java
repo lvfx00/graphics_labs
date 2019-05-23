@@ -13,9 +13,9 @@ public class CameraTransformer {
 
     public static @NotNull SimpleMatrix getToCameraCoordsMatrix(@NotNull CameraPosition cameraPosition) {
         final DoublePoint3D cameraPoint = cameraPosition.getCameraPoint();
-        final SimpleMatrix PeyeMinusPref = VectorUtils.toMatrix(cameraPosition.getViewPoint())
-                .minus(VectorUtils.toMatrix(cameraPoint));
-        final SimpleMatrix wOrt = PeyeMinusPref.divide(PeyeMinusPref.normF());
+        final SimpleMatrix PrefMinusPeye = VectorUtils.toMatrix(cameraPosition.getCameraPoint())
+                .minus(VectorUtils.toMatrix(cameraPosition.getViewPoint()));
+        final SimpleMatrix wOrt = PrefMinusPeye.divide(PrefMinusPeye.normF());
         final SimpleMatrix rr = VectorUtils.crossProduct(VectorUtils.toMatrix(cameraPosition.getUpVector()), wOrt);
         final SimpleMatrix uOrt = rr.divide(rr.normF());
         final SimpleMatrix vOrt = VectorUtils.crossProduct(wOrt, uOrt);
