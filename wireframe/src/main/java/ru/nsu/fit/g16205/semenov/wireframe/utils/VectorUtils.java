@@ -56,8 +56,8 @@ public class VectorUtils {
         return new SimpleMatrix(1, 3, true, new double[]{point3D.getX(), point3D.getY(), point3D.getZ()});
     }
 
-    public static @NotNull SimpleMatrix toHomogenMatrix(@NotNull DoublePoint3D point3D) {
-        return new SimpleMatrix(1, 4, true, new double[]{point3D.getX(), point3D.getY(), point3D.getZ(), 1});
+    public static @NotNull SimpleMatrix toHomogenColumnVector(@NotNull DoublePoint3D point3D) {
+        return new SimpleMatrix(4, 1, false, new double[]{point3D.getX(), point3D.getY(), point3D.getZ(), 1});
     }
 
 }

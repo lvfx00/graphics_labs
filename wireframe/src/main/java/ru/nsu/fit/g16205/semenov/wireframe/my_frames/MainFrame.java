@@ -3,7 +3,8 @@ package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.ProjectionCreator;
+import ru.nsu.fit.g16205.semenov.wireframe.ProjectionDrawer;
+import ru.nsu.fit.g16205.semenov.wireframe.SurfaceCreator;
 import ru.nsu.fit.g16205.semenov.wireframe.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraPosition;
@@ -19,27 +20,26 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainFrame extends BaseMainFrame {
 
     private static final Dimension MIN_FRAME_SIZE = new Dimension(800, 600);
     private static final Dimension INIT_FRAME_SIZE = new Dimension(800, 600);
     private static final CameraPosition INIT_CAMERA_POSITION = new CameraPosition(
-            new DoublePoint3D(-10, 0, 0),
-            new DoublePoint3D(10, 0, 0),
+            new DoublePoint3D(5, 5, 5),
+            new DoublePoint3D(0, 0, 0),
             new DoublePoint3D(0, 1, 0)
     );
     private static final PyramidOfView INIT_PYRAMID_OF_VIEW = new PyramidOfView(6, 6, 12, 4);
 
     private final JLabel viewPortLabel = new JLabel();
-    private final @NotNull List<FigureData> figures = new ArrayList<>();
-    private final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(
-            new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION)
-    );
-    private @NotNull PyramidOfView pyramidOfView = INIT_PYRAMID_OF_VIEW;
-    private @NotNull CameraPosition cameraPosition = INIT_CAMERA_POSITION;
+    private final List<FigureData> figures = new ArrayList<>();
+    private CameraParameters cameraParameters = new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION);
+    private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
     private BufferedImage viewPortImage;
 
     public MainFrame() {
@@ -65,9 +65,10 @@ public class MainFrame extends BaseMainFrame {
         });
         mainPanel.add(layeredPane);
 
+        final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(cameraParameters);
         cameraParametersPanel.addChangeListener(parameters -> {
-            pyramidOfView = parameters.getPyramidOfView();
-            cameraPosition = parameters.getCameraPosition();
+            cameraParameters = parameters;
+            cameraTransformer = new CameraTransformer(cameraParameters);
             redrawAll();
         });
         mainPanel.add(cameraParametersPanel);
@@ -75,11 +76,12 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void redrawAll() {
-        cameraParametersPanel.setValues(new CameraParameters(pyramidOfView, cameraPosition));
         viewPortImage = ImageUtils.createImage(new Dimension(500, 500), Color.WHITE);
         for (FigureData figureData : figures) {
             drawFigure(figureData);
         }
+        drawWorldOrts();
+        drawCube();
         viewPortLabel.setIcon(new ImageIcon(viewPortImage));
     }
 
@@ -153,46 +155,73 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void drawFigure(@NotNull FigureData figureData) {
-        ProjectionCreator.drawProjection(viewPortImage, figureData, cameraPosition, pyramidOfView, Color.BLACK);
-        drawWorldOrts();
+        ProjectionDrawer.drawProjection(
+                viewPortImage,
+                cameraTransformer.worldToViewPort(
+                        SurfaceCreator.createSurface(figureData),
+                        new Dimension(viewPortImage.getWidth(), viewPortImage.getHeight())
+                ),
+                Color.BLACK // TODO add color choosing
+        );
     }
 
     private void drawWorldOrts() {
-        ProjectionCreator.drawProjection(viewPortImage,
-                ProjectionCreator.getProjectedLines(
+        ProjectionDrawer.drawProjection(
+                viewPortImage,
+                cameraTransformer.worldToViewPort(
                         Collections.singletonList(Pair.of(
-                                new SimpleMatrix(4, 1, false, new double[]{0, 0, 0, 1}),
-                                new SimpleMatrix(4, 1, false, new double[]{10, 0, 0, 1})
+                                new DoublePoint3D(0, 0, 0),
+                                new DoublePoint3D(5, 0, 0)
                         )),
-                        cameraPosition,
-                        pyramidOfView,
                         new Dimension(viewPortImage.getWidth(), viewPortImage.getHeight())
                 ),
                 Color.BLUE
         );
-        ProjectionCreator.drawProjection(viewPortImage,
-                ProjectionCreator.getProjectedLines(
+        ProjectionDrawer.drawProjection(
+                viewPortImage,
+                cameraTransformer.worldToViewPort(
                         Collections.singletonList(Pair.of(
-                                new SimpleMatrix(4, 1, false, new double[]{0, 0, 0, 1}),
-                                new SimpleMatrix(4, 1, false, new double[]{0, 10, 0, 1})
+                                new DoublePoint3D(0, 0, 0),
+                                new DoublePoint3D(0, 5, 0)
                         )),
-                        cameraPosition,
-                        pyramidOfView,
                         new Dimension(viewPortImage.getWidth(), viewPortImage.getHeight())
                 ),
                 Color.RED
         );
-        ProjectionCreator.drawProjection(viewPortImage,
-                ProjectionCreator.getProjectedLines(
+        ProjectionDrawer.drawProjection(
+                viewPortImage,
+                cameraTransformer.worldToViewPort(
                         Collections.singletonList(Pair.of(
-                                new SimpleMatrix(4, 1, false, new double[]{0, 0, 0, 1}),
-                                new SimpleMatrix(4, 1, false, new double[]{0, 0, 10, 1})
+                                new DoublePoint3D(0, 0, 0),
+                                new DoublePoint3D(0, 0, 5)
                         )),
-                        cameraPosition,
-                        pyramidOfView,
                         new Dimension(viewPortImage.getWidth(), viewPortImage.getHeight())
                 ),
                 Color.GREEN
+        );
+    }
+
+    private void drawCube() {
+        ProjectionDrawer.drawProjection(
+                viewPortImage,
+                cameraTransformer.worldToViewPort(
+                        Arrays.asList(
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(1, 0, 0)),
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 1, 0)),
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, 1)),
+                                Pair.of(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 1, 0)),
+                                Pair.of(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 0, 1)),
+                                Pair.of(new DoublePoint3D(0, 1, 0), new DoublePoint3D(1, 1, 0)),
+                                Pair.of(new DoublePoint3D(0, 1, 0), new DoublePoint3D(0, 1, 1)),
+                                Pair.of(new DoublePoint3D(0, 0, 1), new DoublePoint3D(1, 0, 1)),
+                                Pair.of(new DoublePoint3D(0, 0, 1), new DoublePoint3D(0, 1, 1)),
+                                Pair.of(new DoublePoint3D(0, 1, 1), new DoublePoint3D(1, 1, 1)),
+                                Pair.of(new DoublePoint3D(1, 1, 0), new DoublePoint3D(1, 1, 1)),
+                                Pair.of(new DoublePoint3D(1, 0, 1), new DoublePoint3D(1, 1, 1))
+                        ),
+                        new Dimension(viewPortImage.getWidth(), viewPortImage.getHeight())
+                ),
+                Color.MAGENTA
         );
     }
 
