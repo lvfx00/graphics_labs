@@ -16,4 +16,5 @@ dependencies {
     implementation "org.jetbrains:annotations:17.0.0"
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     implementation group: 'org.ejml', name: 'ejml-all', version: '0.38'
+    compile 'com.google.guava:guava:27.1-jre'
 }

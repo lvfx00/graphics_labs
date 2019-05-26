@@ -12,8 +12,8 @@ import ru.nsu.fit.g16205.semenov.wireframe.model.camera.PyramidOfView;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseMainFrame;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.SphericalPoint;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.VectorUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainFrame extends BaseMainFrame {
 
@@ -41,6 +40,7 @@ public class MainFrame extends BaseMainFrame {
     private CameraParameters cameraParameters = new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION);
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
     private BufferedImage viewPortImage;
+    private SphericalPoint cameraPoint = SphericalPoint.fromDekartCoords(INIT_CAMERA_POSITION.getCameraPoint());
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -57,6 +57,9 @@ public class MainFrame extends BaseMainFrame {
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(viewPortLabel, 0);
         layeredPane.setPreferredSize(new Dimension(getWidth(), getHeight()));
+        MouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
+        layeredPane.addMouseListener(layeredPaneMouseAdapter);
+        layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -225,58 +228,43 @@ public class MainFrame extends BaseMainFrame {
         );
     }
 
-//    private class LayeredPaneMouseAdapter extends MouseAdapter {
-//        private int x;
-//        private int y;
-//
-//        @Override
-//        public void mousePressed(MouseEvent e) {
-//            x = e.getX();
-//            y = e.getY();
-//        }
-//
-//        @Override
-//        public void mouseReleased(MouseEvent e) {
-//            x = e.getX();
-//            y = e.getY();
-//        }
-//
-//        @Override
-//        public void mouseDragged(MouseEvent e) {
-//            System.out.println(cameraPosition.getViewPoint());
-//            final SimpleMatrix toCameraCoordsMatrix = CameraTransformer.getToCameraCoordsMatrix(cameraPosition);
-//            final SimpleMatrix fromCameraCoordsMatrix = toCameraCoordsMatrix.invert();
-//            // TODO check scale ???
-//            double dx = ((double) e.getX() - x) / viewPortImage.getWidth();
-//            double dy = ((double) e.getY() - y) / viewPortImage.getHeight();
-//            double newZ = Math.sqrt(1 - dx * dx - dy * dy);
-//
-//            final SimpleMatrix newPOVinCamera = new SimpleMatrix(4, 1, false, new double[]{dx, dy, newZ, 1});
-//            final SimpleMatrix newPOVinWorld = fromCameraCoordsMatrix.mult(newPOVinCamera);
-//            cameraPosition = new CameraPosition(
-//                    cameraPosition.getCameraPoint(),
-//                    VectorUtils.homogenToPoint3D(newPOVinWorld),
-//                    cameraPosition.getUpVector()
-//            );
-//            System.out.println(cameraPosition.getViewPoint());
-//            redrawAll();
-//        }
-//
-//        @Override
-//        public void mouseWheelMoved(MouseWheelEvent e) {
-//            SimpleMatrix cameraToPOVvector = new SimpleMatrix(
-//                    1, 3, true, cameraPosition.getViewPoint().minus(cameraPosition.getCameraPoint()).asArray()
-//            );
-//            cameraToPOVvector = cameraToPOVvector.divide(cameraToPOVvector.normF() * 10);
-//            final DoublePoint3D delta = VectorUtils.toPoint3D(cameraToPOVvector.scale(e.getWheelRotation()));
-//            cameraPosition = new CameraPosition(
-//                    cameraPosition.getCameraPoint().plus(delta),
-//                    cameraPosition.getViewPoint().plus(delta),
-//                    cameraPosition.getUpVector()
-//            );
-//            redrawAll();
-//        }
-//
-//    }
+    private class LayeredPaneMouseAdapter extends MouseAdapter {
+        private int x;
+        private int y;
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            x = e.getX();
+            y = e.getY();
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            final int dx = e.getX() - x;
+            final int dy = e.getY() - y;
+            y = e.getY();
+            x = e.getX();
+
+            System.out.println("OLD " + cameraPoint);
+            double newEta = (cameraPoint.getEta() + 1. / Math.PI / 100 * dy) % Math.PI;
+            double newFi = (cameraPoint.getFi() + 1. / Math.PI / 100 * dx) % (Math.PI * 2);
+            if (newEta < 0) {
+                newEta += Math.PI;
+            }
+            if (newFi < 0) {
+                newFi += Math.PI * 2;
+            }
+            cameraPoint = new SphericalPoint(cameraPoint.getR(), newEta, newFi);
+            System.out.println("NEW " + cameraPoint);
+            cameraParameters.getCameraPosition().setCameraPoint(cameraPoint.toDekartCoords());
+            cameraTransformer = new CameraTransformer(cameraParameters);
+            redrawAll();
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+        }
+
+    }
 
 }

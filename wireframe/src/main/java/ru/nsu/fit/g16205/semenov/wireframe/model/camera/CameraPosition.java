@@ -26,4 +26,16 @@ public class CameraPosition {
         return upVector;
     }
 
+    public void setCameraPoint(DoublePoint3D cameraPoint) {
+        this.cameraPoint = cameraPoint;
+    }
+
+    public void setViewPoint(DoublePoint3D viewPoint) {
+        this.viewPoint = viewPoint;
+    }
+
+    public void setUpVector(DoublePoint3D upVector) {
+        this.upVector = upVector;
+    }
+
 }

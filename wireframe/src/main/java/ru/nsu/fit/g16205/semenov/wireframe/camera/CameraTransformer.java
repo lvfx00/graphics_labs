@@ -22,13 +22,11 @@ import static ru.nsu.fit.g16205.semenov.wireframe.utils.VectorUtils.*;
 
 public class CameraTransformer {
 
-    private final @NotNull SimpleMatrix toCameraCoordsMatrix;
-    private final @NotNull SimpleMatrix projectionMatrix;
     private final @NotNull SimpleMatrix resultingMatrix;
 
     public CameraTransformer(@NotNull CameraParameters cameraParameters) {
-        toCameraCoordsMatrix = getToCameraCoordsMatrix(cameraParameters.getCameraPosition());
-        projectionMatrix = getProjectionMatrix(cameraParameters.getPyramidOfView());
+        final SimpleMatrix toCameraCoordsMatrix = getToCameraCoordsMatrix(cameraParameters.getCameraPosition());
+        final SimpleMatrix projectionMatrix = getProjectionMatrix(cameraParameters.getPyramidOfView());
         resultingMatrix = projectionMatrix.mult(toCameraCoordsMatrix);
     }
 
@@ -44,9 +42,9 @@ public class CameraTransformer {
         );
 
         for (Pair<DoublePoint3D, DoublePoint3D> line : figure) {
-            System.out.println("--- BEFORE ---");
-            System.out.println(line.getLeft());
-            System.out.println(line.getRight());
+//            System.out.println("--- BEFORE ---");
+//            System.out.println(line.getLeft());
+//            System.out.println(line.getRight());
 
             DoublePoint3D leftPoint = homogenToPoint3D(
                     resultingMatrix.mult(VectorUtils.toHomogenColumnVector(line.getLeft()))
@@ -55,9 +53,9 @@ public class CameraTransformer {
                     resultingMatrix.mult(VectorUtils.toHomogenColumnVector(line.getRight()))
             );
 
-            System.out.println("--- AFTER ---");
-            System.out.println(leftPoint);
-            System.out.println(rightPoint);
+//            System.out.println("--- AFTER ---");
+//            System.out.println(leftPoint);
+//            System.out.println(rightPoint);
 
             if (isVisible(leftPoint) && isVisible(rightPoint)) {
                 result.add(Pair.of(
@@ -85,49 +83,33 @@ public class CameraTransformer {
         final double sh = pyramid.getSh();
         final double zf = pyramid.getZf();
         final double zb = pyramid.getZb();
-        return new SimpleMatrix(
-                4,
-                4,
-                true,
-                new double[]{
-                        2 / sw * zb, 0, 0, 0,
-                        0, 2 / sh * zb, 0, 0,
-                        0, 0, zf / (zf - zb), -zf * zb / (zf - zb),
-                        0, 0, 1, 0
-                }
-        );
+        return new SimpleMatrix(4, 4, true, new double[]{
+                2 / sw * zb, 0, 0, 0,
+                0, 2 / sh * zb, 0, 0,
+                0, 0, zf / (zf - zb), -zf * zb / (zf - zb),
+                0, 0, 1, 0
+        });
     }
 
     private static @NotNull SimpleMatrix getToCameraCoordsMatrix(@NotNull CameraPosition cameraPosition) {
         final DoublePoint3D cameraPoint = cameraPosition.getCameraPoint();
-        SimpleMatrix temp = toMatrix(cameraPosition.getViewPoint()).minus(toMatrix(cameraPoint));
+        SimpleMatrix temp = toMatrix(cameraPosition.getViewPoint()).minus(toMatrix(cameraPoint)); // Pref - Peye !!!
         final SimpleMatrix wOrt = temp.divide(temp.normF());
         temp = crossProduct(toMatrix(cameraPosition.getUpVector()), wOrt);
         final SimpleMatrix uOrt = temp.divide(temp.normF());
         final SimpleMatrix vOrt = crossProduct(wOrt, uOrt);
-        final SimpleMatrix rotateMatrix = new SimpleMatrix(
-                4,
-                4,
-                true,
-                new double[]{
-                        uOrt.get(0, 0), uOrt.get(0, 1), uOrt.get(0, 2), 0,
-                        vOrt.get(0, 0), vOrt.get(0, 1), vOrt.get(0, 2), 0,
-                        wOrt.get(0, 0), wOrt.get(0, 1), wOrt.get(0, 2), 0,
-                        0, 0, 0, 1
-                }
-        );
-        System.out.println(rotateMatrix);
-        final SimpleMatrix shiftMatrix = new SimpleMatrix(
-                4,
-                4,
-                true,
-                new double[]{
-                        1, 0, 0, -cameraPoint.getX(),
-                        0, 1, 0, -cameraPoint.getY(),
-                        0, 0, 1, -cameraPoint.getZ(),
-                        0, 0, 0, 1
-                }
-        );
+        final SimpleMatrix rotateMatrix = new SimpleMatrix(4, 4, true, new double[]{
+                uOrt.get(0, 0), uOrt.get(0, 1), uOrt.get(0, 2), 0,
+                vOrt.get(0, 0), vOrt.get(0, 1), vOrt.get(0, 2), 0,
+                wOrt.get(0, 0), wOrt.get(0, 1), wOrt.get(0, 2), 0,
+                0, 0, 0, 1
+        });
+        final SimpleMatrix shiftMatrix = new SimpleMatrix(4, 4, true, new double[]{
+                1, 0, 0, -cameraPoint.getX(),
+                0, 1, 0, -cameraPoint.getY(),
+                0, 0, 1, -cameraPoint.getZ(),
+                0, 0, 0, 1
+        });
         return rotateMatrix.mult(shiftMatrix);
     }
 
