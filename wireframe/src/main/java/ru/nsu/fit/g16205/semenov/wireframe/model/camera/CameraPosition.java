@@ -4,9 +4,9 @@ import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 
 public class CameraPosition {
 
-    private DoublePoint3D cameraPoint;
-    private DoublePoint3D viewPoint;
-    private DoublePoint3D upVector;
+    private final DoublePoint3D cameraPoint;
+    private final DoublePoint3D viewPoint;
+    private final DoublePoint3D upVector;
 
     public CameraPosition(DoublePoint3D cameraPoint, DoublePoint3D viewPoint, DoublePoint3D upVector) {
         this.cameraPoint = cameraPoint;
@@ -24,18 +24,6 @@ public class CameraPosition {
 
     public DoublePoint3D getUpVector() {
         return upVector;
-    }
-
-    public void setCameraPoint(DoublePoint3D cameraPoint) {
-        this.cameraPoint = cameraPoint;
-    }
-
-    public void setViewPoint(DoublePoint3D viewPoint) {
-        this.viewPoint = viewPoint;
-    }
-
-    public void setUpVector(DoublePoint3D upVector) {
-        this.upVector = upVector;
     }
 
 }

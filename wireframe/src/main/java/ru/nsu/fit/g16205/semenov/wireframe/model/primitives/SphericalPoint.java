@@ -1,6 +1,5 @@
 package ru.nsu.fit.g16205.semenov.wireframe.model.primitives;
 
-import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

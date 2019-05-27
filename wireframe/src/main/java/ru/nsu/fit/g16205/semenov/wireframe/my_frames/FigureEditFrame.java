@@ -2,15 +2,14 @@ package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.fit.g16205.semenov.wireframe.Drawer;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
-import ru.nsu.fit.g16205.semenov.wireframe.FigurePreviewDrawer;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseFrame;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.*;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
+import ru.nsu.fit.g16205.semenov.wireframe.utils.CoordsTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformerImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +18,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ru.nsu.fit.g16205.semenov.wireframe.Drawer.drawAnchorPointsCircles;
+import static ru.nsu.fit.g16205.semenov.wireframe.Drawer.drawBezierCurve;
 
 public class FigureEditFrame extends BaseFrame {
 
@@ -29,8 +31,8 @@ public class FigureEditFrame extends BaseFrame {
 
     }
 
-    private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 800);
-    private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 800);
+    private static final Dimension MIN_FRAME_SIZE = new Dimension(550, 850);
+    private static final Dimension INIT_FRAME_SIZE = new Dimension(550, 850);
     private static final DoubleRectangle DEFINITION_AREA = new DoubleRectangle(-1, -1, 2, 2);
     private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = DEFINITION_AREA.getWidth() / DEFINITION_AREA.getHeight();
     private static final Color PREVIEW_BACKGROUND_COLOR = Color.BLACK;
@@ -40,15 +42,7 @@ public class FigureEditFrame extends BaseFrame {
     private static final int INIT_N = 10;
     private static final int INIT_M = 10;
     private static final int INIT_K = 5;
-
-    private final @Nullable ResultListener resultListener;
-    private final JLabel previewLabel = new JLabel();
-    private final List<DoublePoint> anchorPoints = new ArrayList<>();
-    private int selectedAnchorPointIndex = NO_SELECTED_POINT;
-    private Dimension imageSize;
-    private CoordsTransformer coordsTransformer;
-    private @Nullable BezierCurve bezierCurve = null;
-    private @NotNull FigureParameters figureParameters = new FigureParameters(
+    private static final FigureParameters INIT_FIGURE_PARAMETERS = new FigureParameters(
             INIT_ABCD_AREA.getMinX(),
             INIT_ABCD_AREA.getMinX() + INIT_ABCD_AREA.getWidth(),
             INIT_ABCD_AREA.getMinY(),
@@ -59,8 +53,19 @@ public class FigureEditFrame extends BaseFrame {
             new DoublePoint3D(0, 0, 0),
             0,
             0,
-            0
+            0,
+            Color.BLACK,
+            "Figure"
     );
+
+    private final @Nullable ResultListener resultListener;
+    private final JLabel previewLabel = new JLabel();
+    private final List<DoublePoint> anchorPoints = new ArrayList<>();
+    private int selectedAnchorPointIndex = NO_SELECTED_POINT;
+    private Dimension imageSize;
+    private CoordsTransformer coordsTransformer;
+    private @Nullable BezierCurve bezierCurve = null;
+    private @NotNull FigureParameters figureParameters = INIT_FIGURE_PARAMETERS;
 
     public FigureEditFrame(
             @Nullable BaseFrame intentionFrame,
@@ -109,10 +114,10 @@ public class FigureEditFrame extends BaseFrame {
                 .stream()
                 .map(c -> coordsTransformer.toPixel(c.getX(), c.getY()))
                 .collect(Collectors.toList());
-        FigurePreviewDrawer.drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
+        drawAnchorPointsCircles(anchorPointsOnImage, previewImage, CIRCLE_RADIUS);
         if (anchorPoints.size() >= BezierCurve.MIN_POINTS_NUM) {
             bezierCurve = new BezierCurve(BezierCurve.Adapter2D.pointsToMatrix(anchorPoints));
-            FigurePreviewDrawer.drawBezierCurve(previewImage, bezierCurve, coordsTransformer, figureParameters.getA(), figureParameters.getB());
+            drawBezierCurve(previewImage, bezierCurve, coordsTransformer, figureParameters.getA(), figureParameters.getB());
         } else {
             bezierCurve = null;
         }
@@ -163,7 +168,7 @@ public class FigureEditFrame extends BaseFrame {
         public void componentResized(ComponentEvent e) {
             Component c = e.getComponent();
             imageSize = matchRatio(c.getWidth(), c.getHeight());
-            coordsTransformer = new CoordsTransformerImpl(
+            coordsTransformer = new CoordsTransformer(
                     DEFINITION_AREA,
                     new IntRectangle(0, 0, imageSize.width, imageSize.height)
             );

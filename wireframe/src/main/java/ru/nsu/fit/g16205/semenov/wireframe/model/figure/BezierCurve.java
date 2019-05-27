@@ -13,7 +13,7 @@ public class BezierCurve {
 
     public static class Adapter2D {
 
-        private  Adapter2D() {
+        private Adapter2D() {
         }
 
         public static @NotNull DoublePoint matrixToPoint(@NotNull SimpleMatrix matrix) {
@@ -28,7 +28,7 @@ public class BezierCurve {
                 throw new IllegalArgumentException("Invalid matrix specified");
             }
             final List<DoublePoint> points = new ArrayList<>(matrix.numRows());
-            for(int i = 0; i < matrix.numRows(); ++i) {
+            for (int i = 0; i < matrix.numRows(); ++i) {
                 points.add(new DoublePoint(matrix.get(i, 0), matrix.get(i, 1)));
             }
             return points;
@@ -49,14 +49,12 @@ public class BezierCurve {
 
     public static final int MIN_POINTS_NUM = 4;
     private static final int N_FOR_LENGTH = 100;
-    private static final SimpleMatrix Ms = new SimpleMatrix(
-            new double[][]{
-                    {-1, 3, -3, 1},
-                    {3, -6, 3, 0},
-                    {-3, 0, 3, 0},
-                    {1, 4, 1, 0}
-            }
-    ).scale(1. / 6);
+    private static final SimpleMatrix Ms = new SimpleMatrix(new double[][]{
+            {-1, 3, -3, 1},
+            {3, -6, 3, 0},
+            {-3, 0, 3, 0},
+            {1, 4, 1, 0}
+    }).scale(1. / 6);
 
     private final SimpleMatrix anchorPoints;
     private final int partsNum;
@@ -95,7 +93,7 @@ public class BezierCurve {
             }
             previousPartsLength = newLength;
         }
-        throw new AssertionError("Never reached");
+        return getPoint(partsNum - 1, 1);
     }
 
     public double getTotalLength() {

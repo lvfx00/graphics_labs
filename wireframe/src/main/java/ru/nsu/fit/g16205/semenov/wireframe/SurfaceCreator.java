@@ -1,18 +1,25 @@
 package ru.nsu.fit.g16205.semenov.wireframe;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
+import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoubleBox;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.wireframe.utils.DoubleBoxTransformer;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.*;
 import static ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve.Adapter2D.matrixToPoint;
 
 public class SurfaceCreator {
@@ -61,11 +68,46 @@ public class SurfaceCreator {
                 previousPoint = surfacePoint;
             }
         }
-//        for (Pair<SimpleMatrix, SimpleMatrix> line : surfaceSegments) {
-//            System.out.println(line.getLeft());
-//            System.out.println(line.getRight());
-//        }
         return surfaceSegments;
+    }
+
+    public static @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> normalizeSurface(
+            @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> surface
+    ) {
+        checkArgument(surface.size() > 0, "Empty list :/");
+//        surface.forEach(System.out::println); // TODO убрать
+        final Supplier<Stream<DoublePoint3D>> streamSupplier = () -> surface
+                .stream()
+                .flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight()));
+
+        final double minX = streamSupplier.get().min(Comparator.comparingDouble(DoublePoint3D::getX)).get().getX();
+        final double maxX = streamSupplier.get().max(Comparator.comparingDouble(DoublePoint3D::getX)).get().getX();
+        final double minY = streamSupplier.get().min(Comparator.comparingDouble(DoublePoint3D::getY)).get().getY();
+        final double maxY = streamSupplier.get().max(Comparator.comparingDouble(DoublePoint3D::getY)).get().getY();
+        final double minZ = streamSupplier.get().min(Comparator.comparingDouble(DoublePoint3D::getZ)).get().getZ();
+        final double maxZ = streamSupplier.get().max(Comparator.comparingDouble(DoublePoint3D::getZ)).get().getZ();
+
+        final double xSize = maxX - minX;
+        final double ySize = maxY - minY;
+        final double zSize = maxZ - minZ;
+        final double maxSize = Math.max(Math.max(xSize, ySize), zSize);
+
+        final DoubleBoxTransformer transformer = new DoubleBoxTransformer(
+                new DoubleBox(
+                        minX - (maxSize - xSize) / 2,
+                        maxX + (maxSize - xSize) / 2,
+                        minY - (maxSize - ySize) / 2,
+                        maxY + (maxSize - ySize) / 2,
+                        minZ - (maxSize - zSize) / 2,
+                        maxZ + (maxSize - zSize) / 2
+                ),
+                new DoubleBox(-1, 1, -1, 1, -1, 1)
+        );
+        //        normalizedSurface.forEach(System.out::println); // TODO убрать
+        return surface
+                .stream()
+                .map(pair -> Pair.of(transformer.toBox2(pair.getLeft()), transformer.toBox2(pair.getRight())))
+                .collect(Collectors.toList());
     }
 
     private static DoublePoint3D getSurfacePoint(@NotNull BezierCurve curve, double u, double v) {

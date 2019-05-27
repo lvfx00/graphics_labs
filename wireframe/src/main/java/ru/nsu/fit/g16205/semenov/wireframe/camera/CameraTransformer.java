@@ -3,6 +3,7 @@ package ru.nsu.fit.g16205.semenov.wireframe.camera;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraPosition;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.PyramidOfView;
@@ -10,9 +11,7 @@ import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoubleRectangle;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntPoint;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.IntRectangle;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.VectorUtils;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformer;
-import ru.nsu.fit.g16205.semenov.wireframe.utils.transformer.CoordsTransformerImpl;
+import ru.nsu.fit.g16205.semenov.wireframe.utils.CoordsTransformer;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -33,30 +32,29 @@ public class CameraTransformer {
     // TODO asserts that figure points' matrices are homogeneous column vectors
     public List<Pair<IntPoint, IntPoint>> worldToViewPort(
             @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> figure,
-            @NotNull Dimension imageSize
+            @NotNull Dimension imageSize,
+            @Nullable SimpleMatrix preMatrix
     ) {
         final List<Pair<IntPoint, IntPoint>> result = new ArrayList<>();
-        final CoordsTransformer coordsTransformer = new CoordsTransformerImpl(
+        final CoordsTransformer coordsTransformer = new CoordsTransformer(
                 new DoubleRectangle(-1, -1, 2, 2),
                 new IntRectangle(0, 0, imageSize.width, imageSize.height)
         );
 
-        for (Pair<DoublePoint3D, DoublePoint3D> line : figure) {
-//            System.out.println("--- BEFORE ---");
-//            System.out.println(line.getLeft());
-//            System.out.println(line.getRight());
+        SimpleMatrix matrix;
+        if (preMatrix != null) {
+            matrix = resultingMatrix.mult(preMatrix);
+        } else {
+            matrix = resultingMatrix;
+        }
 
+        for (Pair<DoublePoint3D, DoublePoint3D> line : figure) {
             DoublePoint3D leftPoint = homogenToPoint3D(
-                    resultingMatrix.mult(VectorUtils.toHomogenColumnVector(line.getLeft()))
+                    matrix.mult(toHomogenColumnVector(line.getLeft()))
             );
             DoublePoint3D rightPoint = homogenToPoint3D(
-                    resultingMatrix.mult(VectorUtils.toHomogenColumnVector(line.getRight()))
+                    matrix.mult(toHomogenColumnVector(line.getRight()))
             );
-
-//            System.out.println("--- AFTER ---");
-//            System.out.println(leftPoint);
-//            System.out.println(rightPoint);
-
             if (isVisible(leftPoint) && isVisible(rightPoint)) {
                 result.add(Pair.of(
                         coordsTransformer.toPixel(leftPoint.getX(), leftPoint.getY()),

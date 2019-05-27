@@ -18,4 +18,8 @@ public class FigureData {
         return parameters;
     }
 
+    @Override
+    public String toString() {
+        return parameters.getName();
+    }
 }

@@ -16,6 +16,10 @@ public class DoubleRectangle {
         this.height = height;
     }
 
+    public boolean includesPoint(double x, double y) {
+        return x >= minX && x <= minX + width && y >= minY && y <= minY + height;
+    }
+
     public double getMinX() {
         return minX;
     }

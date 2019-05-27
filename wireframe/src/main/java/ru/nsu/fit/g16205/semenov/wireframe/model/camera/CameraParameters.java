@@ -2,8 +2,8 @@ package ru.nsu.fit.g16205.semenov.wireframe.model.camera;
 
 public class CameraParameters {
 
-    private PyramidOfView pyramidOfView;
-    private CameraPosition cameraPosition;
+    private final PyramidOfView pyramidOfView;
+    private final CameraPosition cameraPosition;
 
     public CameraParameters(PyramidOfView pyramidOfView, CameraPosition cameraPosition) {
         this.pyramidOfView = pyramidOfView;
@@ -16,14 +16,6 @@ public class CameraParameters {
 
     public CameraPosition getCameraPosition() {
         return cameraPosition;
-    }
-
-    public void setPyramidOfView(PyramidOfView pyramidOfView) {
-        this.pyramidOfView = pyramidOfView;
-    }
-
-    public void setCameraPosition(CameraPosition cameraPosition) {
-        this.cameraPosition = cameraPosition;
     }
 
 }

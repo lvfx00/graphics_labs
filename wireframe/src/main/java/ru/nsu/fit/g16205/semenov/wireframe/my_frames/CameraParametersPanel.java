@@ -71,6 +71,7 @@ public class CameraParametersPanel extends JPanel {
         xUpVectSpinner.setValue(cameraPosition.getUpVector().getX());
         yUpVectSpinner.setValue(cameraPosition.getUpVector().getY());
         zUpVectSpinner.setValue(cameraPosition.getUpVector().getZ());
+
     }
 
     public void addChangeListener(@NotNull ChangeListener changeListener) {
