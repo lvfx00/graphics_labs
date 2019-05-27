@@ -2,7 +2,6 @@ package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.wireframe.Drawer;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.BezierCurve;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureParameters;
@@ -190,8 +189,6 @@ public class FigureEditFrame extends BaseFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             DoublePoint clicked = coordsTransformer.toCoords(getValidPoint(e.getX(), e.getY()));
-//            System.out.println("pixel: (" + e.getX() + ", " + e.getY() + ")");
-//            System.out.println("coord: (" + clicked.getX() + ", " + clicked.getY() + ")");
             switch (e.getButton()) {
                 case MouseEvent.BUTTON1:
                     handleLeftButtonClick(clicked);

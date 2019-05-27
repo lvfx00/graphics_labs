@@ -75,7 +75,6 @@ public class SurfaceCreator {
             @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> surface
     ) {
         checkArgument(surface.size() > 0, "Empty list :/");
-//        surface.forEach(System.out::println); // TODO убрать
         final Supplier<Stream<DoublePoint3D>> streamSupplier = () -> surface
                 .stream()
                 .flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight()));
@@ -103,7 +102,6 @@ public class SurfaceCreator {
                 ),
                 new DoubleBox(-1, 1, -1, 1, -1, 1)
         );
-        //        normalizedSurface.forEach(System.out::println); // TODO убрать
         return surface
                 .stream()
                 .map(pair -> Pair.of(transformer.toBox2(pair.getLeft()), transformer.toBox2(pair.getRight())))

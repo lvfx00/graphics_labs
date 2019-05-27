@@ -29,7 +29,6 @@ public class CameraTransformer {
         resultingMatrix = projectionMatrix.mult(toCameraCoordsMatrix);
     }
 
-    // TODO asserts that figure points' matrices are homogeneous column vectors
     public List<Pair<IntPoint, IntPoint>> worldToViewPort(
             @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> figure,
             @NotNull Dimension imageSize,
@@ -75,7 +74,6 @@ public class CameraTransformer {
         );
     }
 
-    // TODO check valid
     private static @NotNull SimpleMatrix getProjectionMatrix(@NotNull PyramidOfView pyramid) {
         final double sw = pyramid.getSw();
         final double sh = pyramid.getSh();

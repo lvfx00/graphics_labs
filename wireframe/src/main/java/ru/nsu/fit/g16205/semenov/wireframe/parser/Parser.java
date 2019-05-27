@@ -34,10 +34,11 @@ public class Parser {
             final DoublePoint3D pCam = readNextDoublePoint3D(scanner);
             final DoublePoint3D pView = readNextDoublePoint3D(scanner);
             final DoublePoint3D upVect = readNextDoublePoint3D(scanner);
-// TODO            final Color backgroundColor = readNextColor(scanner);
+            final Color backgroundColor = readNextColor(scanner);
             final CameraParameters cameraParameters = new CameraParameters(
                     new PyramidOfView(sw, sh, zf, zb),
-                    new CameraPosition(pCam, pView, upVect)
+                    new CameraPosition(pCam, pView, upVect),
+                    backgroundColor
             );
             final int figuresNum = readNextInt(scanner);
             final List<FigureData> figureDataList = new ArrayList<>();
@@ -81,7 +82,7 @@ public class Parser {
             writeDoublePoint3D(cameraPosition.getCameraPoint(), bw);
             writeDoublePoint3D(cameraPosition.getViewPoint(), bw);
             writeDoublePoint3D(cameraPosition.getUpVector(), bw);
-// TODO            final Color backgroundColor = readNextColor(scanner);
+            writeColor(config.getCameraParameters().getBackgroundColor(), bw);
             writeInt(config.getFigureDataList().size(), bw);
             for (FigureData fd : config.getFigureDataList()) {
                 final List<DoublePoint> points = matrixToPointsList(fd.getCurve().getAnchorPoints());

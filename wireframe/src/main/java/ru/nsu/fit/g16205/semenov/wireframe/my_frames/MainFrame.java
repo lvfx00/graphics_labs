@@ -38,7 +38,12 @@ public class MainFrame extends BaseMainFrame {
             new DoublePoint3D(0, 1, 0)
     );
     private static final PyramidOfView INIT_PYRAMID_OF_VIEW = new PyramidOfView(6, 6, 12, 4);
-    private static final CameraParameters INIT_CAMERA_PARAMETERS = new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION);
+    private static final Color INIT_BACKGROUND_COLOR = Color.WHITE;
+    private static final CameraParameters INIT_CAMERA_PARAMETERS = new CameraParameters(
+            INIT_PYRAMID_OF_VIEW,
+            INIT_CAMERA_POSITION,
+            INIT_BACKGROUND_COLOR
+    );
 
     private Dimension imageSize;
     private final JComboBox<FigureData> figuresComboBox = new JComboBox<>();
@@ -87,6 +92,7 @@ public class MainFrame extends BaseMainFrame {
         });
         layeredPane.addMouseListener(layeredPaneMouseAdapter);
         layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
+        layeredPane.addMouseWheelListener(layeredPaneMouseAdapter);
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -97,7 +103,7 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void redrawAll() {
-        final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
+        final BufferedImage image = ImageUtils.createImage(imageSize, cameraParameters.getBackgroundColor());
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
         figures.forEach(figureData -> drawFigure(image, figureData, cameraTransformer));
@@ -108,6 +114,7 @@ public class MainFrame extends BaseMainFrame {
     private void initMenus() {
         initFileMenu();
         initEditMenu();
+        initAboutMenu();
     }
 
     private void initFileMenu() {
@@ -183,6 +190,22 @@ public class MainFrame extends BaseMainFrame {
         addToolBarSeparator();
     }
 
+    private void initAboutMenu() {
+        addSubMenu("About", KeyEvent.getExtendedKeyCodeForChar('a'));
+
+        addMenuItem("About/About",
+                "About author",
+                KeyEvent.getExtendedKeyCodeForChar('a'),
+                "about.png",
+                this::aboutAction);
+
+        addToolBarButton("About/About");
+    }
+
+    private void aboutAction() {
+        startNewFrame(new AboutFrame(this));
+    }
+
     private void newFileAction() {
         figures.clear();
         figuresComboBox.removeAllItems();
@@ -201,7 +224,6 @@ public class MainFrame extends BaseMainFrame {
             showMessageDialog(null, "I/O error happened :(");
             return;
         } catch (ParseException e) {
-            e.printStackTrace();
             showMessageDialog(null, "Invalid file specified :(");
             return;
         }
@@ -306,7 +328,6 @@ public class MainFrame extends BaseMainFrame {
             if (newFi < 0) {
                 newFi += Math.PI * 2;
             }
-            // TODO добавить полуоборот
             if (newEta < 0) {
                 newEta += Math.PI;
             }
@@ -319,13 +340,23 @@ public class MainFrame extends BaseMainFrame {
                             cameraPoint.toDekartCoords(),
                             cameraParameters.getCameraPosition().getViewPoint(),
                             cameraParameters.getCameraPosition().getUpVector()
-                    )
+                    ),
+                    cameraParameters.getBackgroundColor()
             ));
         }
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO
+            updateParameters(new CameraParameters(
+                    new PyramidOfView(
+                            cameraParameters.getPyramidOfView().getSw(),
+                            cameraParameters.getPyramidOfView().getSh(),
+                            cameraParameters.getPyramidOfView().getZf(),
+                            cameraParameters.getPyramidOfView().getZb() + ((double) e.getWheelRotation()) / 10
+                    ),
+                    cameraParameters.getCameraPosition(),
+                    cameraParameters.getBackgroundColor()
+            ));
         }
 
     }

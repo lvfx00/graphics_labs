@@ -1,7 +1,6 @@
 package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraPosition;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.PyramidOfView;
@@ -11,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils.*;
 
 public class CameraParametersPanel extends JPanel {
 
@@ -38,11 +39,15 @@ public class CameraParametersPanel extends JPanel {
     private JSpinner xUpVectSpinner;
     private JSpinner yUpVectSpinner;
     private JSpinner zUpVectSpinner;
+    private JSpinner colorRedSpinner;
+    private JSpinner colorGreenSpinner;
+    private JSpinner colorBlueSpinner;
 
     public CameraParametersPanel(@NotNull CameraParameters initialValues) {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        FrameUtils.addAllToPanel(
+        addAllToPanel(
                 this,
+                initBackgroundColorPanel(initialValues.getBackgroundColor()),
                 initPyramidParametersPanel(initialValues.getPyramidOfView()),
                 initPointOfCameraParametersPanel(initialValues.getCameraPosition().getCameraPoint()),
                 initPointOfViewParametersPanel(initialValues.getCameraPosition().getViewPoint()),
@@ -54,6 +59,10 @@ public class CameraParametersPanel extends JPanel {
     public void setValues(@NotNull CameraParameters cameraParameters) {
         final CameraPosition cameraPosition = cameraParameters.getCameraPosition();
         final PyramidOfView pyramidOfView = cameraParameters.getPyramidOfView();
+
+        colorRedSpinner.setValue(cameraParameters.getBackgroundColor().getRed());
+        colorGreenSpinner.setValue(cameraParameters.getBackgroundColor().getGreen());
+        colorBlueSpinner.setValue(cameraParameters.getBackgroundColor().getBlue());
 
         swSpinner.setValue(pyramidOfView.getSw());
         shSpinner.setValue(pyramidOfView.getSh());
@@ -82,6 +91,33 @@ public class CameraParametersPanel extends JPanel {
         changeListeners.remove(changeListener);
     }
 
+    private @NotNull JPanel initBackgroundColorPanel(@NotNull Color initialColor) {
+        final JPanel colorPanel = new JPanel();
+        colorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        colorRedSpinner = createSpinner(
+                new SpinnerNumberModel(initialColor.getRed(), 0, 255, 1),
+                SPINNERS_WIDTH
+        );
+        colorGreenSpinner = createSpinner(
+                new SpinnerNumberModel(initialColor.getGreen(), 0, 255, 1),
+                SPINNERS_WIDTH
+        );
+        colorBlueSpinner = createSpinner(
+                new SpinnerNumberModel(initialColor.getBlue(), 0, 255, 1),
+                SPINNERS_WIDTH
+        );
+        addAllToPanel(
+                colorPanel,
+                createJLabel("RED:"),
+                colorRedSpinner,
+                createJLabel("GREEN:"),
+                colorGreenSpinner,
+                createJLabel("BLUE:"),
+                colorBlueSpinner
+        );
+        return colorPanel;
+    }
+
     private @NotNull JPanel initPyramidParametersPanel(@NotNull PyramidOfView pyramidOfView) {
         final JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -89,15 +125,15 @@ public class CameraParametersPanel extends JPanel {
         shSpinner = initDoubleSpinnerForLength(pyramidOfView.getSh());
         zfSpinner = initDoubleSpinnerForLength(pyramidOfView.getZf());
         zbSpinner = initDoubleSpinnerForLength(pyramidOfView.getZb());
-        FrameUtils.addAllToPanel(
+        addAllToPanel(
                 panel,
-                FrameUtils.createJLabel("Sw:"),
+                createJLabel("Sw:"),
                 swSpinner,
-                FrameUtils.createJLabel("Sh:"),
+                createJLabel("Sh:"),
                 shSpinner,
-                FrameUtils.createJLabel("Zf:"),
+                createJLabel("Zf:"),
                 zfSpinner,
-                FrameUtils.createJLabel("Zb:"),
+                createJLabel("Zb:"),
                 zbSpinner
         );
         return panel;
@@ -109,13 +145,13 @@ public class CameraParametersPanel extends JPanel {
         xPCamSpinner = initDoubleSpinnerForCoords(initCameraPoint.getX());
         yPCamSpinner = initDoubleSpinnerForCoords(initCameraPoint.getY());
         zPCamSpinner = initDoubleSpinnerForCoords(initCameraPoint.getZ());
-        FrameUtils.addAllToPanel(
+        addAllToPanel(
                 panel,
-                FrameUtils.createJLabel("Pcam X:"),
+                createJLabel("Pcam X:"),
                 xPCamSpinner,
-                FrameUtils.createJLabel("Pcam Y:"),
+                createJLabel("Pcam Y:"),
                 yPCamSpinner,
-                FrameUtils.createJLabel("Pcam Z:"),
+                createJLabel("Pcam Z:"),
                 zPCamSpinner
         );
         return panel;
@@ -127,13 +163,13 @@ public class CameraParametersPanel extends JPanel {
         xPViewSpinner = initDoubleSpinnerForCoords(initPointOfView.getX());
         yPViewSpinner = initDoubleSpinnerForCoords(initPointOfView.getY());
         zPViewSpinner = initDoubleSpinnerForCoords(initPointOfView.getZ());
-        FrameUtils.addAllToPanel(
+        addAllToPanel(
                 panel,
-                FrameUtils.createJLabel("Pview X:"),
+                createJLabel("Pview X:"),
                 xPViewSpinner,
-                FrameUtils.createJLabel("Pview Y:"),
+                createJLabel("Pview Y:"),
                 yPViewSpinner,
-                FrameUtils.createJLabel("Pview Z:"),
+                createJLabel("Pview Z:"),
                 zPViewSpinner
         );
         return panel;
@@ -145,13 +181,13 @@ public class CameraParametersPanel extends JPanel {
         xUpVectSpinner = initDoubleSpinnerForCoords(initUpVector.getX());
         yUpVectSpinner = initDoubleSpinnerForCoords(initUpVector.getY());
         zUpVectSpinner = initDoubleSpinnerForCoords(initUpVector.getZ());
-        FrameUtils.addAllToPanel(
+        addAllToPanel(
                 panel,
-                FrameUtils.createJLabel("UpVect X:"),
+                createJLabel("UpVect X:"),
                 xUpVectSpinner,
-                FrameUtils.createJLabel("UpVect Y:"),
+                createJLabel("UpVect Y:"),
                 yUpVectSpinner,
-                FrameUtils.createJLabel("UpVect Z:"),
+                createJLabel("UpVect Z:"),
                 zUpVectSpinner
         );
         return panel;
@@ -175,6 +211,9 @@ public class CameraParametersPanel extends JPanel {
             final double upVectX = (Double) xUpVectSpinner.getValue();
             final double upVectY = (Double) yUpVectSpinner.getValue();
             final double upVectZ = (Double) zUpVectSpinner.getValue();
+            final int colorRed = (Integer) colorRedSpinner.getValue();
+            final int colorGreen = (Integer) colorGreenSpinner.getValue();
+            final int colorBlue = (Integer) colorBlueSpinner.getValue();
             if (zb >= zf) {
                 JOptionPane.showMessageDialog(null, "Constraints: zb < zf");
                 return;
@@ -185,7 +224,8 @@ public class CameraParametersPanel extends JPanel {
                             new DoublePoint3D(PcamX, PcamY, PcamZ),
                             new DoublePoint3D(PviewX, PviewY, PviewZ),
                             new DoublePoint3D(upVectX, upVectY, upVectZ)
-                    )
+                    ),
+                    new Color(colorRed, colorGreen, colorBlue)
             );
             for (ChangeListener cl : changeListeners) {
                 cl.onParametersChanged(cameraParameters);
@@ -196,14 +236,14 @@ public class CameraParametersPanel extends JPanel {
     }
 
     private static @NotNull JSpinner initDoubleSpinnerForCoords(double initValue) {
-        return FrameUtils.createSpinner(
+        return createSpinner(
                 new SpinnerNumberModel(initValue, -Double.MAX_VALUE, Double.MAX_VALUE, DOUBLE_STEP),
                 SPINNERS_WIDTH
         );
     }
 
     private static @NotNull JSpinner initDoubleSpinnerForLength(double initValue) {
-        return FrameUtils.createSpinner(
+        return createSpinner(
                 new SpinnerNumberModel(initValue, 0, Double.MAX_VALUE, DOUBLE_STEP),
                 SPINNERS_WIDTH
         );

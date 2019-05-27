@@ -113,7 +113,6 @@ public class FigureParameters {
         return rotationAndShiftMatrix;
     }
 
-    // TODO transpose rotation matrices???
     private static @NotNull SimpleMatrix getRotationAndShiftMatrix(
             @NotNull DoublePoint3D c,
             double thetaX,
