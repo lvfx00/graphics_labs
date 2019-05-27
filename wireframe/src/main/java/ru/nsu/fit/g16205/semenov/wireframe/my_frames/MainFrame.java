@@ -1,7 +1,6 @@
 package ru.nsu.fit.g16205.semenov.wireframe.my_frames;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.wireframe.Drawer;
 import ru.nsu.fit.g16205.semenov.wireframe.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.FrameUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.model.camera.CameraParameters;
@@ -11,15 +10,22 @@ import ru.nsu.fit.g16205.semenov.wireframe.frame_utils.BaseMainFrame;
 import ru.nsu.fit.g16205.semenov.wireframe.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.wireframe.model.primitives.SphericalPoint;
+import ru.nsu.fit.g16205.semenov.wireframe.parser.Config;
+import ru.nsu.fit.g16205.semenov.wireframe.parser.Parser;
+import ru.nsu.fit.g16205.semenov.wireframe.utils.FileUtils;
 import ru.nsu.fit.g16205.semenov.wireframe.utils.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.swing.JOptionPane.*;
 import static ru.nsu.fit.g16205.semenov.wireframe.Drawer.*;
 
 public class MainFrame extends BaseMainFrame {
@@ -32,12 +38,13 @@ public class MainFrame extends BaseMainFrame {
             new DoublePoint3D(0, 1, 0)
     );
     private static final PyramidOfView INIT_PYRAMID_OF_VIEW = new PyramidOfView(6, 6, 12, 4);
+    private static final CameraParameters INIT_CAMERA_PARAMETERS = new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION);
 
     private Dimension imageSize;
     private final JComboBox<FigureData> figuresComboBox = new JComboBox<>();
     private final JLabel viewPortLabel = new JLabel();
     private final List<FigureData> figures = new ArrayList<>();
-    private CameraParameters cameraParameters = new CameraParameters(INIT_PYRAMID_OF_VIEW, INIT_CAMERA_POSITION);
+    private CameraParameters cameraParameters = INIT_CAMERA_PARAMETERS;
     private final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(cameraParameters);
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
 
@@ -66,7 +73,18 @@ public class MainFrame extends BaseMainFrame {
         layeredPane.add(viewPortLabel, 0);
         layeredPane.setPreferredSize(new Dimension(getWidth(), getHeight()));
         MouseAdapter layeredPaneMouseAdapter = new LayeredPaneMouseAdapter();
-        layeredPane.addComponentListener(new LayeredPaneComponentListener());
+        layeredPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Component c = e.getComponent();
+                if (c.getWidth() > c.getHeight()) {
+                    imageSize = new Dimension(c.getHeight(), c.getHeight());
+                } else {
+                    imageSize = new Dimension(c.getWidth(), c.getWidth());
+                }
+                redrawAll();
+            }
+        });
         layeredPane.addMouseListener(layeredPaneMouseAdapter);
         layeredPane.addMouseMotionListener(layeredPaneMouseAdapter);
         addComponentListener(new ComponentAdapter() {
@@ -95,19 +113,35 @@ public class MainFrame extends BaseMainFrame {
     private void initFileMenu() {
         addSubMenu("File", KeyEvent.getExtendedKeyCodeForChar('f'));
 
+        addMenuItem("File/New",
+                "Open a new document",
+                KeyEvent.getExtendedKeyCodeForChar('n'),
+                "new_file.png",
+                this::newFileAction);
+
+        addToolBarButton("File/New");
+
         addMenuItem("File/Open",
                 "Open an existing document",
                 KeyEvent.getExtendedKeyCodeForChar('o'),
                 "open_file.png",
                 this::openFileAction);
 
+        addToolBarButton("File/Open");
+
+        addMenuItem("File/Save As",
+                "Save current document",
+                KeyEvent.getExtendedKeyCodeForChar('s'),
+                "save_as.png",
+                this::saveFileAction);
+
+        addToolBarButton("File/Save As");
+
         addMenuItem("File/Exit",
                 "Quit the application; prompts to save document",
                 KeyEvent.getExtendedKeyCodeForChar('e'),
                 "exit.png",
                 this::exitAction);
-
-        addToolBarButton("File/Open");
 
         addToolBarSeparator();
     }
@@ -149,10 +183,63 @@ public class MainFrame extends BaseMainFrame {
         addToolBarSeparator();
     }
 
+    private void newFileAction() {
+        figures.clear();
+        figuresComboBox.removeAllItems();
+        updateParameters(INIT_CAMERA_PARAMETERS);
+    }
+
     private void openFileAction() {
+        final File file = FileUtils.getOpenFileName(this, "txt", "Text files");
+        if (file == null) {
+            return;
+        }
+        final Config config;
+        try {
+            config = Parser.parseFile(file);
+        } catch (IOException e) {
+            showMessageDialog(null, "I/O error happened :(");
+            return;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            showMessageDialog(null, "Invalid file specified :(");
+            return;
+        }
+        figures.clear();
+        figures.addAll(config.getFigureDataList());
+        figuresComboBox.removeAllItems();
+        config.getFigureDataList().forEach(figuresComboBox::addItem);
+        updateParameters(config.getCameraParameters());
+    }
+
+    private void saveFileAction() {
+        final File file = FileUtils.getSaveFileName(this, "txt", "Text files");
+        if (file == null) {
+            return;
+        }
+        final Config config = new Config(figures, cameraParameters);
+        try {
+            Parser.saveToFile(config, file);
+        } catch (IOException e) {
+            showMessageDialog(null, "I/O error happened :(");
+        }
     }
 
     private void exitAction() {
+        int result = JOptionPane.showConfirmDialog(null, "Do you want to save current document?");
+        switch (result) {
+            case CANCEL_OPTION:
+                break;
+            case OK_OPTION:
+                saveFileAction();
+                System.exit(0);
+                break;
+            case NO_OPTION:
+                System.exit(0);
+                break;
+            default:
+                throw new AssertionError("Invalid option specified");
+        }
     }
 
     private void addFigureAction() {
@@ -239,27 +326,6 @@ public class MainFrame extends BaseMainFrame {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             // TODO
-        }
-
-    }
-
-    private class LayeredPaneComponentListener extends ComponentAdapter {
-
-        private static final double IMAGE_WIDTH_TO_HEIGHT_RATIO = 1;
-
-        @Override
-        public void componentResized(ComponentEvent e) {
-            Component c = e.getComponent();
-            imageSize = matchRatio(c.getWidth(), c.getHeight());
-            redrawAll();
-        }
-
-        private Dimension matchRatio(int width, int height) {
-            if (((double) width / height > IMAGE_WIDTH_TO_HEIGHT_RATIO)) {
-                return new Dimension((int) Math.floor(height * IMAGE_WIDTH_TO_HEIGHT_RATIO), height);
-            } else {
-                return new Dimension(width, (int) Math.floor((double) width / IMAGE_WIDTH_TO_HEIGHT_RATIO));
-            }
         }
 
     }
