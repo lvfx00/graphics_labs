@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Math.PI;
 
 public class SphericalPoint {
 
@@ -14,11 +15,16 @@ public class SphericalPoint {
 
     public SphericalPoint(double r, double eta, double fi) {
         checkArgument(r >= 0, "r was %s", r);
-        checkArgument(eta >= 0 && eta <= Math.PI, "eta was %s", eta);
-        checkArgument(fi >= 0 && fi < 2 * Math.PI, "fi was %s", fi);
+        checkArgument(eta >= 0 && eta < 2 * PI, "eta was %s", eta);
+        checkArgument(fi >= 0 && fi < 2 * PI, "fi was %s", fi);
         this.r = r;
-        this.eta = eta;
-        this.fi = fi;
+        if (eta > PI) {
+            this.eta = 2 * PI - eta;
+            this.fi = (fi + PI) % (2 * PI);
+        } else {
+            this.eta = eta;
+            this.fi = fi;
+        }
     }
 
     public static @NotNull SphericalPoint fromDekartCoords(@NotNull DoublePoint3D point) {
@@ -27,7 +33,7 @@ public class SphericalPoint {
         return new SphericalPoint(
                 r,
                 Math.acos(point.getZ() / r),
-                (fi >= 0) ? fi : fi + Math.PI * 2
+                (fi >= 0) ? fi : fi + PI * 2
         );
     }
 

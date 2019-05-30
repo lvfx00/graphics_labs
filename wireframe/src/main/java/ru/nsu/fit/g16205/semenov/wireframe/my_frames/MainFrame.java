@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;
 import static ru.nsu.fit.g16205.semenov.wireframe.Drawer.*;
 
@@ -304,6 +305,7 @@ public class MainFrame extends BaseMainFrame {
     private class LayeredPaneMouseAdapter extends MouseAdapter {
         private int x;
         private int y;
+        private int direction = 1;
 
         @Override
         public void mousePressed(MouseEvent e) {
@@ -321,18 +323,21 @@ public class MainFrame extends BaseMainFrame {
             final SphericalPoint oldPoint = SphericalPoint.fromDekartCoords(
                     cameraParameters.getCameraPosition().getCameraPoint()
             );
-//            System.out.println("OLD " + oldPoint);
+            System.out.println("OLD " + oldPoint);
 
-            double newEta = (oldPoint.getEta() + 1. / Math.PI / 100 * dx) % Math.PI;
-            double newFi = (oldPoint.getFi() + 1. / Math.PI / 100 * -dy) % (Math.PI * 2);
+            double newEta = oldPoint.getEta() + 1. / PI / 100 * dx * direction;
+            double newFi = (oldPoint.getFi() + 1. / PI / 100 * -dy) % (PI * 2);
             if (newFi < 0) {
-                newFi += Math.PI * 2;
+                newFi += PI * 2;
             }
             if (newEta < 0) {
-                newEta += Math.PI;
+                newEta += 2 * PI;
+                direction = -direction;
+            } else if (newEta > PI) {
+                direction = -direction;
             }
             final SphericalPoint cameraPoint = new SphericalPoint(oldPoint.getR(), newEta, newFi);
-//            System.out.println("NEW " + cameraPoint);
+            System.out.println("NEW " + cameraPoint);
 
             updateParameters(new CameraParameters(
                     cameraParameters.getPyramidOfView(),
