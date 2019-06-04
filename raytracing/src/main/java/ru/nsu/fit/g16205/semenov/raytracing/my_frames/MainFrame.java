@@ -2,24 +2,18 @@ package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
-import ru.nsu.fit.g16205.semenov.raytracing.frame_utils.FrameUtils;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraPosition;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.PyramidOfView;
 import ru.nsu.fit.g16205.semenov.raytracing.frame_utils.BaseMainFrame;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.SphericalPoint;
-import ru.nsu.fit.g16205.semenov.raytracing.utils.FileUtils;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
 
 import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;

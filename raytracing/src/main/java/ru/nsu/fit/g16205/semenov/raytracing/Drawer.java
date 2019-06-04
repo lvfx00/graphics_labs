@@ -1,5 +1,6 @@
 package ru.nsu.fit.g16205.semenov.raytracing;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
@@ -20,51 +21,7 @@ import static ru.nsu.fit.g16205.semenov.raytracing.SurfaceCreator.normalizeSurfa
 
 public class Drawer {
 
-    private static final Color CIRCLE_COLOR = Color.RED;
-    private static final Color INACTIVE_CURVE_COLOR = Color.LIGHT_GRAY;
-    private static final Color ACTIVE_CURVE_COLOR = Color.CYAN;
-    private static final double PARAMETER_STEP = 1. / 1000;
-
     private Drawer() {
-    }
-
-    public static void drawBezierCurve(
-            @NotNull BufferedImage previewImage,
-            @NotNull BezierCurve bezierCurve,
-            @NotNull CoordsTransformer coordsTransformer,
-            double partBegin,
-            double partEnd
-    ) {
-        final double beginParameter = partBegin * bezierCurve.getTotalLength();
-        final double endParameter = partEnd * bezierCurve.getTotalLength();
-        for (double parameter = 0; parameter <= bezierCurve.getTotalLength(); parameter += PARAMETER_STEP) {
-            IntPoint pixel = coordsTransformer.toPixel(
-                    BezierCurve.Adapter2D.matrixToPoint(bezierCurve.getPoint(parameter))
-            );
-            if (parameter < beginParameter || parameter > endParameter) {
-                previewImage.setRGB(pixel.getX(), pixel.getY(), INACTIVE_CURVE_COLOR.getRGB());
-            } else {
-                previewImage.setRGB(pixel.getX(), pixel.getY(), ACTIVE_CURVE_COLOR.getRGB());
-            }
-        }
-    }
-
-    public static void drawAnchorPointsCircles(
-            @NotNull Iterable<IntPoint> anchorPoints,
-            @NotNull BufferedImage image,
-            int radius
-    ) {
-        Graphics2D graphics2D = image.createGraphics();
-        graphics2D.setColor(CIRCLE_COLOR);
-        IntPoint previous = null;
-        for (IntPoint point : anchorPoints) {
-            graphics2D.drawOval(point.getX() - radius, point.getY() - radius, radius * 2, radius * 2);
-            if (previous != null) {
-                graphics2D.drawLine(previous.getX(), previous.getY(), point.getX(), point.getY());
-            }
-            previous = point;
-        }
-        graphics2D.dispose();
     }
 
     public static void drawFigure(
@@ -83,43 +40,56 @@ public class Drawer {
         );
     }
 
-    public static void drawWorldOrts(@NotNull BufferedImage image, @NotNull CameraTransformer cameraTransformer, int ortLen) {
-        checkArgument(ortLen > 0, "Invalid ortLen specified: %s", ortLen);
+    public static void drawLine(
+            @NotNull BufferedImage image,
+            @NotNull CameraTransformer cameraTransformer,
+            @NotNull Pair<DoublePoint3D, DoublePoint3D> line
+    ) {
         drawProjection(
                 image,
                 cameraTransformer.worldToViewPort(
-                        Collections.singletonList(Pair.of(
-                                new DoublePoint3D(0, 0, 0),
-                                new DoublePoint3D(ortLen, 0, 0)
-                        )),
+                        ImmutableList.of(line),
+                        new Dimension(image.getWidth(), image.getHeight()),
+                        null
+                ),
+                Color.MAGENTA
+        );
+    }
+
+    public static void drawTriangle(
+            @NotNull BufferedImage image,
+            @NotNull CameraTransformer cameraTransformer,
+            @NotNull Triangle3D triangle
+    ) {
+        drawProjection(
+                image,
+                cameraTransformer.worldToViewPort(
+                        ImmutableList.of(
+                                Pair.of(triangle.getA(), triangle.getB()),
+                                Pair.of(triangle.getB(), triangle.getC()),
+                                Pair.of(triangle.getC(), triangle.getA())
+                        ),
+                        new Dimension(image.getWidth(), image.getHeight()),
+                        null
+                ),
+                Color.MAGENTA
+        );
+    }
+
+    public static void drawWorldOrts(@NotNull BufferedImage image, @NotNull CameraTransformer transformer, int ortLen) {
+        checkArgument(ortLen > 0, "Invalid ortLen specified: %s", ortLen);
+        drawProjection(
+                image,
+                transformer.worldToViewPort(
+                        ImmutableList.of(
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(ortLen, 0, 0)),
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, ortLen, 0)),
+                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, ortLen))
+                        ),
                         new Dimension(image.getWidth(), image.getHeight()),
                         null
                 ),
                 Color.BLUE
-        );
-        drawProjection(
-                image,
-                cameraTransformer.worldToViewPort(
-                        Collections.singletonList(Pair.of(
-                                new DoublePoint3D(0, 0, 0),
-                                new DoublePoint3D(0, 5, 0)
-                        )),
-                        new Dimension(image.getWidth(), image.getHeight()),
-                        null
-                ),
-                Color.RED
-        );
-        drawProjection(
-                image,
-                cameraTransformer.worldToViewPort(
-                        Collections.singletonList(Pair.of(
-                                new DoublePoint3D(0, 0, 0),
-                                new DoublePoint3D(0, 0, 5)
-                        )),
-                        new Dimension(image.getWidth(), image.getHeight()),
-                        null
-                ),
-                Color.GREEN
         );
     }
 
@@ -127,7 +97,7 @@ public class Drawer {
         drawProjection(
                 image,
                 cameraTransformer.worldToViewPort(
-                        Arrays.asList(
+                        ImmutableList.of(
                                 Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(1, 0, 0)),
                                 Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 1, 0)),
                                 Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, 1)),
