@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static java.lang.Math.sqrt;
+
 public class DoublePoint3D {
 
     private final double x;
@@ -28,6 +30,10 @@ public class DoublePoint3D {
         return z;
     }
 
+    public double getNorm() {
+        return sqrt(x * x + y * y + z * z);
+    }
+
     public @NotNull DoublePoint3D plus(@NotNull DoublePoint3D point3D) {
         return new DoublePoint3D(x + point3D.getX(), y + point3D.getY(), z + point3D.getZ());
     }
@@ -36,10 +42,17 @@ public class DoublePoint3D {
         return new DoublePoint3D(x - point3D.getX(), y - point3D.getY(), z - point3D.getZ());
     }
 
+    public @NotNull DoublePoint3D scale(double value) {
+        return new DoublePoint3D(x * value, y * value, z * value);
+    }
+
     public double[] asArray() {
         return new double[]{x, y, z};
     }
 
+    public @NotNull DoublePoint toPoint2D() {
+        return new DoublePoint(x, y);
+    }
 
     @Override
     public boolean equals(Object o) {

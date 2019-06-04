@@ -9,6 +9,10 @@ public class VectorUtils {
     private VectorUtils() {
     }
 
+    public static @NotNull double dotProduct(@NotNull DoublePoint3D a, @NotNull DoublePoint3D b) {
+        return a.getX() * b.getX() + a.getY() * b.getY() + a.getZ() * b.getZ();
+    }
+
     public static @NotNull DoublePoint3D crossProduct(@NotNull DoublePoint3D a, @NotNull DoublePoint3D b) {
         return new DoublePoint3D(
                 a.getY() * b.getZ() - a.getZ() * b.getY(),
