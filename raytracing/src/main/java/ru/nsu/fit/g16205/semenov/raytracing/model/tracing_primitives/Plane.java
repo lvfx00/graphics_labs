@@ -6,6 +6,7 @@ import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.GeometryUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Math.abs;
 import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.dotProduct;
 
 public final class Plane {
@@ -18,7 +19,8 @@ public final class Plane {
     private final DoublePoint3D normalVector;
 
     private Plane(@NotNull DoublePoint3D abc, double d) {
-        checkArgument(abc.getNorm() == 1, "You have to normalize a,b,c,d!!!");
+        System.out.println(abc.getNorm());
+        checkArgument(abs(abc.getNorm() - 1) < 1E-10, "You have to normalize a,b,c,d!!!");
         normalVector = abc;
         this.a = abc.getX();
         this.b = abc.getY();
@@ -35,20 +37,26 @@ public final class Plane {
         checkArgument(!p1.equals(p3), "p1 and p3 must be different points");
         checkArgument(!p2.equals(p3), "p2 and p3 must be different points");
 
-        final double ax = p1.getX();
-        final double ay = p1.getY();
-        final double az = p1.getZ();
-        final double bx = p2.getX();
-        final double by = p2.getY();
-        final double bz = p2.getZ();
-        final double cx = p3.getX();
-        final double cy = p3.getY();
-        final double cz = p3.getZ();
+        final double x1 = p1.getX();
+        final double y1 = p1.getY();
+        final double z1 = p1.getZ();
+        final double x2 = p2.getX();
+        final double y2 = p2.getY();
+        final double z2 = p2.getZ();
+        final double x3 = p3.getX();
+        final double y3 = p3.getY();
+        final double z3 = p3.getZ();
 
-        final double a = ay * (bz - cz) + by * (cz - az) + cy * (az - bz);
-        final double b = az * (bx - cx) + bz * (cx - ax) + cz * (ax - bx);
-        final double c = ax * (by - cy) + bx * (cy - ay) + bx * (ay - by);
-        final double d = -(ax * (by * cz - cy * bz) + bx * (cy * az - ay * cz) + cx * (ay * bz - by * az));
+        double a1 = x2 - x1;
+        double b1 = y2 - y1;
+        double c1 = z2 - z1;
+        double a2 = x3 - x1;
+        double b2 = y3 - y1;
+        double c2 = z3 - z1;
+        double a = b1 * c2 - b2 * c1;
+        double b = a2 * c1 - a1 * c2;
+        double c = a1 * b2 - b1 * a2;
+        double d = (- a * x1 - b * y1 - c * z1);
 
         final DoublePoint3D abc = new DoublePoint3D(a, b, c);
         final double dNormalized = d / abc.getNorm();

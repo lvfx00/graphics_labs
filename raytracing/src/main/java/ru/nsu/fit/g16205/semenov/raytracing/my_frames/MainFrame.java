@@ -1,7 +1,6 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.fit.g16205.semenov.raytracing.Drawer;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
 import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
@@ -63,10 +62,16 @@ public class MainFrame extends BaseMainFrame {
         mainPanel.add(cameraParametersPanel);
         add(mainPanel);
 
+        // рвсполагать плоскости по правилу правой руки!
         figures.add(new Triangle3D(
                 new DoublePoint3D(0, 0, 2),
                 new DoublePoint3D(2, 0, 0),
                 new DoublePoint3D(0, 2, 0)
+        ));
+        figures.add(new Triangle3D(
+                new DoublePoint3D(0, 2, 0),
+                new DoublePoint3D(2, 0, 0),
+                new DoublePoint3D(4, 0, 0)
         ));
     }
 
