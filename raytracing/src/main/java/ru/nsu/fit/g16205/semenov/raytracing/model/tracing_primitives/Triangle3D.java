@@ -79,5 +79,10 @@ public class Triangle3D implements RaytracingPrimitive {
         return GeometryUtils.getReflectedRay(ray.getDirection(), trianglePlane.getNormalVector(), intersection);
     }
 
+    @Override
+    public @NotNull DoublePoint3D getNormalVector() {
+        return trianglePlane.getNormalVector();
+    }
+
 
 }

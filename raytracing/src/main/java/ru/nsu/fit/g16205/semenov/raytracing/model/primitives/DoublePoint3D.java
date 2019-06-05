@@ -39,6 +39,10 @@ public class DoublePoint3D {
         return scale(1. / getNorm());
     }
 
+    public boolean isNormalizedWithError(double error) {
+        return Math.abs(getNorm() - 1) < error;
+    }
+
     public @NotNull DoublePoint3D plus(@NotNull DoublePoint3D point3D) {
         return new DoublePoint3D(x + point3D.getX(), y + point3D.getY(), z + point3D.getZ());
     }

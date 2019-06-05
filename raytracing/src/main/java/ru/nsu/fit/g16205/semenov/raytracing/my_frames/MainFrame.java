@@ -1,6 +1,5 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
 import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
@@ -48,9 +47,11 @@ public class MainFrame extends BaseMainFrame {
     private CameraParameters cameraParameters = INIT_CAMERA_PARAMETERS;
     private final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(cameraParameters);
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
+
     private final List<RaytracingFigure> figures = new ArrayList<>();
     private final List<DoubleLine> linesInWorld = new ArrayList<>();
     private final List<LightSource> lightSources = new ArrayList<>();
+    private final Color ambientLight = new Color(150, 150, 150);
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -86,8 +87,8 @@ public class MainFrame extends BaseMainFrame {
 //                new DoublePoint3D(0, -3, 5)
 //        ), opticalProperties));
 
-        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), 100, 100, 100));
-        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), 100, 100, 100));
+        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.PINK));
+        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), Color.CYAN));
     }
 
     private @NotNull JLayeredPane initLayeredPane() {
@@ -242,7 +243,7 @@ public class MainFrame extends BaseMainFrame {
         final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, lightSources, 5)
                 .stream()
                 .map(reflection -> {
-                    System.out.println(reflection.getLightSources());
+                    reflection.getIncomingLights().forEach(light -> System.out.println(light.getLightSource()));
                     return reflection.getReflectedRay();
                 })
                 .collect(Collectors.toList());

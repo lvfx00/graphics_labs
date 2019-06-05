@@ -1,12 +1,10 @@
 package ru.nsu.fit.g16205.semenov.raytracing;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.LightSource;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.RaytracingFigure;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Ray;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Reflection;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +22,20 @@ public class Reflector {
         final List<Reflection> reflectionList = new ArrayList<>(tracingDepth);
         Ray currentRay = initialRay;
         for (int i = 0; i < tracingDepth; ++i) {
-            final Reflection reflection = findClosestReflection(currentRay, figures);
-            if (reflection == null) {
+            final Pair<Reflection, Double> closest = findClosestReflection(currentRay, figures);
+            if (closest == null) {
                 // TODO reflectionList.add(VOID);
                 return reflectionList;
             }
-            addLightSources(reflection, figures, lightSources);
+            final Reflection reflection = closest.getLeft();
+            addIncomingLights(reflection, figures, lightSources);
             reflectionList.add(reflection);
             currentRay = reflection.getReflectedRay();
         }
         return reflectionList;
     }
 
-    private static @Nullable Reflection findClosestReflection(
+    private static @Nullable Pair<Reflection, Double> findClosestReflection(
             @NotNull Ray ray,
             @NotNull List<RaytracingFigure> figures
     ) {
@@ -44,40 +43,51 @@ public class Reflector {
         for (RaytracingFigure figure : figures) {
             final Ray reflectedRay = figure.getPrimitive().getReflectedRay(ray);
             if (reflectedRay != null) {
-                reflectionList.add(new Reflection(reflectedRay, figure));
+                reflectionList.add(new Reflection(
+                        reflectedRay.getSource(),
+                        ray.getDirection(),
+                        reflectedRay.getDirection(),
+                        figure)
+                );
             }
         }
         double minDistance = Double.MAX_VALUE;
         Reflection closestReflection = null;
         for (Reflection reflection : reflectionList) {
-            double distance = getDistance(ray.getSource(), reflection.getReflectedRay().getSource());
+            double distance = getDistance(ray.getSource(), reflection.getReflectionPoint());
             if (distance < minDistance) {
                 minDistance = distance;
                 closestReflection = reflection;
             }
         }
-        return closestReflection;
+        if (closestReflection == null) {
+            return null;
+        }
+        return Pair.of(closestReflection, minDistance);
     }
 
-    private static void addLightSources(
+    private static void addIncomingLights(
             @NotNull Reflection reflection,
             @NotNull List<RaytracingFigure> figures,
             @NotNull List<LightSource> lightSources
     ) {
-        final DoublePoint3D target = reflection.getReflectedRay().getSource();
+        final DoublePoint3D reflectionPoint = reflection.getReflectionPoint();
         for (LightSource lightSource : lightSources) {
-            final DoublePoint3D direction = target.minus(lightSource.getPosition()).getNormalized();
+            final DoublePoint3D direction = reflectionPoint.minus(lightSource.getPosition()).getNormalized();
             final Ray lightRay = new Ray(lightSource.getPosition(), direction);
 
-            final Reflection closestReflection = findClosestReflection(lightRay, figures);
+            final Pair<Reflection, Double> closestReflection = findClosestReflection(lightRay, figures);
             if (closestReflection == null) {
-                System.out.println("Ne mojet bit' null");
+                // TODO check that
+                System.out.println("ASSERT: Ne mojet bit' null !!!!!!!!!!!!!");
                 continue;
             }
-            final DoublePoint3D intersection = closestReflection.getReflectedRay().getSource();
+            final DoublePoint3D intersection = closestReflection.getLeft().getReflectionPoint();
             // TODO стены пропускают свет с обратной стороны через себя так надо???
-            if (intersection.equalsWithError(target, 1E-10)) {
-                reflection.addLightSource(lightSource);
+            if (intersection.equalsWithError(reflectionPoint, 1E-10)) {
+                reflection.addIncomingLight(
+                        new IncomingLight(lightSource, direction, closestReflection.getRight())
+                );
             }
         }
     }

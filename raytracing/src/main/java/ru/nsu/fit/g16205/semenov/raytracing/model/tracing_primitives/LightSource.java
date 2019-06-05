@@ -2,33 +2,24 @@ package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 
+import java.awt.*;
+
 public class LightSource {
 
     private final DoublePoint3D position;
-    private final double intensityRed;
-    private final double intensityGreen;
-    private final double intensityBlue;
+    private final Color color;
 
-    public LightSource(DoublePoint3D position, double intensityRed, double intensityGreen, double intensityBlue) {
+    public LightSource(DoublePoint3D position, Color color) {
         this.position = position;
-        this.intensityRed = intensityRed;
-        this.intensityGreen = intensityGreen;
-        this.intensityBlue = intensityBlue;
+        this.color = color;
     }
 
     public DoublePoint3D getPosition() {
         return position;
     }
 
-    public double getIntensityRed() {
-        return intensityRed;
+    public Color getColor() {
+        return color;
     }
 
-    public double getIntensityGreen() {
-        return intensityGreen;
-    }
-
-    public double getIntensityBlue() {
-        return intensityBlue;
-    }
 }

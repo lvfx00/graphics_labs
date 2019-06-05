@@ -11,8 +11,6 @@ public class GeometryUtils {
     private GeometryUtils() {
     }
 
-
-
     public static @NotNull Ray getReflectedRay(
             @NotNull DoublePoint3D rayDirection,
             @NotNull DoublePoint3D normalVector,

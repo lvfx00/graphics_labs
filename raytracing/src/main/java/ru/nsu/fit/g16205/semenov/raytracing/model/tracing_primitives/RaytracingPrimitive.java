@@ -15,4 +15,6 @@ public interface RaytracingPrimitive {
 
     @Nullable Ray getReflectedRay(@NotNull Ray ray);
 
+    @NotNull DoublePoint3D getNormalVector();
+
 }

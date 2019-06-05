@@ -1,12 +1,8 @@
 package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
 public class OpticalProperties {
-    private final double kDiffuseRed;
-    private final double kDiffuseGreen;
-    private final double kDiffuseBlue;
-    private final double kSpecularRed;
-    private final double kSpecularGreen;
-    private final double kSpecularBlue;
+    private final double[] kDiffuse = new double[3];
+    private final double[] kSpecular = new double[3];
     private final int power;
 
     public OpticalProperties(
@@ -18,37 +14,21 @@ public class OpticalProperties {
             double kSpecularBlue,
             int power
     ) {
-        this.kDiffuseRed = kDiffuseRed;
-        this.kDiffuseGreen = kDiffuseGreen;
-        this.kDiffuseBlue = kDiffuseBlue;
-        this.kSpecularRed = kSpecularRed;
-        this.kSpecularGreen = kSpecularGreen;
-        this.kSpecularBlue = kSpecularBlue;
+        this.kDiffuse[0] = kDiffuseRed;
+        this.kDiffuse[1] = kDiffuseGreen;
+        this.kDiffuse[2] = kDiffuseBlue;
+        this.kSpecular[0] = kSpecularRed;
+        this.kSpecular[1] = kSpecularGreen;
+        this.kSpecular[2] = kSpecularBlue;
         this.power = power;
     }
 
-    public double getkDiffuseRed() {
-        return kDiffuseRed;
+    public double[] getkDiffuse() {
+        return kDiffuse;
     }
 
-    public double getkDiffuseGreen() {
-        return kDiffuseGreen;
-    }
-
-    public double getkDiffuseBlue() {
-        return kDiffuseBlue;
-    }
-
-    public double getkSpecularRed() {
-        return kSpecularRed;
-    }
-
-    public double getkSpecularGreen() {
-        return kSpecularGreen;
-    }
-
-    public double getkSpecularBlue() {
-        return kSpecularBlue;
+    public double[] getkSpecular() {
+        return kSpecular;
     }
 
     public int getPower() {
