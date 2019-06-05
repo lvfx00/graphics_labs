@@ -20,17 +20,6 @@ public class Ray {
         directionLine = new DoubleLine(source, source.plus(direction));
     }
 
-    public double getParameterValue(@NotNull DoublePoint3D pointOnRay) {
-        final DoublePoint3D parameter = pointOnRay.minus(source).divide(direction);
-        // TODO delete
-        // TODO check that they are the same
-//        System.out.println("X param: " + parameter.getX());
-//        System.out.println("Y param: " + parameter.getY());
-//        System.out.println("Z param: " + parameter.getZ());
-
-        return parameter.getX();
-    }
-
     public @NotNull DoubleLine getDirectionLine() {
         return directionLine;
     }

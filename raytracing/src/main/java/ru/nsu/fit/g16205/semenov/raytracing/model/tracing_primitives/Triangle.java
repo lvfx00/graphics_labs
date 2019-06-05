@@ -45,6 +45,7 @@ public class Triangle {
         return ((b.getX() - a.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (b.getY() - a.getY())) / 2;
     }
 
+    // TODO add support for вырожденные треугольники
     public boolean isInTriangle(@NotNull DoublePoint point) {
         final double areaABC = getSignedArea();
         final double areaPBC = new Triangle(point, b, c).getSignedArea();

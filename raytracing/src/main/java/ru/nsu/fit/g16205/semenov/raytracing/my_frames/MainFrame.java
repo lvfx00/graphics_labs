@@ -1,5 +1,6 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
 import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
@@ -11,9 +12,7 @@ import ru.nsu.fit.g16205.semenov.raytracing.frame_utils.BaseMainFrame;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.SphericalPoint;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Ray;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.RaytracingFigure;
-import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Triangle3D;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.*;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.ImageUtils;
 
 import javax.swing.*;
@@ -22,6 +21,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.getExtendedKeyCodeForChar;
 import static java.lang.Math.PI;
@@ -50,6 +50,7 @@ public class MainFrame extends BaseMainFrame {
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
     private final List<RaytracingFigure> figures = new ArrayList<>();
     private final List<DoubleLine> linesInWorld = new ArrayList<>();
+    private final List<LightSource> lightSources = new ArrayList<>();
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -63,16 +64,30 @@ public class MainFrame extends BaseMainFrame {
         add(mainPanel);
 
         // рвсполагать плоскости по правилу правой руки!
-        figures.add(new Triangle3D(
+        final OpticalProperties opticalProperties = new OpticalProperties(0, 0, 0, 0, 0, 0, 0);
+        figures.add(new RaytracingFigure(new Triangle3D(
                 new DoublePoint3D(0, 0, 2),
                 new DoublePoint3D(2, 0, 0),
                 new DoublePoint3D(0, 2, 0)
-        ));
-        figures.add(new Triangle3D(
+        ), opticalProperties));
+        figures.add(new RaytracingFigure(new Triangle3D(
                 new DoublePoint3D(0, 2, 0),
                 new DoublePoint3D(2, 0, 0),
                 new DoublePoint3D(4, 0, 0)
-        ));
+        ), opticalProperties));
+        figures.add(new RaytracingFigure(new Triangle3D(
+                new DoublePoint3D(0, 5, 0),
+                new DoublePoint3D(5, 3, 0),
+                new DoublePoint3D(0, 3, 5)
+        ), opticalProperties));
+//        figures.add(new RaytracingFigure(new Triangle3D(
+//                new DoublePoint3D(0, -5, 0),
+//                new DoublePoint3D(5, -3, 0),
+//                new DoublePoint3D(0, -3, 5)
+//        ), opticalProperties));
+
+        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), 100, 100, 100));
+        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), 100, 100, 100));
     }
 
     private @NotNull JLayeredPane initLayeredPane() {
@@ -109,7 +124,7 @@ public class MainFrame extends BaseMainFrame {
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
         drawLines(image, cameraTransformer, linesInWorld, Color.BLUE);
-        figures.forEach(f -> drawLines(image, cameraTransformer, f.getFigureLines(), Color.BLACK));
+        figures.forEach(f -> drawLines(image, cameraTransformer, f.getPrimitive().getFigureLines(), Color.BLACK));
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
     }
@@ -224,7 +239,13 @@ public class MainFrame extends BaseMainFrame {
 
         linesInWorld.add(initialRay.getDirectionLine());
 
-        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, 3);
+        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, lightSources, 5)
+                .stream()
+                .map(reflection -> {
+                    System.out.println(reflection.getLightSources());
+                    return reflection.getReflectedRay();
+                })
+                .collect(Collectors.toList());
         for (Ray ray : reflectedRays) {
             linesInWorld.add(ray.getDirectionLine());
         }

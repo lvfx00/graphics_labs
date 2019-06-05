@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.dotProduct;
-
-public class Triangle3D implements RaytracingFigure {
+public class Triangle3D implements RaytracingPrimitive {
 
     private final DoublePoint3D a;
     private final DoublePoint3D b;
@@ -56,7 +54,7 @@ public class Triangle3D implements RaytracingFigure {
     }
 
     @Override
-    public @Nullable List<DoubleLine> getFigureLines() {
+    public @NotNull List<DoubleLine> getFigureLines() {
         return figureLines;
     }
 
@@ -80,5 +78,6 @@ public class Triangle3D implements RaytracingFigure {
         }
         return GeometryUtils.getReflectedRay(ray.getDirection(), trianglePlane.getNormalVector(), intersection);
     }
+
 
 }

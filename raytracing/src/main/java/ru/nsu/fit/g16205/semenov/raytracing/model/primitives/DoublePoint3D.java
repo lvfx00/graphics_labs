@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
 public class DoublePoint3D {
@@ -58,12 +59,22 @@ public class DoublePoint3D {
         );
     }
 
+    public static double getDistance(@NotNull DoublePoint3D p1, @NotNull DoublePoint3D p2) {
+        return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) +
+                (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()) +
+                (p1.getZ() - p2.getZ()) * (p1.getZ() - p2.getZ()));
+    }
+
     public double[] asArray() {
         return new double[]{x, y, z};
     }
 
     public @NotNull DoublePoint toPoint2D() {
         return new DoublePoint(x, y);
+    }
+
+    public boolean equalsWithError(@NotNull DoublePoint3D point, double error) {
+        return (abs(x - point.getX()) < error && abs(y - point.getY()) < error && abs(z - point.getZ()) < error);
     }
 
     @Override

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.*;
 
 public class CameraTransformer {
@@ -28,6 +30,7 @@ public class CameraTransformer {
         final SimpleMatrix projectionMatrix = getProjectionMatrix(cameraParameters.getPyramidOfView());
         resultingMatrix = projectionMatrix.mult(worldToCameraMatrix);
     }
+
     public List<IntLine> worldToViewPort(
             @NotNull DoubleLine line,
             @NotNull Dimension imageSize,
@@ -42,7 +45,7 @@ public class CameraTransformer {
             @Nullable SimpleMatrix preMatrix
     ) {
         final List<IntLine> result = new ArrayList<>();
-        final CoordsTransformer coordsTransformer = new CoordsTransformer(
+        final CoordsTransformer transformer = new CoordsTransformer(
                 new DoubleRectangle(-1, -1, 2, 2),
                 new IntRectangle(0, 0, imageSize.width, imageSize.height)
         );
@@ -55,11 +58,10 @@ public class CameraTransformer {
         for (DoubleLine line : figure) {
             DoublePoint3D leftPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getP1())));
             DoublePoint3D rightPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getP2())));
-            // TODO cut lines to viewPort if they are partially in it
             if (isVisible(leftPoint) && isVisible(rightPoint)) {
                 result.add(new IntLine(
-                        coordsTransformer.toPixel(leftPoint.getX(), leftPoint.getY()),
-                        coordsTransformer.toPixel(rightPoint.getX(), rightPoint.getY())
+                        transformer.toPixel(leftPoint.toPoint2D()),
+                        transformer.toPixel(rightPoint.toPoint2D())
                 ));
             }
         }
@@ -74,7 +76,7 @@ public class CameraTransformer {
         return homogenToPoint3D(worldToCameraMatrix.mult(toHomogenColumnVector(pointInWorld)));
     }
 
-    private static boolean isVisible(DoublePoint3D point3D) {
+    private static boolean isVisible(@NotNull DoublePoint3D point3D) {
         return (point3D.getX() >= -1 &&
                 point3D.getX() <= 1 &&
                 point3D.getY() >= -1 &&

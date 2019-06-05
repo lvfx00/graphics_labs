@@ -19,7 +19,6 @@ public final class Plane {
     private final DoublePoint3D normalVector;
 
     private Plane(@NotNull DoublePoint3D abc, double d) {
-        System.out.println(abc.getNorm());
         checkArgument(abs(abc.getNorm() - 1) < 1E-10, "You have to normalize a,b,c,d!!!");
         normalVector = abc;
         this.a = abc.getX();

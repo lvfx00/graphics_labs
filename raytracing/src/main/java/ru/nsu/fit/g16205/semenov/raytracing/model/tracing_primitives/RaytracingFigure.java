@@ -1,18 +1,23 @@
 package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
+public class RaytracingFigure {
 
-import java.util.List;
+    public static final RaytracingFigure VOID = new RaytracingFigure(null, null);
 
-public interface RaytracingFigure {
+    private final RaytracingPrimitive primitive;
+    private final OpticalProperties opticalProperties;
 
-    @NotNull List<DoubleLine> getFigureLines();
+    public RaytracingFigure(RaytracingPrimitive primitive, OpticalProperties opticalProperties) {
+        this.primitive = primitive;
+        this.opticalProperties = opticalProperties;
+    }
 
-    @Nullable DoublePoint3D getIntersection(@NotNull Ray ray);
+    public RaytracingPrimitive getPrimitive() {
+        return primitive;
+    }
 
-    @Nullable Ray getReflectedRay(@NotNull Ray ray);
+    public OpticalProperties getOpticalProperties() {
+        return opticalProperties;
+    }
 
 }

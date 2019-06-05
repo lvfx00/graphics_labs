@@ -1,5 +1,7 @@
 package ru.nsu.fit.g16205.semenov.raytracing.model.primitives;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class DoublePoint {
@@ -18,6 +20,11 @@ public class DoublePoint {
 
     public double getY() {
         return y;
+    }
+
+    public static double getDistance(@NotNull DoublePoint p1, @NotNull DoublePoint p2) {
+        return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) +
+                (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()));
     }
 
     @Override
