@@ -1,11 +1,7 @@
 package ru.nsu.fit.g16205.semenov.raytracing.utils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import ru.nsu.fit.g16205.semenov.raytracing.model.figures.Triangle;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.*;
-
-import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.dotProduct;
 
 public class GeometryUtils {
 

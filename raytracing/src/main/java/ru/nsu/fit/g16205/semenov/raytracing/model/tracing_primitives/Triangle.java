@@ -1,4 +1,4 @@
-package ru.nsu.fit.g16205.semenov.raytracing.model.figures;
+package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint;

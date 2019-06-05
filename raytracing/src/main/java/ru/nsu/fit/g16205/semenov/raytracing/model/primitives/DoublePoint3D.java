@@ -46,6 +46,14 @@ public class DoublePoint3D {
         return new DoublePoint3D(x * value, y * value, z * value);
     }
 
+    public @NotNull DoublePoint3D divide(@NotNull DoublePoint3D point) {
+        return new DoublePoint3D(
+                x / point.getX(),
+                y / point.getY(),
+                z / point.getZ()
+        );
+    }
+
     public double[] asArray() {
         return new double[]{x, y, z};
     }

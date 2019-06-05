@@ -5,7 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.figure.FigureData;
-import ru.nsu.fit.g16205.semenov.raytracing.model.figures.Triangle3D;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Triangle3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.*;
 
 import java.awt.*;
