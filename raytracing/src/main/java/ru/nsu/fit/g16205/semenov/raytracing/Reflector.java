@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Reflector {
-
     public static List<Ray> getRaytracing(@NotNull Ray initialRay, @NotNull List<RaytracingFigure> figures, int tracingDepth) {
         final List<Ray> reflectionList = new ArrayList<>(tracingDepth);
         Ray currentRay = initialRay;

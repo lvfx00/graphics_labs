@@ -1,8 +1,9 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.raytracing.Drawer;
+import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
+import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraPosition;
@@ -11,6 +12,9 @@ import ru.nsu.fit.g16205.semenov.raytracing.frame_utils.BaseMainFrame;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.SphericalPoint;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Ray;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.RaytracingFigure;
+import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Triangle3D;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.ImageUtils;
 
 import javax.swing.*;
@@ -20,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.awt.event.KeyEvent.getExtendedKeyCodeForChar;
 import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;
 import static ru.nsu.fit.g16205.semenov.raytracing.Drawer.*;
@@ -44,7 +49,8 @@ public class MainFrame extends BaseMainFrame {
     private CameraParameters cameraParameters = INIT_CAMERA_PARAMETERS;
     private final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(cameraParameters);
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
-    private final List<DoubleLine> figuresOnCamera = new ArrayList<>();
+    private final List<RaytracingFigure> figures = new ArrayList<>();
+    private final List<DoubleLine> linesInWorld = new ArrayList<>();
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -57,19 +63,11 @@ public class MainFrame extends BaseMainFrame {
         mainPanel.add(cameraParametersPanel);
         add(mainPanel);
 
-        final DoubleLine up = new DoubleLine(
-                new DoublePoint3D(
-                        cameraParameters.getPyramidOfView().getZb() + 1,
-                        cameraParameters.getPyramidOfView().getSw() / 2 - 1,
-                        cameraParameters.getPyramidOfView().getSh() / 2 - 1
-                ),
-                new DoublePoint3D(
-                        cameraParameters.getPyramidOfView().getZb() + 1,
-                        -(cameraParameters.getPyramidOfView().getSw() / 2 - 1),
-                        cameraParameters.getPyramidOfView().getSh() / 2 - 1
-                )
-        );
-        figuresOnCamera.add(up);
+        figures.add(new Triangle3D(
+                new DoublePoint3D(0, 0, 2),
+                new DoublePoint3D(2, 0, 0),
+                new DoublePoint3D(0, 2, 0)
+        ));
     }
 
     private @NotNull JLayeredPane initLayeredPane() {
@@ -105,39 +103,24 @@ public class MainFrame extends BaseMainFrame {
         final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
-
-        figuresOnCamera.forEach(pair -> {
-            System.out.println("LEFT: " + pair.getP1());
-            System.out.println("RIGHT: " + pair.getP2());
-        });
-        final List<DoubleLine> inWorld = cameraTransformer.cameraToWorld(figuresOnCamera);
-        inWorld.forEach(pair -> {
-            System.out.println("LEFT: " + pair.getP1());
-            System.out.println("RIGHT: " + pair.getP2());
-        });
-        final List<DoubleLine> backToCam = cameraTransformer.worldToCamera(inWorld);
-        backToCam.forEach(pair -> {
-            System.out.println("LEFT: " + pair.getP1());
-            System.out.println("RIGHT: " + pair.getP2());
-        });
-        System.out.println("___________________________________");
-
-        drawLines(image, cameraTransformer, inWorld, Color.BLACK);
+        drawLines(image, cameraTransformer, linesInWorld, Color.ORANGE);
+        figures.forEach(f -> drawLines(image, cameraTransformer, f.getFigureLines(), Color.BLACK));
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
     }
 
     private void initMenus() {
         initFileMenu();
+        initRenderMenu();
         initAboutMenu();
     }
 
     private void initFileMenu() {
-        addSubMenu("File", KeyEvent.getExtendedKeyCodeForChar('f'));
+        addSubMenu("File", getExtendedKeyCodeForChar('f'));
 
         addMenuItem("File/New",
                 "Open a new document",
-                KeyEvent.getExtendedKeyCodeForChar('n'),
+                getExtendedKeyCodeForChar('n'),
                 "new_file.png",
                 this::newFileAction);
 
@@ -145,7 +128,7 @@ public class MainFrame extends BaseMainFrame {
 
         addMenuItem("File/Open",
                 "Open an existing document",
-                KeyEvent.getExtendedKeyCodeForChar('o'),
+                getExtendedKeyCodeForChar('o'),
                 "open_file.png",
                 this::openFileAction);
 
@@ -153,7 +136,7 @@ public class MainFrame extends BaseMainFrame {
 
         addMenuItem("File/Save As",
                 "Save current document",
-                KeyEvent.getExtendedKeyCodeForChar('s'),
+                getExtendedKeyCodeForChar('s'),
                 "save_as.png",
                 this::saveFileAction);
 
@@ -161,20 +144,34 @@ public class MainFrame extends BaseMainFrame {
 
         addMenuItem("File/Exit",
                 "Quit the application; prompts to save document",
-                KeyEvent.getExtendedKeyCodeForChar('e'),
+                getExtendedKeyCodeForChar('e'),
                 "exit.png",
                 this::exitAction);
 
         addToolBarSeparator();
     }
 
+    private void initRenderMenu() {
+        addSubMenu("Render", getExtendedKeyCodeForChar('r'));
+
+        addMenuItem("Render/Render",
+                "Render image",
+                getExtendedKeyCodeForChar('r'),
+                "render.png",
+                this::renderAction);
+
+        addToolBarButton("Render/Render");
+
+        addToolBarSeparator();
+
+    }
 
     private void initAboutMenu() {
-        addSubMenu("About", KeyEvent.getExtendedKeyCodeForChar('a'));
+        addSubMenu("About", getExtendedKeyCodeForChar('a'));
 
         addMenuItem("About/About",
                 "About author",
-                KeyEvent.getExtendedKeyCodeForChar('a'),
+                getExtendedKeyCodeForChar('a'),
                 "about.png",
                 this::aboutAction);
 
@@ -212,6 +209,19 @@ public class MainFrame extends BaseMainFrame {
             default:
                 throw new AssertionError("Invalid option specified");
         }
+    }
+
+    private void renderAction() {
+        final InitialRaysCreator raysCreator = new InitialRaysCreator(cameraTransformer, cameraParameters, imageSize);
+        final Ray initialRay = raysCreator.createRayFromViewPortPixel(imageSize.width / 2, imageSize.height / 2);
+        linesInWorld.add(new DoubleLine(initialRay.getSource(), initialRay.getSource().plus(initialRay.getDirection())));
+//        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, 3);
+
+//        linesInWorld.clear();
+//        for (Ray ray : reflectedRays) {
+//            linesInWorld.add(new DoubleLine(ray.getSource(), ray.getSource().plus(ray.getDirection())));
+//        }
+        redrawAll();
     }
 
     private void updateParameters(@NotNull CameraParameters parameters) {

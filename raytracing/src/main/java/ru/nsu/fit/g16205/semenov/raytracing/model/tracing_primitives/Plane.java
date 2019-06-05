@@ -2,12 +2,15 @@ package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.dotProduct;
 
-public final class Plane implements RaytracingFigure {
+public final class Plane {
 
     // plane equation: Ax + By + Cz + D = 0
     private final double a;

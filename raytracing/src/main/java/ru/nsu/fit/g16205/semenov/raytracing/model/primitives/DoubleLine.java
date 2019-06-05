@@ -18,4 +18,11 @@ public class DoubleLine {
         return p2;
     }
 
+    @Override
+    public String toString() {
+        return "DoubleLine{" +
+                "p1=" + p1 +
+                ", p2=" + p2 +
+                '}';
+    }
 }

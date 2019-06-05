@@ -1,7 +1,9 @@
 package ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives;
 
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class Triangle3D implements RaytracingFigure {
     private final DoublePoint3D c;
     private final List<DoublePoint3D> points;
     private final Plane trianglePlane;
+    private final List<DoubleLine> figureLines;
 
     public Triangle3D(DoublePoint3D a, DoublePoint3D b, DoublePoint3D c) {
         this.a = a;
@@ -28,6 +31,7 @@ public class Triangle3D implements RaytracingFigure {
         list.add(c);
         points = Collections.unmodifiableList(list);
         trianglePlane = Plane.fromPoints(a, b, c);
+        figureLines = ImmutableList.of(new DoubleLine(a, b), new DoubleLine(b, c), new DoubleLine(c, a));
     }
 
     public DoublePoint3D getA() {
@@ -48,6 +52,11 @@ public class Triangle3D implements RaytracingFigure {
 
     public @NotNull Triangle toTriangle2D() {
         return new Triangle(points.get(0).toPoint2D(), points.get(1).toPoint2D(), points.get(2).toPoint2D());
+    }
+
+    @Override
+    public @Nullable List<DoubleLine> getFigureLines() {
+        return figureLines;
     }
 
     @Override

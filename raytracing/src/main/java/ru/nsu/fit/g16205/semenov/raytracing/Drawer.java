@@ -1,7 +1,6 @@
 package ru.nsu.fit.g16205.semenov.raytracing;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.figure.FigureData;
@@ -64,9 +63,9 @@ public class Drawer {
     public static void drawWorldOrts(@NotNull BufferedImage image, @NotNull CameraTransformer transformer, int ortLen) {
         checkArgument(ortLen > 0, "Invalid ortLen specified: %s", ortLen);
         final Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
-        final List<DoubleLine> xOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(ortLen, 0, 0)));
-        final List<DoubleLine> yOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, ortLen, 0)));
-        final List<DoubleLine> zOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, ortLen)));
+        final DoubleLine xOrt = new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(ortLen, 0, 0));
+        final DoubleLine yOrt = new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, ortLen, 0));
+        final DoubleLine zOrt = new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, ortLen));
         drawProjection(image, transformer.worldToViewPort(yOrt, imageSize, null), Color.RED);
         drawProjection(image, transformer.worldToViewPort(xOrt, imageSize, null), Color.BLUE);
         drawProjection(image, transformer.worldToViewPort(zOrt, imageSize, null), Color.GREEN);

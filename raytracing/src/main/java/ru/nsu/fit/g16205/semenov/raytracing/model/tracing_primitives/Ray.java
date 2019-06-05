@@ -4,13 +4,16 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 
+import static java.lang.Math.abs;
+
 public class Ray {
 
     private final DoublePoint3D source;
     private final DoublePoint3D direction;
 
     public Ray(DoublePoint3D source, DoublePoint3D direction) {
-        Preconditions.checkArgument(direction.getNorm() == 1., "Direction vector must be normalized");
+        Preconditions.checkArgument(abs(direction.getNorm() - 1) < 1E-10,
+                "Direction vector must be normalized");
         this.source = source;
         this.direction = direction;
     }

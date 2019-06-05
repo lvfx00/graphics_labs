@@ -47,4 +47,8 @@ public class ImageUtils {
         return newWidth / originalWidth;
     }
 
+    public static boolean isOnImage(int x, int y, @NotNull Dimension imageSize) {
+        return (x >= 0 && y >= 0 && x < imageSize.width && y < imageSize.height);
+    }
+
 }
