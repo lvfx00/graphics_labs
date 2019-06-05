@@ -103,7 +103,7 @@ public class MainFrame extends BaseMainFrame {
         final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
-        drawLines(image, cameraTransformer, linesInWorld, Color.ORANGE);
+        drawLines(image, cameraTransformer, linesInWorld, Color.BLUE);
         figures.forEach(f -> drawLines(image, cameraTransformer, f.getFigureLines(), Color.BLACK));
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
@@ -212,15 +212,17 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void renderAction() {
+        linesInWorld.clear();
+
         final InitialRaysCreator raysCreator = new InitialRaysCreator(cameraTransformer, cameraParameters, imageSize);
         final Ray initialRay = raysCreator.createRayFromViewPortPixel(imageSize.width / 2, imageSize.height / 2);
-        linesInWorld.add(new DoubleLine(initialRay.getSource(), initialRay.getSource().plus(initialRay.getDirection())));
-//        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, 3);
 
-//        linesInWorld.clear();
-//        for (Ray ray : reflectedRays) {
-//            linesInWorld.add(new DoubleLine(ray.getSource(), ray.getSource().plus(ray.getDirection())));
-//        }
+        linesInWorld.add(initialRay.getDirectionLine());
+
+        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, 3);
+        for (Ray ray : reflectedRays) {
+            linesInWorld.add(ray.getDirectionLine());
+        }
         redrawAll();
     }
 

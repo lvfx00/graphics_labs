@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
+import ru.nsu.fit.g16205.semenov.raytracing.utils.GeometryUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,14 +74,11 @@ public class Triangle3D implements RaytracingFigure {
 
     @Override
     public @Nullable Ray getReflectedRay(@NotNull Ray ray) {
-        final DoublePoint3D intersectionWithPlane = getIntersection(ray);
-        if (intersectionWithPlane == null) {
+        final DoublePoint3D intersection = getIntersection(ray);
+        if (intersection == null) {
             return null;
         }
-        final DoublePoint3D reflectedDirection = trianglePlane.getNormalVector()
-                .scale(2 * dotProduct(ray.getDirection(), trianglePlane.getNormalVector()))
-                .minus(ray.getDirection());
-        return new Ray(intersectionWithPlane, reflectedDirection);
+        return GeometryUtils.getReflectedRay(ray.getDirection(), trianglePlane.getNormalVector(), intersection);
     }
 
 }

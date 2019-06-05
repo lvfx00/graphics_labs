@@ -1,6 +1,5 @@
 package ru.nsu.fit.g16205.semenov.raytracing;
 
-import org.ejml.simple.SimpleMatrix;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
@@ -9,13 +8,11 @@ import ru.nsu.fit.g16205.semenov.raytracing.model.camera.PyramidOfView;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.*;
 import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Ray;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.CoordsTransformer;
-import ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils;
 
 import java.awt.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static ru.nsu.fit.g16205.semenov.raytracing.utils.ImageUtils.isOnImage;
-import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.toMatrix;
 
 public class InitialRaysCreator {
     private final CameraTransformer cameraTransformer;
@@ -46,11 +43,11 @@ public class InitialRaysCreator {
         final DoublePoint3D pointInCameraCoords = new DoublePoint3D(
                 pointOnViewPort.getX(),
                 pointOnViewPort.getY(),
-                pyramidOfView.getZb() + 1E-10
+                pyramidOfView.getZb() + 1E-10 // TODO try обойтись без этого
         );
         final DoublePoint3D pointInWorldCoords = cameraTransformer.cameraToWorld(pointInCameraCoords);
-        final SimpleMatrix temp = toMatrix(pointInWorldCoords.minus(cameraPosition.getCameraPoint()));
-        return new Ray(pointInWorldCoords, VectorUtils.toPoint3D(temp.divide(temp.normF())));
+        final DoublePoint3D direction = pointInWorldCoords.minus(cameraPosition.getCameraPoint()).getNormalized();
+        return new Ray(pointInWorldCoords, direction);
     }
 
 }

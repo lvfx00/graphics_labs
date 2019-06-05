@@ -34,6 +34,10 @@ public class DoublePoint3D {
         return sqrt(x * x + y * y + z * z);
     }
 
+    public @NotNull DoublePoint3D getNormalized() {
+        return scale(1. / getNorm());
+    }
+
     public @NotNull DoublePoint3D plus(@NotNull DoublePoint3D point3D) {
         return new DoublePoint3D(x + point3D.getX(), y + point3D.getY(), z + point3D.getZ());
     }
