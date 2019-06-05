@@ -50,6 +50,7 @@ public class CameraTransformer {
         for (Pair<DoublePoint3D, DoublePoint3D> line : figure) {
             DoublePoint3D leftPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getLeft())));
             DoublePoint3D rightPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getRight())));
+            // TODO cut lines to viewPort if they are partially in it
             if (isVisible(leftPoint) && isVisible(rightPoint)) {
                 result.add(Pair.of(
                         coordsTransformer.toPixel(leftPoint.getX(), leftPoint.getY()),

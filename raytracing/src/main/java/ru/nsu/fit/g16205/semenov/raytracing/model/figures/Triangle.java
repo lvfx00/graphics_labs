@@ -1,6 +1,7 @@
-package ru.nsu.fit.g16205.semenov.raytracing.model.primitives;
+package ru.nsu.fit.g16205.semenov.raytracing.model.figures;
 
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,18 @@ public class Triangle {
 
     public double getSignedArea() {
         return ((b.getX() - a.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (b.getY() - a.getY())) / 2;
+    }
+
+    public boolean isInTriangle(@NotNull DoublePoint point) {
+        final double areaABC = getSignedArea();
+        final double areaPBC = new Triangle(point, b, c).getSignedArea();
+        final double areaAPC = new Triangle(a, point, c).getSignedArea();
+        final double areaABP = new Triangle(a, b, point).getSignedArea();
+        final double alpha = areaPBC / areaABC;
+        final double beta = areaAPC / areaABC;
+        final double gamma = areaABP / areaABC;
+        // < 00000000.1 to avoid rounding errors
+        return (alpha + beta + gamma - 1) < 0.00000001  && alpha >= 0 && beta >= 0 && gamma >= 0;
     }
 
 }
