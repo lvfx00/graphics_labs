@@ -1,11 +1,14 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraPosition;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.PyramidOfView;
 import ru.nsu.fit.g16205.semenov.raytracing.frame_utils.BaseMainFrame;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.SphericalPoint;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.ImageUtils;
@@ -14,6 +17,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;
@@ -39,6 +44,7 @@ public class MainFrame extends BaseMainFrame {
     private CameraParameters cameraParameters = INIT_CAMERA_PARAMETERS;
     private final CameraParametersPanel cameraParametersPanel = new CameraParametersPanel(cameraParameters);
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
+    private final List<DoubleLine> figuresOnCamera = new ArrayList<>();
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -50,6 +56,20 @@ public class MainFrame extends BaseMainFrame {
         cameraParametersPanel.addChangeListener(this::updateParameters);
         mainPanel.add(cameraParametersPanel);
         add(mainPanel);
+
+        final DoubleLine up = new DoubleLine(
+                new DoublePoint3D(
+                        cameraParameters.getPyramidOfView().getZb() + 1,
+                        cameraParameters.getPyramidOfView().getSw() / 2 - 1,
+                        cameraParameters.getPyramidOfView().getSh() / 2 - 1
+                ),
+                new DoublePoint3D(
+                        cameraParameters.getPyramidOfView().getZb() + 1,
+                        -(cameraParameters.getPyramidOfView().getSw() / 2 - 1),
+                        cameraParameters.getPyramidOfView().getSh() / 2 - 1
+                )
+        );
+        figuresOnCamera.add(up);
     }
 
     private @NotNull JLayeredPane initLayeredPane() {
@@ -85,6 +105,24 @@ public class MainFrame extends BaseMainFrame {
         final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
+
+        figuresOnCamera.forEach(pair -> {
+            System.out.println("LEFT: " + pair.getP1());
+            System.out.println("RIGHT: " + pair.getP2());
+        });
+        final List<DoubleLine> inWorld = cameraTransformer.cameraToWorld(figuresOnCamera);
+        inWorld.forEach(pair -> {
+            System.out.println("LEFT: " + pair.getP1());
+            System.out.println("RIGHT: " + pair.getP2());
+        });
+        final List<DoubleLine> backToCam = cameraTransformer.worldToCamera(inWorld);
+        backToCam.forEach(pair -> {
+            System.out.println("LEFT: " + pair.getP1());
+            System.out.println("RIGHT: " + pair.getP2());
+        });
+        System.out.println("___________________________________");
+
+        drawLines(image, cameraTransformer, inWorld, Color.BLACK);
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
     }

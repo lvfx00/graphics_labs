@@ -7,6 +7,7 @@ import ru.nsu.fit.g16205.semenov.raytracing.model.figure.BezierCurve;
 import ru.nsu.fit.g16205.semenov.raytracing.model.figure.FigureData;
 import ru.nsu.fit.g16205.semenov.raytracing.model.figure.FigureParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleBox;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleLine;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint;
 import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.DoubleBoxTransformer;
@@ -26,7 +27,7 @@ public class SurfaceCreator {
     private SurfaceCreator() {
     }
 
-    public static List<Pair<DoublePoint3D, DoublePoint3D>> createSurface(FigureData figureData) {
+    public static List<DoubleLine> createSurface(FigureData figureData) {
         final BezierCurve curve = figureData.getCurve();
         final FigureParameters parameters = figureData.getParameters();
         final double a = parameters.getA();
@@ -37,7 +38,7 @@ public class SurfaceCreator {
         final int m = parameters.getM();
         final int k = parameters.getK();
         final int numSegments = (n * (m + 1) + (n + 1) * m) * k * 2;
-        final List<Pair<DoublePoint3D, DoublePoint3D>> surfaceSegments = new ArrayList<>(numSegments);
+        final List<DoubleLine> surfaceSegments = new ArrayList<>(numSegments);
 
         for (int i = 0; i <= m; ++i) {
             @Nullable DoublePoint3D previousPoint = null;
@@ -48,7 +49,7 @@ public class SurfaceCreator {
                 final double u = a * (1 - iterU) + b * iterU;
                 final DoublePoint3D surfacePoint = getSurfacePoint(curve, u, v);
                 if (previousPoint != null) {
-                    surfaceSegments.add(Pair.of(previousPoint, surfacePoint));
+                    surfaceSegments.add(new DoubleLine(previousPoint, surfacePoint));
                 }
                 previousPoint = surfacePoint;
             }
@@ -62,7 +63,7 @@ public class SurfaceCreator {
                 final double v = c * (1 - iterV) + d * iterV;
                 final DoublePoint3D surfacePoint = getSurfacePoint(curve, u, v);
                 if (previousPoint != null) {
-                    surfaceSegments.add(Pair.of(previousPoint, surfacePoint));
+                    surfaceSegments.add(new DoubleLine(previousPoint, surfacePoint));
                 }
                 previousPoint = surfacePoint;
             }
@@ -70,13 +71,11 @@ public class SurfaceCreator {
         return surfaceSegments;
     }
 
-    public static @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> normalizeSurface(
-            @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> surface
-    ) {
+    public static @NotNull List<DoubleLine> normalizeSurface(@NotNull List<DoubleLine> surface) {
         checkArgument(surface.size() > 0, "Empty list :/");
         final Supplier<Stream<DoublePoint3D>> streamSupplier = () -> surface
                 .stream()
-                .flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight()));
+                .flatMap(line -> Stream.of(line.getP1(), line.getP2()));
 
         final double minX = streamSupplier.get().min(Comparator.comparingDouble(DoublePoint3D::getX)).get().getX();
         final double maxX = streamSupplier.get().max(Comparator.comparingDouble(DoublePoint3D::getX)).get().getX();
@@ -103,7 +102,7 @@ public class SurfaceCreator {
         );
         return surface
                 .stream()
-                .map(pair -> Pair.of(transformer.toBox2(pair.getLeft()), transformer.toBox2(pair.getRight())))
+                .map(line -> new DoubleLine(transformer.toBox2(line.getP1()), transformer.toBox2(line.getP2())))
                 .collect(Collectors.toList());
     }
 

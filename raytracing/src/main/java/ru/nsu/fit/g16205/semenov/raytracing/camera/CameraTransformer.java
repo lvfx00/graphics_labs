@@ -7,58 +7,75 @@ import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraPosition;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.PyramidOfView;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoubleRectangle;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.IntPoint;
-import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.IntRectangle;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.*;
 import ru.nsu.fit.g16205.semenov.raytracing.utils.CoordsTransformer;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.nsu.fit.g16205.semenov.raytracing.utils.VectorUtils.*;
 
 public class CameraTransformer {
 
+    private final @NotNull SimpleMatrix worldToCameraMatrix;
+    private final @NotNull SimpleMatrix cameraToWorldMatrix;
     private final @NotNull SimpleMatrix resultingMatrix;
 
     public CameraTransformer(@NotNull CameraParameters cameraParameters) {
-        final SimpleMatrix toCameraCoordsMatrix = getToCameraCoordsMatrix(cameraParameters.getCameraPosition());
+        worldToCameraMatrix = getToCameraCoordsMatrix(cameraParameters.getCameraPosition());
+        cameraToWorldMatrix = worldToCameraMatrix.invert();
         final SimpleMatrix projectionMatrix = getProjectionMatrix(cameraParameters.getPyramidOfView());
-        resultingMatrix = projectionMatrix.mult(toCameraCoordsMatrix);
+        resultingMatrix = projectionMatrix.mult(worldToCameraMatrix);
     }
 
-    public List<Pair<IntPoint, IntPoint>> worldToViewPort(
-            @NotNull List<Pair<DoublePoint3D, DoublePoint3D>> figure,
+    public List<IntLine> worldToViewPort(
+            @NotNull List<DoubleLine> figure,
             @NotNull Dimension imageSize,
             @Nullable SimpleMatrix preMatrix
     ) {
-        final List<Pair<IntPoint, IntPoint>> result = new ArrayList<>();
+        final List<IntLine> result = new ArrayList<>();
         final CoordsTransformer coordsTransformer = new CoordsTransformer(
                 new DoubleRectangle(-1, -1, 2, 2),
                 new IntRectangle(0, 0, imageSize.width, imageSize.height)
         );
-
         SimpleMatrix matrix;
         if (preMatrix != null) {
             matrix = resultingMatrix.mult(preMatrix);
         } else {
             matrix = resultingMatrix;
         }
-
-        for (Pair<DoublePoint3D, DoublePoint3D> line : figure) {
-            DoublePoint3D leftPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getLeft())));
-            DoublePoint3D rightPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getRight())));
+        for (DoubleLine line : figure) {
+            DoublePoint3D leftPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getP1())));
+            DoublePoint3D rightPoint = homogenToPoint3D(matrix.mult(toHomogenColumnVector(line.getP2())));
             // TODO cut lines to viewPort if they are partially in it
             if (isVisible(leftPoint) && isVisible(rightPoint)) {
-                result.add(Pair.of(
+                result.add(new IntLine(
                         coordsTransformer.toPixel(leftPoint.getX(), leftPoint.getY()),
                         coordsTransformer.toPixel(rightPoint.getX(), rightPoint.getY())
                 ));
             }
         }
         return result;
+    }
+
+    public List<DoubleLine> cameraToWorld(@NotNull List<DoubleLine> figure) {
+        return figure.stream()
+                .map(line -> new DoubleLine(
+                        homogenToPoint3D(cameraToWorldMatrix.mult(toHomogenColumnVector(line.getP1()))),
+                        homogenToPoint3D(cameraToWorldMatrix.mult(toHomogenColumnVector(line.getP2())))
+                        )
+                ).collect(Collectors.toList());
+    }
+
+    public List<DoubleLine> worldToCamera(@NotNull List<DoubleLine> figure) {
+        return figure.stream()
+                .map(line -> new DoubleLine(
+                        homogenToPoint3D(worldToCameraMatrix.mult(toHomogenColumnVector(line.getP1()))),
+                        homogenToPoint3D(worldToCameraMatrix.mult(toHomogenColumnVector(line.getP2())))
+                        )
+                ).collect(Collectors.toList());
     }
 
     private static boolean isVisible(DoublePoint3D point3D) {

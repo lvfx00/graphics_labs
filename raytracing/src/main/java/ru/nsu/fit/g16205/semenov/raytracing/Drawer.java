@@ -37,20 +37,14 @@ public class Drawer {
         );
     }
 
-    public static void drawLine(
+    public static void drawLines(
             @NotNull BufferedImage image,
-            @NotNull CameraTransformer cameraTransformer,
-            @NotNull Pair<DoublePoint3D, DoublePoint3D> line
+            @NotNull CameraTransformer transformer,
+            @NotNull List<DoubleLine> lines,
+            @NotNull Color color
     ) {
-        drawProjection(
-                image,
-                cameraTransformer.worldToViewPort(
-                        ImmutableList.of(line),
-                        new Dimension(image.getWidth(), image.getHeight()),
-                        null
-                ),
-                Color.MAGENTA
-        );
+        final Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
+        drawProjection(image, transformer.worldToViewPort(lines, imageSize, null), color);
     }
 
     public static void drawTriangle(
@@ -58,36 +52,24 @@ public class Drawer {
             @NotNull CameraTransformer cameraTransformer,
             @NotNull Triangle3D triangle
     ) {
-        drawProjection(
-                image,
-                cameraTransformer.worldToViewPort(
-                        ImmutableList.of(
-                                Pair.of(triangle.getA(), triangle.getB()),
-                                Pair.of(triangle.getB(), triangle.getC()),
-                                Pair.of(triangle.getC(), triangle.getA())
-                        ),
-                        new Dimension(image.getWidth(), image.getHeight()),
-                        null
-                ),
-                Color.MAGENTA
+        final Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
+        final List<DoubleLine> lines = ImmutableList.of(
+                new DoubleLine(triangle.getA(), triangle.getB()),
+                new DoubleLine(triangle.getB(), triangle.getC()),
+                new DoubleLine(triangle.getC(), triangle.getA())
         );
+        drawProjection(image, cameraTransformer.worldToViewPort(lines, imageSize, null), Color.MAGENTA);
     }
 
     public static void drawWorldOrts(@NotNull BufferedImage image, @NotNull CameraTransformer transformer, int ortLen) {
         checkArgument(ortLen > 0, "Invalid ortLen specified: %s", ortLen);
-        drawProjection(
-                image,
-                transformer.worldToViewPort(
-                        ImmutableList.of(
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(ortLen, 0, 0)),
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, ortLen, 0)),
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, ortLen))
-                        ),
-                        new Dimension(image.getWidth(), image.getHeight()),
-                        null
-                ),
-                Color.BLUE
-        );
+        final Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
+        final List<DoubleLine> xOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(ortLen, 0, 0)));
+        final List<DoubleLine> yOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, ortLen, 0)));
+        final List<DoubleLine> zOrt = ImmutableList.of(new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, ortLen)));
+        drawProjection(image, transformer.worldToViewPort(yOrt, imageSize, null), Color.RED);
+        drawProjection(image, transformer.worldToViewPort(xOrt, imageSize, null), Color.BLUE);
+        drawProjection(image, transformer.worldToViewPort(zOrt, imageSize, null), Color.GREEN);
     }
 
     public static void drawCube(@NotNull BufferedImage image, @NotNull CameraTransformer cameraTransformer) {
@@ -95,18 +77,18 @@ public class Drawer {
                 image,
                 cameraTransformer.worldToViewPort(
                         ImmutableList.of(
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(1, 0, 0)),
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 1, 0)),
-                                Pair.of(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, 1)),
-                                Pair.of(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 1, 0)),
-                                Pair.of(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 0, 1)),
-                                Pair.of(new DoublePoint3D(0, 1, 0), new DoublePoint3D(1, 1, 0)),
-                                Pair.of(new DoublePoint3D(0, 1, 0), new DoublePoint3D(0, 1, 1)),
-                                Pair.of(new DoublePoint3D(0, 0, 1), new DoublePoint3D(1, 0, 1)),
-                                Pair.of(new DoublePoint3D(0, 0, 1), new DoublePoint3D(0, 1, 1)),
-                                Pair.of(new DoublePoint3D(0, 1, 1), new DoublePoint3D(1, 1, 1)),
-                                Pair.of(new DoublePoint3D(1, 1, 0), new DoublePoint3D(1, 1, 1)),
-                                Pair.of(new DoublePoint3D(1, 0, 1), new DoublePoint3D(1, 1, 1))
+                                new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(1, 0, 0)),
+                                new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 1, 0)),
+                                new DoubleLine(new DoublePoint3D(0, 0, 0), new DoublePoint3D(0, 0, 1)),
+                                new DoubleLine(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 1, 0)),
+                                new DoubleLine(new DoublePoint3D(1, 0, 0), new DoublePoint3D(1, 0, 1)),
+                                new DoubleLine(new DoublePoint3D(0, 1, 0), new DoublePoint3D(1, 1, 0)),
+                                new DoubleLine(new DoublePoint3D(0, 1, 0), new DoublePoint3D(0, 1, 1)),
+                                new DoubleLine(new DoublePoint3D(0, 0, 1), new DoublePoint3D(1, 0, 1)),
+                                new DoubleLine(new DoublePoint3D(0, 0, 1), new DoublePoint3D(0, 1, 1)),
+                                new DoubleLine(new DoublePoint3D(0, 1, 1), new DoublePoint3D(1, 1, 1)),
+                                new DoubleLine(new DoublePoint3D(1, 1, 0), new DoublePoint3D(1, 1, 1)),
+                                new DoubleLine(new DoublePoint3D(1, 0, 1), new DoublePoint3D(1, 1, 1))
                         ),
                         new Dimension(image.getWidth(), image.getHeight()),
                         null
@@ -117,18 +99,13 @@ public class Drawer {
 
     private static void drawProjection(
             @NotNull BufferedImage image,
-            @NotNull List<Pair<IntPoint, IntPoint>> lines,
+            @NotNull List<IntLine> lines,
             @NotNull Color color
     ) {
         final Graphics2D graphics2D = image.createGraphics();
         graphics2D.setColor(color);
-        for (Pair<IntPoint, IntPoint> line : lines) {
-            graphics2D.drawLine(
-                    line.getLeft().getX(),
-                    line.getLeft().getY(),
-                    line.getRight().getX(),
-                    line.getRight().getY()
-            );
+        for (IntLine line : lines) {
+            graphics2D.drawLine(line.getP1().getX(), line.getP1().getY(), line.getP2().getX(), line.getP2().getY());
         }
         graphics2D.dispose();
     }

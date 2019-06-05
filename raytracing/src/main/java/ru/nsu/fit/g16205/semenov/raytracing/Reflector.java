@@ -34,8 +34,7 @@ public class Reflector {
                 reflectionList.add(Pair.of(reflection, ray.getParameterValue(reflection.getSource())));
             }
         }
-        return reflectionList
-                .stream()
+        return reflectionList.stream()
                 .min(Comparator.comparingDouble(Pair::getRight))
                 .orElseGet(() -> Pair.of(null, null))
                 .getLeft();
