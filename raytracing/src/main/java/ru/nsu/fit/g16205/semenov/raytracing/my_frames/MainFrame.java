@@ -2,6 +2,7 @@ package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
+import ru.nsu.fit.g16205.semenov.raytracing.LightComposer;
 import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
@@ -20,12 +21,12 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.getExtendedKeyCodeForChar;
 import static java.lang.Math.PI;
 import static javax.swing.JOptionPane.*;
 import static ru.nsu.fit.g16205.semenov.raytracing.Drawer.*;
+import static ru.nsu.fit.g16205.semenov.raytracing.Reflector.getRaytracing;
 
 public class MainFrame extends BaseMainFrame {
 
@@ -41,6 +42,7 @@ public class MainFrame extends BaseMainFrame {
             INIT_PYRAMID_OF_VIEW,
             INIT_CAMERA_POSITION
     );
+    private static final int RAYTRACING_DEPTH = 2;
 
     private Dimension imageSize;
     private final JLabel viewPortLabel = new JLabel();
@@ -51,7 +53,7 @@ public class MainFrame extends BaseMainFrame {
     private final List<RaytracingFigure> figures = new ArrayList<>();
     private final List<DoubleLine> linesInWorld = new ArrayList<>();
     private final List<LightSource> lightSources = new ArrayList<>();
-    private final Color ambientLight = new Color(150, 150, 150);
+    private final Color ambientLight = Color.LIGHT_GRAY;
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -63,32 +65,82 @@ public class MainFrame extends BaseMainFrame {
         cameraParametersPanel.addChangeListener(this::updateParameters);
         mainPanel.add(cameraParametersPanel);
         add(mainPanel);
+        initFigures();
+    }
 
+    private void initFigures() {
         // рвсполагать плоскости по правилу правой руки!
-        final OpticalProperties opticalProperties = new OpticalProperties(0, 0, 0, 0, 0, 0, 0);
-        figures.add(new RaytracingFigure(new Triangle3D(
-                new DoublePoint3D(0, 0, 2),
-                new DoublePoint3D(2, 0, 0),
-                new DoublePoint3D(0, 2, 0)
-        ), opticalProperties));
-        figures.add(new RaytracingFigure(new Triangle3D(
-                new DoublePoint3D(0, 2, 0),
-                new DoublePoint3D(2, 0, 0),
-                new DoublePoint3D(4, 0, 0)
-        ), opticalProperties));
-        figures.add(new RaytracingFigure(new Triangle3D(
-                new DoublePoint3D(0, 5, 0),
-                new DoublePoint3D(5, 3, 0),
-                new DoublePoint3D(0, 3, 5)
-        ), opticalProperties));
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 0, 2),
+                                new DoublePoint3D(2, 0, 0),
+                                new DoublePoint3D(0, 2, 0)
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.3, 0.9, 0.9, 0.9, 20)
+                )
+        );
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 2, 0),
+                                new DoublePoint3D(2, 0, 0),
+                                new DoublePoint3D(5, 0, 0)
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.3, 1, 0.7, 0.7, 10)
+                )
+        );
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 2, 0),
+                                new DoublePoint3D(5, 0, 0),
+                                new DoublePoint3D(5, 3, 0)
+
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.7, 0.7, 1, 0.7, 30)
+                )
+        );
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 2, 0),
+                                new DoublePoint3D(1, 0, 5),
+                                new DoublePoint3D(0, 0, 2)
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.3, 0.8, 0.8, 0.8, 15)
+                )
+        );
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 2, 0),
+                                new DoublePoint3D(0, 3, 5),
+                                new DoublePoint3D(1, 0, 5)
+
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.3, 0.8, 0.8, 0.8, 15)
+                )
+        );
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 2, 0),
+                                new DoublePoint3D(5, 3, 0),
+                                new DoublePoint3D(0, 3, 5)
+                        ),
+                        new OpticalProperties(0.3, 0.3, 0.3, 0.7, 0.7, 0.7, 5)
+                )
+        );
 //        figures.add(new RaytracingFigure(new Triangle3D(
 //                new DoublePoint3D(0, -5, 0),
 //                new DoublePoint3D(5, -3, 0),
 //                new DoublePoint3D(0, -3, 5)
 //        ), opticalProperties));
 
-        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.PINK));
-        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), Color.CYAN));
+        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.YELLOW));
+//        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), Color.CYAN));
+
     }
 
     private @NotNull JLayeredPane initLayeredPane() {
@@ -236,21 +288,25 @@ public class MainFrame extends BaseMainFrame {
         linesInWorld.clear();
 
         final InitialRaysCreator raysCreator = new InitialRaysCreator(cameraTransformer, cameraParameters, imageSize);
-        final Ray initialRay = raysCreator.createRayFromViewPortPixel(imageSize.width / 2, imageSize.height / 2);
-
-        linesInWorld.add(initialRay.getDirectionLine());
-
-        final List<Ray> reflectedRays = Reflector.getRaytracing(initialRay, figures, lightSources, 5)
-                .stream()
-                .map(reflection -> {
-                    reflection.getIncomingLights().forEach(light -> System.out.println(light.getLightSource()));
-                    return reflection.getReflectedRay();
-                })
-                .collect(Collectors.toList());
-        for (Ray ray : reflectedRays) {
-            linesInWorld.add(ray.getDirectionLine());
+        // TODO or <= ???
+        final float[][][] light = new float[imageSize.height][imageSize.width][3];
+        for (int x = 0; x < imageSize.width; ++x) {
+            for (int y = 0; y < imageSize.height; ++y) {
+                final Ray initialRay = raysCreator.createRayFromViewPortPixel(x, y);
+                final List<Reflection> reflections = getRaytracing(initialRay, figures, lightSources, RAYTRACING_DEPTH);
+                light[y][x] = LightComposer.composeLight(reflections, ambientLight);
+            }
         }
-        redrawAll();
+        final Color[][] finalColors = LightComposer.normalizeLight(light, imageSize);
+
+        final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
+        for (int x = 0; x < imageSize.width; ++x) {
+            for (int y = 0; y < imageSize.height; ++y) {
+                image.setRGB(x, y, finalColors[y][x].getRGB());
+            }
+        }
+        viewPortLabel.setIcon(new ImageIcon(image));
+        viewPortLabel.setSize(imageSize);
     }
 
     private void updateParameters(@NotNull CameraParameters parameters) {

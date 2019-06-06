@@ -78,8 +78,7 @@ public class Reflector {
 
             final Pair<Reflection, Double> closestReflection = findClosestReflection(lightRay, figures);
             if (closestReflection == null) {
-                // TODO check that
-                System.out.println("ASSERT: Ne mojet bit' null !!!!!!!!!!!!!");
+                // пролетаем наш источник с обратной тороны
                 continue;
             }
             final DoublePoint3D intersection = closestReflection.getLeft().getReflectionPoint();
