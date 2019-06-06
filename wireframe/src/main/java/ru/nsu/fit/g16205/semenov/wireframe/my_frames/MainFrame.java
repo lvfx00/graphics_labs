@@ -323,7 +323,6 @@ public class MainFrame extends BaseMainFrame {
             final SphericalPoint oldPoint = SphericalPoint.fromDekartCoords(
                     cameraParameters.getCameraPosition().getCameraPoint()
             );
-            System.out.println("OLD " + oldPoint);
 
             double newEta = oldPoint.getEta() + 1. / PI / 100 * dx * direction;
             double newFi = (oldPoint.getFi() + 1. / PI / 100 * -dy) % (PI * 2);
@@ -337,7 +336,6 @@ public class MainFrame extends BaseMainFrame {
                 direction = -direction;
             }
             final SphericalPoint cameraPoint = new SphericalPoint(oldPoint.getR(), newEta, newFi);
-            System.out.println("NEW " + cameraPoint);
 
             updateParameters(new CameraParameters(
                     cameraParameters.getPyramidOfView(),

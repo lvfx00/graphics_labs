@@ -3,7 +3,6 @@ package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
 import ru.nsu.fit.g16205.semenov.raytracing.LightComposer;
-import ru.nsu.fit.g16205.semenov.raytracing.Reflector;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraParameters;
 import ru.nsu.fit.g16205.semenov.raytracing.model.camera.CameraPosition;
@@ -53,7 +52,7 @@ public class MainFrame extends BaseMainFrame {
     private final List<RaytracingFigure> figures = new ArrayList<>();
     private final List<DoubleLine> linesInWorld = new ArrayList<>();
     private final List<LightSource> lightSources = new ArrayList<>();
-    private final Color ambientLight = Color.LIGHT_GRAY;
+    private final Color ambientLight = Color.WHITE;
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");

@@ -2,11 +2,14 @@ package ru.nsu.fit.g16205.semenov.raytracing;
 
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D;
 import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.OpticalProperties;
 import ru.nsu.fit.g16205.semenov.raytracing.model.tracing_primitives.Reflection;
 
 import java.awt.*;
 import java.util.List;
+
+import static ru.nsu.fit.g16205.semenov.raytracing.model.primitives.DoublePoint3D.getDistance;
 
 
 public class LightComposer {
@@ -15,21 +18,21 @@ public class LightComposer {
         final List<Reflection> reflectionListReversed = Lists.reverse(reflectionList);
         float[] ambientLight = ambientColor.getColorComponents(null);
         float[] totalIntensity = new float[3];
-
         float[] lastIntensity = null;
+        DoublePoint3D lastReflectionPoint = null;
         for (Reflection reflection : reflectionListReversed) {
             float[] reflectionIntensity = new float[3];
             final OpticalProperties opticalProperties = reflection.getFigure().getOpticalProperties();
-
             for (int i = 0; i < 3; ++i) {
                 reflectionIntensity[i] += ambientLight[i] * opticalProperties.getkDiffuse()[i];
                 reflectionIntensity[i] += reflection.getReflectionFromLightSources()[i];
                 if (lastIntensity != null) {
-//                    // TODO add fatt
-                    reflectionIntensity[i] += lastIntensity[i] * opticalProperties.getkSpecular()[i] * 0.05;
+                    reflectionIntensity[i] += lastIntensity[i] * opticalProperties.getkSpecular()[i] * 0.1 /
+                            (getDistance(lastReflectionPoint, reflection.getReflectionPoint()) + 1);
                 }
             }
             lastIntensity = reflectionIntensity;
+            lastReflectionPoint = reflection.getReflectionPoint();
             totalIntensity = lastIntensity;
         }
         if (lastIntensity == null) {

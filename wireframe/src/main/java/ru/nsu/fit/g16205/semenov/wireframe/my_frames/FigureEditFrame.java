@@ -65,6 +65,7 @@ public class FigureEditFrame extends BaseFrame {
     private CoordsTransformer coordsTransformer;
     private @Nullable BezierCurve bezierCurve = null;
     private @NotNull FigureParameters figureParameters = INIT_FIGURE_PARAMETERS;
+    private final FigureParametersPanel parametersPanel;
 
     public FigureEditFrame(
             @Nullable BaseFrame intentionFrame,
@@ -90,13 +91,15 @@ public class FigureEditFrame extends BaseFrame {
             anchorPoints.addAll(BezierCurve.Adapter2D.matrixToPointsList(initialData.getCurve().getAnchorPoints()));
             figureParameters = initialData.getParameters();
         }
-        mainPanel.add(initParametersPanel());
+        parametersPanel = initParametersPanel();
+        mainPanel.add(parametersPanel);
         mainPanel.add(initControlPanel());
         add(mainPanel);
     }
 
     @Override
     protected void okAction() {
+        parametersPanel.clickSetButton();
         if (bezierCurve != null) {
             if (resultListener != null) {
                 resultListener.onFinished(new FigureData(bezierCurve, figureParameters));
@@ -152,7 +155,7 @@ public class FigureEditFrame extends BaseFrame {
         return layeredPane;
     }
 
-    private @NotNull JPanel initParametersPanel() {
+    private @NotNull FigureParametersPanel initParametersPanel() {
         final FigureParametersPanel figureParametersPanel = new FigureParametersPanel(INIT_ABCD_AREA, figureParameters);
         figureParametersPanel.addChangeListener(parameters -> {
             figureParameters = parameters;

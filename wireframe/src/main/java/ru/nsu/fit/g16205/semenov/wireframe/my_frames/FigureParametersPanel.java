@@ -27,6 +27,7 @@ public class FigureParametersPanel extends JPanel {
     private static final double DOUBLE_STEP = 0.01;
 
     private final List<ChangeListener> changeListeners = new ArrayList<>();
+    private final JButton setButton;
 
     public FigureParametersPanel(@NotNull DoubleRectangle definitionArea, @NotNull FigureParameters initialValues) {
 
@@ -169,7 +170,7 @@ public class FigureParametersPanel extends JPanel {
 
         final JPanel setButtonPanel = new JPanel();
         setButtonPanel.setLayout(new FlowLayout());
-        final JButton setButton = new JButton("Set values");
+        setButton = new JButton("Set values");
         setButton.addActionListener(e -> {
             String name = nameTextField.getText();
             double a = (Double) aSpinner.getValue();
@@ -208,6 +209,10 @@ public class FigureParametersPanel extends JPanel {
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         addAllToPanel(this, namePanel, abcdPanel, nmkPanel, thetaPanel, cPointPanel, colorPanel, setButtonPanel);
+    }
+
+    public void clickSetButton() {
+        setButton.doClick();
     }
 
     public void addChangeListener(@NotNull ChangeListener changeListener) {
