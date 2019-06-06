@@ -24,10 +24,10 @@ public class LightComposer {
             for (int i = 0; i < 3; ++i) {
                 reflectionIntensity[i] += ambientLight[i] * opticalProperties.getkDiffuse()[i];
                 reflectionIntensity[i] += reflection.getReflectionFromLightSources()[i];
-//                if (lastIntensity != null) {
+                if (lastIntensity != null) {
 //                    // TODO add fatt
-//                    reflectionIntensity[i] += lastIntensity[i] * opticalProperties.getkSpecular()[i];
-//                }
+                    reflectionIntensity[i] += lastIntensity[i] * opticalProperties.getkSpecular()[i] * 0.05;
+                }
             }
             lastIntensity = reflectionIntensity;
             totalIntensity = lastIntensity;

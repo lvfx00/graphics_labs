@@ -70,6 +70,7 @@ public class MainFrame extends BaseMainFrame {
 
     private void initFigures() {
         // рвсполагать плоскости по правилу правой руки!
+        // upper
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
@@ -77,9 +78,10 @@ public class MainFrame extends BaseMainFrame {
                                 new DoublePoint3D(2, 0, 0),
                                 new DoublePoint3D(0, 2, 0)
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.3, 0.9, 0.9, 0.9, 20)
+                        new OpticalProperties(0.5, 0.5, 0.5, 1, 1, 1, 30)
                 )
         );
+        // upper left
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
@@ -87,9 +89,10 @@ public class MainFrame extends BaseMainFrame {
                                 new DoublePoint3D(2, 0, 0),
                                 new DoublePoint3D(5, 0, 0)
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.3, 1, 0.7, 0.7, 10)
+                        new OpticalProperties(0.9, 0.5, 0.5, 0.7, 0.7, 0.7, 15)
                 )
         );
+        // lower left
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
@@ -98,30 +101,33 @@ public class MainFrame extends BaseMainFrame {
                                 new DoublePoint3D(5, 3, 0)
 
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.7, 0.7, 1, 0.7, 30)
+                        new OpticalProperties(0.9, 0.5, 0.5, 0.7, 0.7, 0.7, 15)
                 )
         );
+        // upper right
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
                                 new DoublePoint3D(0, 2, 0),
-                                new DoublePoint3D(1, 0, 5),
+                                new DoublePoint3D(-1, 0, 5),
                                 new DoublePoint3D(0, 0, 2)
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.3, 0.8, 0.8, 0.8, 15)
+                        new OpticalProperties(0.4, 0.4, 0.4, 1, 1, 1, 30)
                 )
         );
+        // lower right
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
                                 new DoublePoint3D(0, 2, 0),
                                 new DoublePoint3D(0, 3, 5),
-                                new DoublePoint3D(1, 0, 5)
+                                new DoublePoint3D(-1, 0, 5)
 
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.3, 0.8, 0.8, 0.8, 15)
+                        new OpticalProperties(0.4, 0.4, 0.4, 1, 1, 1, 30)
                 )
         );
+        // bottom
         figures.add(
                 new RaytracingFigure(
                         new Triangle3D(
@@ -129,7 +135,29 @@ public class MainFrame extends BaseMainFrame {
                                 new DoublePoint3D(5, 3, 0),
                                 new DoublePoint3D(0, 3, 5)
                         ),
-                        new OpticalProperties(0.3, 0.3, 0.3, 0.7, 0.7, 0.7, 5)
+                        new OpticalProperties(0.7, 0.7, 1, 0.9, 0.9, 0.9, 10)
+                )
+        );
+        // middle face to bottom
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 3, 0),
+                                new DoublePoint3D(1, 2, 4),
+                                new DoublePoint3D(2.5, 2, 2.5)
+                        ),
+                        new OpticalProperties(0.6, 0.4, 0.4, 0.9, 0.7, 1, 10)
+                )
+        );
+        // middle face to up
+        figures.add(
+                new RaytracingFigure(
+                        new Triangle3D(
+                                new DoublePoint3D(0, 3, 0),
+                                new DoublePoint3D(4, 2, 1),
+                                new DoublePoint3D(2.5, 2, 2.5)
+                        ),
+                        new OpticalProperties(0.5, 0.5, 0.5, 0.9, 0.9, 0.9, 10)
                 )
         );
 //        figures.add(new RaytracingFigure(new Triangle3D(
@@ -138,8 +166,9 @@ public class MainFrame extends BaseMainFrame {
 //                new DoublePoint3D(0, -3, 5)
 //        ), opticalProperties));
 
-        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.YELLOW));
-//        lightSources.add(new LightSource(new DoublePoint3D(1, -5, 1), Color.CYAN));
+        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.PINK));
+        lightSources.add(new LightSource(new DoublePoint3D(4, 1, 0.5), Color.GREEN));
+        lightSources.add(new LightSource(new DoublePoint3D(0.5, 2.8, 4), Color.YELLOW));
 
     }
 
