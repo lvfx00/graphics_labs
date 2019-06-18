@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7e9f6974-3b09-4dce-8c51-cf8017d48365" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../raytracing/src/main/java/ru/nsu/fit/g16205/semenov/raytracing/LightComposer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../raytracing/src/main/java/ru/nsu/fit/g16205/semenov/raytracing/LightComposer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../raytracing/src/main/java/ru/nsu/fit/g16205/semenov/raytracing/my_frames/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/../raytracing/src/main/java/ru/nsu/fit/g16205/semenov/raytracing/my_frames/MainFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -28,24 +24,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/frame_utils/BaseMainFrame.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1980">
-              <caret line="113" column="25" selection-start-line="113" selection-start-column="25" selection-end-line="113" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/frame_utils/BaseFrame.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="14" selection-start-line="14" selection-end-line="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/parser/Config.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -104,8 +82,33 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="101" column="33" selection-start-line="101" selection-start-column="33" selection-end-line="101" selection-end-column="33" />
+            <state relative-caret-position="269">
+              <caret line="115" column="4" selection-start-line="115" selection-start-column="4" selection-end-line="115" selection-end-column="4" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="class#LayeredPaneMouseAdapter#0;class#FigureEditFrame#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/DoubleBoxTransformer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/CoordsTransformer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -116,12 +119,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
+            <state relative-caret-position="3636">
               <caret line="212" selection-start-line="212" selection-end-line="212" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#8834#8835#0" expanded="true" />
-                <element signature="e#8869#8870#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -130,7 +131,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5130">
+            <state relative-caret-position="5238">
               <caret line="328" column="27" selection-start-line="328" selection-start-column="27" selection-end-line="328" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -391,7 +392,8 @@
       <workItem from="1559703517344" duration="694000" />
       <workItem from="1559715909933" duration="621000" />
       <workItem from="1559791532633" duration="51000" />
-      <workItem from="1559791619789" duration="763000" />
+      <workItem from="1559791619789" duration="1478000" />
+      <workItem from="1559798890536" duration="809000" />
     </task>
     <task id="LOCAL-00001" summary="Added project skeleton">
       <created>1557040316985</created>
@@ -512,17 +514,24 @@
       <option name="project" value="LOCAL" />
       <updated>1559193188959</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Added set values action on OK action in figure edit frame">
+      <created>1559792520922</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1559792520922</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="161061000" />
+    <option name="totallyTimeSpent" value="162585000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="61" y="0" width="1860" height="1081" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2687638" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27207506" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -532,7 +541,7 @@
       <window_info anchor="bottom" id="Duplicates" order="0" weight="0.3297587" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.32841823" />
-      <window_info anchor="bottom" id="Run" order="3" visible="true" weight="0.32810867" />
+      <window_info anchor="bottom" id="Run" order="3" weight="0.32810867" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.3994638" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -578,7 +587,8 @@
     <MESSAGE value="Added many improvements" />
     <MESSAGE value="Added file load/save" />
     <MESSAGE value="Fixed camera rotation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed camera rotation" />
+    <MESSAGE value="Added set values action on OK action in figure edit frame" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added set values action on OK action in figure edit frame" />
   </component>
   <component name="editorHistoryManager">
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_211/src.zip!/java/awt/Graphics.java" />
@@ -629,29 +639,6 @@
           <caret line="21" selection-start-line="21" selection-end-line="21" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/CoordsTransformer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/DoubleBoxTransformer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-431">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-          <folding>
-            <element signature="e#1045#1046#0" expanded="true" />
-            <element signature="e#1103#1104#0" expanded="true" />
-            <element signature="e#2000#2001#0" expanded="true" />
-            <element signature="e#2071#2072#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -878,6 +865,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/frame_utils/BaseFrame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/parser/Config.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -923,16 +917,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/frame_utils/BaseFrame.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        <state relative-caret-position="3636">
+          <caret line="212" selection-start-line="212" selection-end-line="212" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/MainFrame.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5130">
+        <state relative-caret-position="5238">
           <caret line="328" column="27" selection-start-line="328" selection-start-column="27" selection-end-line="328" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -941,24 +938,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureParametersPanel.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/DoubleBoxTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="212" selection-start-line="212" selection-end-line="212" />
+        <state relative-caret-position="144">
+          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#8834#8835#0" expanded="true" />
-            <element signature="e#8869#8870#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/utils/CoordsTransformer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ru/nsu/fit/g16205/semenov/wireframe/my_frames/FigureEditFrame.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="101" column="33" selection-start-line="101" selection-start-column="33" selection-end-line="101" selection-end-column="33" />
+        <state relative-caret-position="269">
+          <caret line="115" column="4" selection-start-line="115" selection-start-column="4" selection-end-line="115" selection-end-column="4" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="class#LayeredPaneMouseAdapter#0;class#FigureEditFrame#0" />
           </folding>
         </state>
       </provider>

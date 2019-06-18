@@ -78,14 +78,18 @@ public class FigureEditFrame extends BaseFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
-        JLayeredPane layeredPane = initLayeredPane();
+
+        final JLayeredPane layeredPane = initLayeredPane();
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 layeredPane.setPreferredSize(new Dimension(e.getComponent().getWidth(), e.getComponent().getHeight()));
             }
         });
-        mainPanel.add(layeredPane);
+        final JScrollPane scrollPane = new JScrollPane();
+        scrollPane.add(layeredPane);
+
+        mainPanel.add(scrollPane);
 
         if (initialData != null) {
             anchorPoints.addAll(BezierCurve.Adapter2D.matrixToPointsList(initialData.getCurve().getAnchorPoints()));
@@ -93,6 +97,7 @@ public class FigureEditFrame extends BaseFrame {
         }
         parametersPanel = initParametersPanel();
         mainPanel.add(parametersPanel);
+        mainPanel.add(initZoomPanel());
         mainPanel.add(initControlPanel());
         add(mainPanel);
     }
@@ -162,6 +167,28 @@ public class FigureEditFrame extends BaseFrame {
             refresh();
         });
         return figureParametersPanel;
+    }
+
+    private @NotNull JPanel initZoomPanel() {
+        final JPanel jPanel = new JPanel();
+        jPanel.setLayout(new FlowLayout());
+        final JButton zoomInButton = new JButton("[+]");
+        zoomInButton.addActionListener(e -> zoomIn());
+        final JButton zoomOutButton = new JButton("[-]");
+        zoomOutButton.addActionListener(e -> zoomOut());
+        jPanel.add(zoomInButton);
+        jPanel.add(zoomOutButton);
+        return jPanel;
+    }
+
+    private void zoomIn() {
+        System.out.println("Zoom in");
+
+    }
+
+    private void zoomOut() {
+        System.out.println("Zoom out");
+
     }
 
     private class LayeredPaneComponentListener extends ComponentAdapter {

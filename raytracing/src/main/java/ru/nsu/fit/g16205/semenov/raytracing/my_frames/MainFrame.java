@@ -1,6 +1,9 @@
 package ru.nsu.fit.g16205.semenov.raytracing.my_frames;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.nsu.fit.g16205.semenov.raytracing.InitialRaysCreator;
 import ru.nsu.fit.g16205.semenov.raytracing.LightComposer;
 import ru.nsu.fit.g16205.semenov.raytracing.camera.CameraTransformer;
@@ -20,6 +23,9 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.awt.event.KeyEvent.getExtendedKeyCodeForChar;
 import static java.lang.Math.PI;
@@ -50,9 +56,9 @@ public class MainFrame extends BaseMainFrame {
     private CameraTransformer cameraTransformer = new CameraTransformer(cameraParameters);
 
     private final List<RaytracingFigure> figures = new ArrayList<>();
-    private final List<DoubleLine> linesInWorld = new ArrayList<>();
     private final List<LightSource> lightSources = new ArrayList<>();
     private final Color ambientLight = Color.WHITE;
+    private final List<Pair<List<DoubleLine>, Color>> additionalLines = new ArrayList<>();
 
     public MainFrame() {
         super(INIT_FRAME_SIZE.width, INIT_FRAME_SIZE.height, "Wireframe");
@@ -165,9 +171,9 @@ public class MainFrame extends BaseMainFrame {
 //                new DoublePoint3D(0, -3, 5)
 //        ), opticalProperties));
 
-        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.PINK));
+        lightSources.add(new LightSource(new DoublePoint3D(1, 1, 1), Color.RED));
         lightSources.add(new LightSource(new DoublePoint3D(4, 1, 0.5), Color.GREEN));
-        lightSources.add(new LightSource(new DoublePoint3D(0.5, 2.8, 4), Color.YELLOW));
+        lightSources.add(new LightSource(new DoublePoint3D(0.5, 2.8, 4), Color.BLUE));
 
     }
 
@@ -204,7 +210,7 @@ public class MainFrame extends BaseMainFrame {
         final BufferedImage image = ImageUtils.createImage(imageSize, Color.WHITE);
         drawWorldOrts(image, cameraTransformer, 5);
         drawCube(image, cameraTransformer);
-        drawLines(image, cameraTransformer, linesInWorld, Color.BLUE);
+        additionalLines.forEach(p -> drawLines(image, cameraTransformer, p.getLeft(), p.getRight()));
         figures.forEach(f -> drawLines(image, cameraTransformer, f.getPrimitive().getFigureLines(), Color.BLACK));
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
@@ -263,8 +269,15 @@ public class MainFrame extends BaseMainFrame {
 
         addToolBarButton("Render/Render");
 
-        addToolBarSeparator();
+        addMenuItem("Render/Debug",
+                "Debug",
+                getExtendedKeyCodeForChar('d'),
+                "debug.png",
+                this::debugAction);
 
+        addToolBarButton("Render/Debug");
+
+        addToolBarSeparator();
     }
 
     private void initAboutMenu() {
@@ -313,8 +326,6 @@ public class MainFrame extends BaseMainFrame {
     }
 
     private void renderAction() {
-        linesInWorld.clear();
-
         final InitialRaysCreator raysCreator = new InitialRaysCreator(cameraTransformer, cameraParameters, imageSize);
         // TODO or <= ???
         final float[][][] light = new float[imageSize.height][imageSize.width][3];
@@ -335,6 +346,31 @@ public class MainFrame extends BaseMainFrame {
         }
         viewPortLabel.setIcon(new ImageIcon(image));
         viewPortLabel.setSize(imageSize);
+    }
+
+    private void debugAction() {
+        additionalLines.clear();
+        final InitialRaysCreator raysCreator = new InitialRaysCreator(cameraTransformer, cameraParameters, imageSize);
+        final Ray initialRay = raysCreator.createRayFromViewPortPixel(imageSize.width / 2, imageSize.height / 2);
+
+        final List<DoubleLine> reflectedRays = getRaytracing(initialRay, figures, lightSources, 5)
+                .stream()
+                .map(Reflection::getReflectedRay)
+                .map(Ray::getDirectionLine)
+                .collect(Collectors.toList());
+        additionalLines.add(Pair.of(reflectedRays, Color.BLUE));
+
+        final List<DoubleLine> lightSourcesLines = lightSources.stream()
+                .map(light -> Stream.of(
+                        new DoubleLine(light.getPosition(), light.getPosition().plus(new DoublePoint3D(0, 0, 0.2))),
+                        new DoubleLine(light.getPosition(), light.getPosition().plus(new DoublePoint3D(0, 0.2, 0))),
+                        new DoubleLine(light.getPosition(), light.getPosition().plus(new DoublePoint3D(0.2, 0, 0)))
+                ))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+        additionalLines.add(Pair.of(lightSourcesLines, Color.GREEN));
+
+        redrawAll();
     }
 
     private void updateParameters(@NotNull CameraParameters parameters) {
